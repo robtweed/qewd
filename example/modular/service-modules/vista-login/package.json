@@ -1,0 +1,8 @@
+{
+  "name": "vista-login",
+  "version": "1.0.0",
+  "description": "Demonstraion of modular vista system using QEWD",
+  "main": "index.js",
+  "author": "Rob Tweed, M/Gateway Developments Ltd",
+  "license": "Apache-2.0"
+}

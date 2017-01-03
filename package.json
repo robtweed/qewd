@@ -1,0 +1,31 @@
+{
+  "name": "qewd",
+  "version": "2.1.0",
+  "description": "Quick and Easy Web Development",
+  "main": "index.js",
+  "dependencies": {
+    "express": "",
+    "body-parser": "",
+    "ewd-qoper8": "",
+    "ewd-qoper8-express": "",
+    "ewd-session": "",
+    "ewd-qoper8-cache": "",
+    "ewd-qoper8-gtm": "",
+    "ewd-qoper8-redis": "",
+    "redis": "",
+    "socket.io": ""
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robtweed/qewd.git"
+  },
+  "author": "Rob Tweed, M/Gateway Developments Ltd",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/robtweed/qewd/issues"
+  },
+  "homepage": "https://github.com/robtweed/qewd#readme"
+}

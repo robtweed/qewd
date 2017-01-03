@@ -1,0 +1,61 @@
+<!--
+
+ ----------------------------------------------------------------------------
+ | qewd: Quick and Easy Web Development                                     |
+ |                                                                          |
+ | Copyright (c) 2017 M/Gateway Developments Ltd,                           |
+ | Reigate, Surrey UK.                                                      |
+ | All rights reserved.                                                     |
+ |                                                                          |
+ | http://www.mgateway.com                                                  |
+ | Email: rtweed@mgateway.com                                               |
+ |                                                                          |
+ |                                                                          |
+ | Licensed under the Apache License, Version 2.0 (the "License");          |
+ | you may not use this file except in compliance with the License.         |
+ | You may obtain a copy of the License at                                  |
+ |                                                                          |
+ |     http://www.apache.org/licenses/LICENSE-2.0                           |
+ |                                                                          |
+ | Unless required by applicable law or agreed to in writing, software      |
+ | distributed under the License is distributed on an "AS IS" BASIS,        |
+ | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. |
+ | See the License for the specific language governing permissions and      |
+ |  limitations under the License.                                          |
+ ----------------------------------------------------------------------------
+
+  Demonstration ewd-xpress application, accessing the VistA EHR
+  using its RPCs
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ewd-xpress VistA Demo using RPCs</title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.min.css" rel="stylesheet" />
+    <link href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" rel="stylesheet" />
+
+  </head>
+  <body>
+    <!-- Modal Login Form -->
+
+    <div id="loginPanel" class="modal fade"></div>
+
+    <div id="welcomePanel"></div>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="//code.jquery.com/jquery-latest.js"></script>
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/ewd-client.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

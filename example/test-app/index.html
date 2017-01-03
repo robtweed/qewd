@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <title id="ewd-qoper8 Demo"></title>
+  </head>
+  <body>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/ewd-client.js"></script>
+    <script>
+ 
+      function sendMessage() {
+        var message = {
+          type: 'test',
+          params: {
+            text: 'Hey! You clicked the button!'
+          }
+        };
+        EWD.send(message, function(responseObj) {
+          console.log('button response: ' + JSON.stringify(responseObj));
+        });
+        
+      }
+
+      $(document).ready(function() {
+
+        EWD.on('ewd-registered', function() {
+
+          // OK the app is now ready for use!
+
+          console.log('*** got the ewd-register event!!');
+        });
+
+        EWD.log = true;
+
+        // fire up the EWD client layer
+        //  arguments are application name, jQuery object ($) and socket.io object (io)
+        // $ is only required if you want to use Ajax instead of websockets and you want
+        // to use the default jQuery-based Ajax interface for EWD
+
+        // io is only required if you want to use websockets
+
+        // Ajax only:
+        //EWD.start('test-app', $);
+
+        // WebSockets only:
+
+        EWD.start('test-app', null, io);
+
+        // Allow optional use of Ajax messages, but default to websockets:
+
+        //EWD.start('test-app', $, io);
+
+      });
+
+    </script>
+
+
+    <div>
+      <button onClick='sendMessage()'>Click me</button>
+    </div>
+
+  </body>
+</html>

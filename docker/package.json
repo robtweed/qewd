@@ -1,0 +1,16 @@
+{
+  "name": "qewd-appliance",
+  "version": "2.0.0",
+  "description": "QEWD Docker appliance",
+  "author": "Rob Tweed <rtweed@mgateway.com>",
+  "main": "qewd.js",
+  "scripts": {
+    "start": "node qewd.js"
+  },
+  "dependencies": {
+    "qewd": "",
+    "qewd-monitor": "",
+    "tcp-netx": "",
+    "ewd-redis-globals": ""
+  }
+}
