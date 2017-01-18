@@ -5,7 +5,7 @@
 cd ~/qewd
 
 npm install react react-dom babelify babel-preset-react react-bootstrap react-toastr react-select socket.io-client
-npm install jquery ewd-client ewd-react-tools ewd-xpress-react
+npm install jquery ewd-client ewd-react-tools qewd-react
 
 npm install -g browserify
 npm install -g uglify-js
