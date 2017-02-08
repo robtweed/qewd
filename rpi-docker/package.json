@@ -1,7 +1,7 @@
 {
-  "name": "qewd-appliance",
-  "version": "2.0.0",
-  "description": "QEWD Docker appliance",
+  "name": "qewd-rpi-appliance",
+  "version": "2.2.0",
+  "description": "QEWD Docker Appliance for Raspberry Pi",
   "author": "Rob Tweed <rtweed@mgateway.com>",
   "main": "qewd.js",
   "scripts": {
@@ -11,6 +11,7 @@
     "qewd": "",
     "qewd-monitor": "",
     "tcp-netx": "",
-    "ewd-redis-globals": ""
+    "ewd-redis-globals": "",
+    "ewd-client": ""
   }
 }

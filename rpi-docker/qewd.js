@@ -24,13 +24,14 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  3 January 2017
+  24 January 2017
 
 */
 
 var fs = require('fs');
 var customModulePath = '/opt/qewd/mapped/custom.js';
 var routesModulePath = '/opt/qewd/mapped/routes.js';
+var moduleMapPath = '/opt/qewd/mapped/moduleMap.js';
 var custom;
 var routes;
 if (fs.existsSync(customModulePath)) {
@@ -39,7 +40,11 @@ if (fs.existsSync(customModulePath)) {
 if (fs.existsSync(routesModulePath)) {
   var routes = require(routesModulePath);
 }
+if (fs.existsSync(moduleMapPath)) {
+  var moduleMap = require(moduleMapPath);
+}
 if (!routes) routes = [];
+if (!moduleMap) moduleMap = {};
 
 if (!custom) {
   custom = {
@@ -51,18 +56,22 @@ if (!custom) {
 if (custom && !custom.config) custom.config = {};
 if (custom && !custom.run) custom.run = function() {};
 
+var database = {
+  type: 'redis',
+  params: {
+    host: process.env.REDIS_PORT_6379_TCP_ADDR,
+    port: process.env.REDIS_PORT_6379_TCP_PORT
+  }
+};
+if (custom.config.database) database = custom.config.database;
+
 var config = {
   managementPassword: custom.config.managementPassword || 'keepThisSecret!',
-  serverName: custom.config.serverName || 'EWD Docker Server',
+  serverName: custom.config.serverName || 'QEWD Docker Server',
   port: custom.config.port || 8080,
   poolSize: custom.config.poolSize || 1,
-  database: {
-    type: 'redis',
-    params: {
-      host: process.env.REDIS_PORT_6379_TCP_ADDR,
-      port: process.env.REDIS_PORT_6379_TCP_PORT
-    }
-  }
+  database: database,
+  moduleMap: moduleMap
 };
 
 var qewd = require('qewd').master;
