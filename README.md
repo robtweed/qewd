@@ -33,7 +33,7 @@ QEWD uses Express to provide its outward-facing HTTP(S) interface, and Socket.io
 
 ## Learning / Using QEWD
 
-See the free online [training course](http://www.mgateway.com) - Click the Training Tab
+See the free online [training course](http://ec2.mgateway.com/ewd/ws/training.html)
 
 - Parts 1 to 3 provide background to the core modules and concepts used by QEWD
 - Parts 4 onwards focus on QEWD
