@@ -11,7 +11,9 @@ Thanks to Ward De Backer for debugging assistance and functionality suggestions
 
 ## What is QEWD?
 
-QEWD is a Node.js-based platform for developing and running interactive browser-based applications and Web/REST services.
+This is best answered by reading [this article on QEWD](https://robtweed.wordpress.com/2017/04/18/having-your-node-js-cake-and-eating-it-too/)
+
+In summary: QEWD is a Node.js-based platform for developing and running interactive browser-based applications and Web/REST services.
 
 QEWD makes use of the [ewd-qoper8](https://github.com/robtweed/ewd-qoper8) module to provide an isolated run-time 
 environment for each of your message/request handler functions, meaning that your JavaScript handler functions can use synchronous, 
