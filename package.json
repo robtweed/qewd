@@ -1,6 +1,6 @@
 {
   "name": "qewd",
-  "version": "2.10.1",
+  "version": "2.11.0",
   "description": "Quick and Easy Web Development",
   "main": "index.js",
   "dependencies": {
