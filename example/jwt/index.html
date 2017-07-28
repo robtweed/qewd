@@ -1,0 +1,131 @@
+<html>
+  <head>
+    <title id="ewd-qoper8 Demo"></title>
+  </head>
+  <body>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/ewd-client.js"></script>
+    <script src="jwt-decode.js"></script>
+    <script>
+ 
+      function login() {
+        console.log('login clicked');
+        var username = $('#username').val();
+        if (username === '') {
+          alert('You must enter a username');
+          return;
+        }
+        var password= $('#password').val();
+        if (password === '') {
+          alert('You must enter a password');
+          return;
+        }
+
+        var message = {
+          type: 'login',
+          params: {
+            username: username,
+            password: password
+          }
+        };
+        console.log('sending...');
+        EWD.send(message, function(responseObj) {
+          console.log('login response: ' + JSON.stringify(responseObj));
+          if (responseObj.message.error) {
+            alert(responseObj.message.error);
+          }
+          else {
+            $('#testBtn').show();
+            $('#loginTable').hide();
+          }
+        });
+      }
+
+      function sendMessage() {
+        var message = {
+          type: 'test',
+          params: {
+            text: 'Hey! You clicked the button!'
+          }
+        };
+        EWD.send(message, function(responseObj) {
+          console.log('button response: ' + JSON.stringify(responseObj));
+        });
+        
+      }
+
+      $(document).ready(function() {
+
+        $('#testBtn').hide();
+
+        EWD.on('ewd-registered', function() {
+
+          // OK the app is now ready for use!
+
+          console.log('*** got the ewd-register event!!');
+          var payload = EWD.jwt;
+          console.log('JWT payload: ' + JSON.stringify(payload));
+          console.log('application from JWT = ' + EWD.jwt.application);
+
+        });
+
+        EWD.log = true;
+
+        // fire up the EWD client layer
+        //  arguments are application name, jQuery object ($) and socket.io object (io)
+        // $ is only required if you want to use Ajax instead of websockets and you want
+        // to use the default jQuery-based Ajax interface for EWD
+
+        // io is only required if you want to use websockets
+
+        // Ajax only:
+        //EWD.start('test-app', $);
+
+        // WebSockets only:
+
+        //EWD.start('jwt', null, io);
+
+        EWD.start({
+          application: 'jwt',
+          jwt: true,
+          jwt_decode: jwt_decode,
+          io: io
+        });
+
+        // Allow optional use of Ajax messages, but default to websockets:
+
+        //EWD.start('test-app', $, io);
+
+      });
+
+    </script>
+
+    <table id="loginTable">
+      <tr>
+        <td>Username: </td>
+        <td>
+          <input type="text" id="username">
+        </td>
+      </tr>
+      <tr>
+        <td>Password: </td>
+        <td>
+          <input type="password" id="password">
+        </td>
+      </tr>
+      <tr>
+        <td colspan=2>
+          <button onClick='login()'>Login</button>
+        </td>
+      </tr>
+    </table>
+
+
+    <div id="testBtn">
+      <button onClick='sendMessage()'>Click me</button>
+    </div>
+
+  </body>
+</html>
