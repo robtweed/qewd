@@ -1,6 +1,6 @@
 {
   "name": "qewd",
-  "version": "2.15.3",
+  "version": "2.15.4",
   "description": "Quick and Easy Web Development",
   "main": "index.js",
   "dependencies": {
@@ -13,6 +13,7 @@
     "ewd-qoper8-cache": "",
     "ewd-qoper8-gtm": "",
     "ewd-qoper8-redis": "",
+    "qewd-router": "",
     "koa": "",
     "koa-better-router": "",
     "koa-bodyparser": "",

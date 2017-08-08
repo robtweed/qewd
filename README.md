@@ -13,7 +13,7 @@ Thanks to Ward De Backer for debugging assistance and functionality suggestions
 
 This is best answered by reading [this article on QEWD](https://robtweed.wordpress.com/2017/04/18/having-your-node-js-cake-and-eating-it-too/)
 
-In summary: QEWD is a Node.js-based platform for developing and running interactive browser-based applications and Web/REST services.
+In summary: [QEWD](http://qewdjs.com) is a Node.js-based platform for developing and running interactive browser-based applications and Web/REST services.
 
 QEWD makes use of the [ewd-qoper8](https://github.com/robtweed/ewd-qoper8) module to provide an isolated run-time 
 environment for each of your message/request handler functions, meaning that your JavaScript handler functions can use synchronous, 
@@ -35,7 +35,7 @@ QEWD uses Express to provide its outward-facing HTTP(S) interface, and Socket.io
 
 ## Learning / Using QEWD
 
-See the free online [training course](http://ec2.mgateway.com/ewd/ws/training.html)
+See the free online [training course](http://docs.qewdjs.com/qewd_training.html)
 
 - Parts 1 to 3 provide background to the core modules and concepts used by QEWD
 - Parts 4 onwards focus on QEWD
