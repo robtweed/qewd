@@ -1,6 +1,6 @@
 var config = {
   managementPassword: 'keepThisSecret!',
-  serverName: 'My QEWD Server',
+  serverName: 'QEWD Login MicroService',
   port: 8080,
   poolSize: 2,
   database: {
@@ -11,12 +11,5 @@ var config = {
   }
 };
 
-var routes = [
-  {
-    path: '/api',
-    module: 'myJWTService'
-  }
-];
-
 var qewd = require('qewd').master;
-qewd.start(config, routes);
+qewd.start(config);
