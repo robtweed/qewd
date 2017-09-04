@@ -1,11 +1,11 @@
 {
   "name": "qewd-appliance",
-  "version": "2.1.0",
+  "version": "2.19.0",
   "description": "QEWD Docker appliance",
   "author": "Rob Tweed <rtweed@mgateway.com>",
   "main": "qewd.js",
   "scripts": {
-    "start": "node qewd.js"
+    "start": "NODE_PATH=/opt/qewd/mapped node qewd.js"
   },
   "dependencies": {
     "qewd": "",
