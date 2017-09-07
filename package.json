@@ -1,9 +1,9 @@
 
 {
   "name": "qewd",
-  "version": "2.22.1",
+  "version": "2.22.2",
   "config": {
-    "date": "6 September 2017"
+    "date": "7 September 2017"
   },
   "description": "Quick and Easy Web Development",
   "main": "index.js",
@@ -23,7 +23,8 @@
     "koa-bodyparser": "",
     "koa-static": "",
     "redis": "",
-    "socket.io": ""
+    "socket.io": "",
+    "socket.io-client": ""
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
