@@ -31,7 +31,42 @@ QEWD uses Express to provide its outward-facing HTTP(S) interface, and Socket.io
 
 ## Installing
 
+You can install QEWD.js by typing:
+
        npm install qewd
+
+However, you'll need to then set up the run-time environment manually.
+
+Simpler options are:
+
+- If you're starting from a "clean slate", you should take a look at the [pre-built installer scripts](https://github.com/robtweed/qewd/tree/master/installers)
+for Linux and Raspberry Pi systems.
+
+- If you've already installed Node.js, first create a directory to act as the "root" directory for
+QEWD, eg:
+
+        ~/qewdjs
+
+Then do the following:
+
+        cd ~/qewdjs   # or whatever your 'root' directory is
+        wget https://raw.githubusercontent.com/robtweed/qewd/master/installers/package.json
+        npm install
+
+This will install QEWD using NPM as before, but then allows you to run a setup script:
+
+        npm run setup
+
+
+Answer the questions it ask you, and it will create a working run-time environment for you.
+
+###Note: this setup script will NOT install one of the databases used by QEWD (eg GT.M, YottaDB, 
+Cache or Redis).  You'll need to do this manually.  If you want to use Redis, QEWD expects a default
+installation, listening on port 6379.
+
+For further details on installing and configuring QEWD.js, see 
+[this presentation slide deck](https://www.slideshare.net/robtweed/installing-configuring-ewdxpress).
+
 
 ## Learning / Using QEWD
 
