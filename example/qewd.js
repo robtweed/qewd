@@ -37,7 +37,13 @@ var config = {
   port: 8080,
   poolSize: 1,
   database: {
-    type: 'cache'
+    type: 'cache',
+    params: {
+      path: '/opt/cache/mgr',
+      username: '_SYSTEM',
+      password: 'SYS',
+      namespace: 'USER'
+    }
   }
 };
 

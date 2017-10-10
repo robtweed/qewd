@@ -1,7 +1,7 @@
 
 {
   "name": "qewd",
-  "version": "2.23.0",
+  "version": "2.24.0",
   "config": {
     "date": "9 October 2017"
   },
@@ -10,6 +10,7 @@
   "dependencies": {
     "express": "",
     "body-parser": "",
+    "ewd-client": "",
     "ewd-qoper8": "",
     "ewd-qoper8-express": "",
     "ewd-qoper8-koa": "",
@@ -17,7 +18,9 @@
     "ewd-qoper8-cache": "",
     "ewd-qoper8-gtm": "",
     "ewd-qoper8-redis": "",
+    "fs-extra": "",
     "qewd-router": "",
+    "qewd-monitor': "",
     "koa": "",
     "koa-better-router": "",
     "koa-bodyparser": "",

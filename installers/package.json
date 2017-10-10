@@ -1,0 +1,19 @@
+{
+  "name": "qewd_installer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robtweed/qewd.git"
+  },
+  "version": "1.0.0",
+  "description": "QEWD installer",
+  "main": "index.js",
+  "dependencies": {
+    "qewd": "^2.23.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "setup": "node ./node_modules/qewd/installers/setup"
+  },
+  "author": "Rob Tweed, M/Gateway Developments Ltd",
+  "license": "Apache-2.0"
+}
