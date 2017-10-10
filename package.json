@@ -1,7 +1,7 @@
 
 {
   "name": "qewd",
-  "version": "2.24.0",
+  "version": "2.24.1",
   "config": {
     "date": "9 October 2017"
   },
@@ -20,7 +20,7 @@
     "ewd-qoper8-redis": "",
     "fs-extra": "",
     "qewd-router": "",
-    "qewd-monitor': "",
+    "qewd-monitor": "",
     "koa": "",
     "koa-better-router": "",
     "koa-bodyparser": "",
