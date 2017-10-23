@@ -66,7 +66,7 @@ function ok() {
 }
 
 function startupFile(dir) {
-  rl.question('Which database setup or server are you using (cache/gtm/redis/rpi): ', (db) => {
+  rl.question('Which database/server setup are you using (cache | gtm | yottadb | redis | rpi): ', (db) => {
     if (!db || db === '') {
       console.log('You must specify a database!');
       return startupFile(dir);
@@ -138,7 +138,7 @@ function startupFile(dir) {
       return;
     }
 
-    if (db === 'gtm') {
+    if (db === 'gtm' || db === 'yottadb') {
 
       runBash(dir + '/node_modules/qewd/installers/install_nodem.sh ' + dir);
 

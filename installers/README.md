@@ -18,13 +18,13 @@ Google Group for discussions, support, advice etc: [http://groups.google.co.uk/g
 
 ## Using the Installers
 
-### Installing QEWD with the GT.M Database
+### Installing QEWD with the YottaDB Database
 
 On a Ubuntu system:
 
      cd ~
-     wget https://raw.githubusercontent.com/robtweed/qewd/master/installers/install_gtm.sh
-     source install_gtm.sh
+     wget https://raw.githubusercontent.com/robtweed/qewd/master/installers/install_yottadb.sh
+     source install_yottadb.sh
 
 
 ### Installing ewd-xpress with the GlobalsDB Database
@@ -88,9 +88,9 @@ You can change the password by editing the startup file: ~/qewd/qewd.js
 
 
 
-## For More Information on EWD 3 and QEWD
+## For More Information on QEWD
 
-Go to the [M/Gateway Web site](http://www.mgateway.com), click the Training tab and
+Go to the [QEWD Web site](http://qewdjs.com), click the Documentation link and
 go through the free online training course you'll find there.
 
 
