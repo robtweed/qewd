@@ -56,8 +56,8 @@ function npmInstall(moduleName) {
   child_process.execSync('npm install ' + moduleName, {stdio: 'inherit'});
 }
 
-function runBash(scriptName, arg1) {
-  child_process.execSync('sh ' + scriptName + ' ' + arg1, {stdio: 'inherit'});
+function runBash(scriptName) {
+  child_process.execSync('sh ' + scriptName, {stdio: 'inherit'});
 }
 
 function ok() {
@@ -113,6 +113,12 @@ function startupFile(dir) {
     }
 
     if (db === 'redis') {
+      var platform = os.type();
+      if (platform === 'Linux') {
+        var prepareScript = dir + '/node_modules/qewd/installers/prepare.sh';
+        runBash(prepareScript);
+      }
+
       npmInstall('tcp-netx');
       npmInstall('ewd-redis-globals');
       fromPath = dir + '/node_modules/qewd/example/qewd-redis.js';
@@ -134,7 +140,7 @@ function startupFile(dir) {
 
     if (db === 'gtm') {
 
-      runBash(dir + '/node_modules/qewd/installers/install_nodem.sh', dir);
+      runBash(dir + '/node_modules/qewd/installers/install_nodem.sh ' + dir);
 
       fromPath = dir + '/node_modules/qewd/example/qewd-gtm.js';
       fs.copySync(fromPath, toPath);
