@@ -4,7 +4,7 @@
     "type": "git",
     "url": "git+https://github.com/robtweed/qewd.git"
   },
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "QEWD installer",
   "main": "index.js",
   "dependencies": {
@@ -14,6 +14,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "setup": "node ./node_modules/qewd/installers/setup",
     "install_gtm": "sh ./node_modules/qewd/installers/install_gtm_only.sh",
+    "install_yottadb": "sh ./node_modules/qewd/installers/install_yottadb_only.sh",
     "install_redis": "sh ./node_modules/qewd/installers/install_redis_only.sh"
   },
   "author": "Rob Tweed, M/Gateway Developments Ltd",
