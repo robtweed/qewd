@@ -20,23 +20,45 @@ Google Group for discussions, support, advice etc: [http://groups.google.co.uk/g
 
 ### Installing QEWD with the YottaDB Database
 
-On a Ubuntu system:
+On a freshly-installed Ubuntu system or on  a Raspberry Pi with Raspian freshly installed:
 
      cd ~
      wget https://raw.githubusercontent.com/robtweed/qewd/master/installers/install_yottadb.sh
      source install_yottadb.sh
 
+Note: this will install and configure:
 
-### Installing ewd-xpress with the GlobalsDB Database
+- Node.js
+- YottaDB
+- QEWD
+- NodeM
 
-On a Ubuntu system:
+On completion, QEWD will be ready for use - just start it up.
+
+Don't use this installer if you already have some or all of the components already installed.
+
+
+### Installing QEWD with the GlobalsDB Database
+
+On a freshly-installed Ubuntu system:
 
      cd ~
      wget https://raw.githubusercontent.com/robtweed/qewd/master/installers/install_globalsdb.sh
      source install_globalsdb.sh
 
+Note: this will install and configure:
 
-### Installing ewd-xpress with the Cache Database
+- Node.js
+- GlobalsDB
+- QEWD
+- cache.node
+
+On completion, QEWD will be ready for use - just start it up.
+
+Don't use this installer if you already have some or all of the components already installed.
+
+
+### Installing QEWD with the Cache Database
 
 The install script at:
 
@@ -48,13 +70,18 @@ The install script at:
 
 ### Installing QEWD, Redis and ewd-redis-globals on a Raspberry Pi
 
-The installer assumes you've done a fresh installation of NOOBS/Raspbian.  Then:
+See above for installing QEWD and YottaDB on your Raspberry Pi.
+
+If you'd prefer to use Redis with QEWD on your Raspberry Pi:
+
+  The installer assumes you've done a fresh installation of NOOBS/Raspbian.  Then:
 
      cd ~
      wget https://raw.githubusercontent.com/robtweed/qewd/master/installers/install_rpi.sh
      source install_rpi.sh
 
-Be patient - it all takes quite a while to install, but it should get there in the end. 
+  Be patient - it all takes quite a while to install, but it should get there in the end. 
+
 
 
 ## Running QEWD
@@ -65,7 +92,7 @@ Start QEWD using
      cd ~/qewd
      node qewd
 
-On a Cach&eacute; system you'll need to use sudo:
+On a Cach&eacute; / Linux system you'll probably need to use sudo:
 
      cd ~/qewd
      sudo node qewd
