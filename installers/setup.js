@@ -140,7 +140,10 @@ function startupFile(dir) {
 
     if (db === 'gtm' || db === 'yottadb') {
 
-      runBash(dir + '/node_modules/qewd/installers/install_nodem.sh ' + dir);
+      if (!fs.existsSync(dir + '/node_modules/nodem') && typeof process.env['gtm_dist'] !== 'undefined') {
+        // safe and appropriate to install NodeM
+        runBash(dir + '/node_modules/qewd/installers/install_nodem.sh ' + dir);
+      }
 
       fromPath = dir + '/node_modules/qewd/example/qewd-gtm.js';
       fs.copySync(fromPath, toPath);
