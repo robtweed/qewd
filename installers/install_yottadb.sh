@@ -26,7 +26,7 @@ echo 'Installing YottaDB'
 
 mkdir /tmp/tmp # Create a temporary directory for the installer
 cd /tmp/tmp    # and change to it. Next command is to download the YottaDB installer
-wget  wget https://raw.githubusercontent.com/YottaDB/YottaDB/master/sr_unix/ydbinstall.sh -O gtminstall
+wget https://raw.githubusercontent.com/YottaDB/YottaDB/master/sr_unix/ydbinstall.sh -O gtminstall
 chmod +x gtminstall # Make the file executable
 
 gtmroot=/usr/lib/yottadb
