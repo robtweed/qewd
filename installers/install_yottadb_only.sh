@@ -26,7 +26,7 @@ else
 
   mkdir /tmp/tmp # Create a temporary directory for the installer
   cd /tmp/tmp    # and change to it. Next command is to download the YottaDB installer
-  wget https://raw.githubusercontent.com/YottaDB/YottaDB/d79a03daa49fdaf9b69200efdc95be98c8560133/sr_unix/gtminstall.sh -O gtminstall
+  wget https://raw.githubusercontent.com/YottaDB/YottaDB/master/sr_unix/ydbinstall.sh -O gtminstall
   chmod +x gtminstall # Make the file executable
 
   # Thanks to KS Bhaskar for the following enhancement:
