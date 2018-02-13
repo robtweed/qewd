@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-server: Start-up file for Dockerised version of QEWD                |
  |                                                                          |
- | Copyright (c) 2017 M/Gateway Developments Ltd,                           |
+ | Copyright (c) 2017-18 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  22 December 2017
+  30 January 2018
 
 */
 
@@ -40,8 +40,8 @@ function installModule(moduleName) {
 }
 
 var startup = require('/opt/qewd/mapped/startup');
-var userDefined;
-if (fs.existsSync('/opt/qewd/mapped/userDefined.json')) {
+var userDefined = startup.userDefined;
+if (!userDefined && fs.existsSync('/opt/qewd/mapped/userDefined.json')) {
   userDefined = require('/opt/qewd/mapped/userDefined.json');
 }
 
@@ -49,11 +49,15 @@ var npmModules;
 if (fs.existsSync('/opt/qewd/mapped/install_modules.json')) {
   npmModules = require('/opt/qewd/mapped/install_modules.json');
   npmModules.forEach(function(moduleName) {
+    console.log('\nInstalling module ' + moduleName);
     installModule(moduleName);
+    console.log('\n' + moduleName + ' installed');
   });
 }
 
 // Define YottaDB Environment Variables for Worker Processes
+
+console.log('Setting up YottaDB Environment');
 
 var yotta_release = 'r110';
 var gtmdir = '/root/.fis-gtm';
@@ -78,7 +82,21 @@ config.database = {
   }
 };
 
+
+// workaround NPM5 bug
+
+try {
+  var nm = require('nodem');
+}
+catch(err) { 
+  var setEnv = require('ewd-qoper8-gtm/lib/setEnvironment');
+  setEnv(config.database.params);
+  installModule('nodem');
+}
+
 var qewd = require('qewd').master;
+console.log('Starting QEWD');
+
 var q = qewd.start(config, startup.routes);
 if (userDefined) {
   for (var name in userDefined) {

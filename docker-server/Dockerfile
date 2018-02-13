@@ -3,9 +3,10 @@
 # Dockerised version of QEWD
 
 # M/Gateway Developments Ltd
-# 22 December 2017
+# 9 February 2018
 
-FROM node:boron
+#FROM node:boron
+FROM node:carbon
 
 RUN apt-get update && apt-get install -y \
   build-essential \
@@ -17,7 +18,8 @@ RUN apt-get update && apt-get install -y \
   curl \
   python-minimal \
   libelf1 \
-  nano
+  locate \
+  nano 
 
 # Create app directory
 RUN mkdir -p /opt/qewd

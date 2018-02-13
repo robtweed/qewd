@@ -1,0 +1,74 @@
+[
+  {
+    "path": "/api/auth/login",
+    "method": "GET",
+    "destination": "authentication_service",
+    "bypassJWTCheck": true
+  },
+  {
+    "path": "/api/auth/token",
+    "method": "GET",
+    "destination": "authentication_service"
+  },
+  {
+    "path": "/api/auth/demo",
+    "method": "GET",
+    "destination": "authentication_service",
+    "bypassJWTCheck": true
+  },
+  {
+    "path": "/api/auth/test",
+    "method": "GET",
+    "destination": "authentication_service"
+  },
+  {
+    "path": "/api/user",
+    "method": "GET",
+    "destination": "hospital_service"
+  },
+  {
+    "path": "/api/my/demographics",
+    "method": "GET",
+    "destination": "hospital_service"
+  },
+  {
+    "path": "/api/patients",
+    "method": "GET",
+    "destination": "hospital_service"
+  },
+  {
+    "path": "/api/patients/:patientId",
+    "method": "GET",
+    "destination": "hospital_service"
+  },
+  {
+    "path": "/api/patients/:patientId/:heading",
+    "method": "GET",
+    "destination": "phr_service"
+  },
+  {
+    "path": "/api/patients/:patientId/:heading/:sourceId",
+    "method": "GET",
+    "destination": "phr_service"
+  },
+  {
+    "path": "/api/my/heading/:heading",
+    "method": "GET",
+    "destination": "phr_service"
+  },
+  {
+    "path": "/api/my/heading/:heading",
+    "method": "POST",
+    "destination": "phr_service"
+  },
+  {
+    "path": "/api/my/heading/:heading/:sourceId",
+    "method": "GET",
+    "destination": "phr_service"
+  },
+  {
+    "path": "/api/my/headings/synopsis",
+    "method": "GET",
+    "destination": "phr_service"
+  }
+]

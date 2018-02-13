@@ -38,11 +38,13 @@ echo 'Installing NodeM'
 npm install nodem
 ln -sf $gtm_dist/libgtmshr.so /usr/local/lib/
 ldconfig
-base=~/qewd
+#base=~/qewd
+base=/opt/qewd
 [ -f "$GTMCI" ] || export GTMCI="$(find $base -iname nodem.ci)"
 nodemgtmr="$(find $base -iname v4wnode.m | tail -n1 | xargs dirname)"
 echo "$gtmroutines" | fgrep "$nodemgtmr" || export gtmroutines="$nodemgtmr $gtmroutines"
-echo 'base=~/qewd' >> ~/.profile
+#echo 'base=~/qewd' >> ~/.profile
+echo 'base=/opt/qewd' >> ~/.profile
 echo '[ -f "$GTMCI" ] || export GTMCI="$(find $base -iname nodem.ci)"' >> ~/.profile
 echo 'nodemgtmr="$(find $base -iname v4wnode.m | tail -n1 | xargs dirname)"' >> ~/.profile
 echo 'echo "$gtmroutines" | fgrep "$nodemgtmr" || export gtmroutines="$nodemgtmr $gtmroutines"' >> ~/.profile

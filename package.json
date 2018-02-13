@@ -1,9 +1,9 @@
 
 {
   "name": "qewd",
-  "version": "2.26.0",
+  "version": "2.28.0",
   "config": {
-    "date": "31 January 2018"
+    "date": "13 February 2018"
   },
   "description": "Quick and Easy Web Development",
   "main": "index.js",
@@ -25,6 +25,7 @@
     "koa-better-router": "",
     "koa-bodyparser": "",
     "koa-static": "",
+    "module-exists": "",
     "redis": "",
     "socket.io": "",
     "socket.io-client": ""

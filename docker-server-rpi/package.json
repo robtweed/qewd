@@ -1,6 +1,6 @@
 {
   "name": "qewd-server-rpi",
-  "version": "2.25.0",
+  "version": "2.28.0",
   "description": "Dockerised QEWD Server for Raspberry Pi",
   "author": "Rob Tweed <rtweed@mgateway.com>",
   "main": "qewd.js",

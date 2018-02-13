@@ -3,7 +3,7 @@
 # Dockerised version of QEWD for Raspberry Pi
 
 # M/Gateway Developments Ltd
-# 3 January 2018
+# 13 February 2018
 
 FROM hypriot/rpi-node:boron
 
@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
   curl \
   python-minimal \
   libelf1 \
+  locate \
   nano
 
 # Create app directory
