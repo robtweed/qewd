@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  30 January 2018
+  5 March 2018
 
 */
 
@@ -103,5 +103,9 @@ if (userDefined) {
     q.userDefined[name] = userDefined[name];
   }
 }
+if (startup.onStarted) {
+  startup.onStarted.call(q);
+}
+
 
 
