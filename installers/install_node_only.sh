@@ -6,7 +6,7 @@ if [ -f "/usr/bin/node" ]; then
 
 else
 
-  VERSION=${1:-6}
+  VERSION=${1:-8}
 
   echo 'Preparing environment'
 

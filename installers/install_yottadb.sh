@@ -66,7 +66,7 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | b
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 
-VERSION=${1:-6}
+VERSION=${1:-8}
 
 nvm install $VERSION
 

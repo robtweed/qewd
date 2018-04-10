@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  5 March 2018
+  6 April 2018
 
 */
 
@@ -32,6 +32,12 @@ var fs = require('fs');
 var module_exists = require('module-exists');
 
 var child_process = require('child_process');
+
+function setEnv(params) {
+  for (var name in params) {
+    process.env[name] = params[name];
+  }
+}
 
 function installModule(moduleName) {
   if (!module_exists(moduleName)) {
@@ -59,26 +65,35 @@ if (fs.existsSync('/opt/qewd/mapped/install_modules.json')) {
 
 console.log('Setting up YottaDB Environment');
 
-var yotta_release = 'r110';
-var gtmdir = '/root/.fis-gtm';
-var gtmver = fs.readdirSync(gtmdir)[0];
-var gtmver2 = fs.readdirSync('/usr/lib/yottadb')[0];
-var gtmroot = gtmdir + '/' + gtmver;
-var gtmroutines = '/opt/qewd/node_modules/nodem/src /root/.fis-gtm/' + gtmver + '/o*(/root/.fis-gtm/' + gtmver + '/r /root/.fis-gtm/r) /usr/local/lib/yottadb/' + yotta_release + '/plugin/o(/usr/local/lib/yottadb/' + yotta_release + '/plugin/r) /usr/local/lib/yottadb/' + yotta_release + '/libgtmutil.so /usr/local/lib/yottadb/' + yotta_release;
-
 var config = startup.config;
 
 config.database = {
   type: 'gtm',
   params:{
-    gtmdir: gtmdir,
-    gtmver: gtmver,
-    gtmver2: gtmver2,
-    gtmdist: '/usr/local/lib/yottadb/' + yotta_release,
-    gtmrep: 'off',
-    GTMCI: '/opt/qewd/node_modules/nodem/resources/nodem.ci',
-    gtmgbldir: gtmroot + '/g/gtm.gld',
-    gtmroutines: gtmroutines
+    ydb_env: {
+      ydb_retention: 42,
+      gtm_retention: 42,
+      LD_LIBRARY_PATH: '/usr/local/lib/yottadb/r120',
+      ydb_log: '/tmp/yottadb/r1.20_x86_64',
+      gtm_log: '/tmp/yottadb/r1.20_x86_64',
+      gtm_repl_instance: '/root/.yottadb/r1.20_x86_64/g/yottadb.repl',
+      ydb_repl_instance: '/root/.yottadb/r1.20_x86_64/g/yottadb.repl',
+      ydb_gbldir: '/root/.yottadb/r1.20_x86_64/g/yottadb.gld',
+      ydb_etrap: 'Write:(0=$STACK) "Error occurred: ",$ZStatus,!',
+      ydb_dir: '/root/.yottadb',
+      gtmver: 'V6.3-003A_x86_64',
+      ydb_rel: 'r1.20_x86_64',
+      gtmgbldir: '/root/.yottadb/r1.20_x86_64/g/yottadb.gld',
+      ydb_routines: '/root/.yottadb/r1.20_x86_64/o*(/root/.yottadb/r1.20_x86_64/r /root/.yottadb/r) /usr/local/lib/yottadb/r120/libyottadbutil.so',
+      gtmroutines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/r1.20_x86_64/o*(/root/.yottadb/r1.20_x86_64/r /root/.yottadb/r) /usr/local/lib/yottadb/r120/libyottadbutil.so',
+      GTMCI: '/opt/qewd/node_modules/nodem/resources/nodem.ci',
+      gtmdir: '/root/.fis-gtm',
+      gtm_etrap: 'Write:(0=$STACK) "Error occurred: ",$ZStatus,!',
+      ydb_tmp: '/tmp/yottadb/r1.20_x86_64',
+      gtm_tmp: '/tmp/yottadb/r1.20_x86_64',
+      gtm_dist: '/usr/local/lib/yottadb/r120',
+      ydb_dist: '/usr/local/lib/yottadb/r120'
+    }
   }
 };
 
@@ -89,8 +104,7 @@ try {
   var nm = require('nodem');
 }
 catch(err) { 
-  var setEnv = require('ewd-qoper8-gtm/lib/setEnvironment');
-  setEnv(config.database.params);
+  setEnv(config.database.params.ydb_env);
   installModule('nodem');
 }
 

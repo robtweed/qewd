@@ -3,9 +3,10 @@
 # Dockerised version of QEWD for Raspberry Pi
 
 # M/Gateway Developments Ltd
-# 13 February 2018
+# 10 April 2018
 
-FROM hypriot/rpi-node:boron
+#FROM hypriot/rpi-node:boron
+FROM hypriot/rpi-node:8
 
 RUN apt-get update && apt-get install -y \
   build-essential \
