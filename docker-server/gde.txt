@@ -1,0 +1,4 @@
+add -name CacheTempEWDSession -region=qewdreg
+add -region qewdreg -dynamic=qewdseg
+add -segment qewdseg -file=/opt/qewd/sessiondb/qewd.dat
+exit

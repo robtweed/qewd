@@ -1,6 +1,6 @@
 {
   "name": "qewd-server",
-  "version": "2.30.0",
+  "version": "2.36.0",
   "description": "Dockerised QEWD Server",
   "author": "Rob Tweed <rtweed@mgateway.com>",
   "main": "qewd.js",

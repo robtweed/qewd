@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  6 April 2018
+  20 June 2018
 
 */
 
@@ -51,6 +51,14 @@ if (!userDefined && fs.existsSync('/opt/qewd/mapped/userDefined.json')) {
   userDefined = require('/opt/qewd/mapped/userDefined.json');
 }
 
+if (userDefined && userDefined.startup_commands) {
+  console.log('Running custom startup commands:');
+  userDefined.startup_commands.forEach(function(cmnd) {
+   console.log(cmnd);
+   child_process.execSync(cmnd, {stdio:[0,1,2]});
+  });
+}
+
 var npmModules;
 if (fs.existsSync('/opt/qewd/mapped/install_modules.json')) {
   npmModules = require('/opt/qewd/mapped/install_modules.json');
@@ -73,30 +81,32 @@ config.database = {
     ydb_env: {
       ydb_retention: 42,
       gtm_retention: 42,
-      LD_LIBRARY_PATH: '/usr/local/lib/yottadb/r120',
-      ydb_log: '/tmp/yottadb/r1.20_armv7l',
-      gtm_log: '/tmp/yottadb/r1.20_armv7l',
-      gtm_repl_instance: '/root/.yottadb/r1.20_armv7l/g/yottadb.repl',
-      ydb_repl_instance: '/root/.yottadb/r1.20_armv7l/g/yottadb.repl',
-      ydb_gbldir: '/root/.yottadb/r1.20_armv7l/g/yottadb.gld',
+      LD_LIBRARY_PATH: '/usr/local/lib/yottadb/r122',
+      ydb_log: '/tmp/yottadb/r1.22_armv7l',
+      gtm_log: '/tmp/yottadb/r1.22_armv7l',
+      gtm_repl_instance: '/root/.yottadb/r1.22_armv7l/g/yottadb.repl',
+      ydb_repl_instance: '/root/.yottadb/r1.22_armv7l/g/yottadb.repl',
+      ydb_gbldir: '/root/.yottadb/r1.22_armv7l/g/yottadb.gld',
       ydb_etrap: 'Write:(0=$STACK) "Error occurred: ",$ZStatus,!',
       ydb_dir: '/root/.yottadb',
-      gtmver: 'V6.3-003A_armv7l',
-      ydb_rel: 'r1.20_armv7l',
-      gtmgbldir: '/root/.yottadb/r1.20_armv7l/g/yottadb.gld',
-      ydb_routines: '/root/.yottadb/r1.20_armv7l/o*(/root/.yottadb/r1.20_armv7l/r /root/.yottadb/r) /usr/local/lib/yottadb/r120/libyottadbutil.so',
-      gtmroutines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/r1.20_armv7l/o*(/root/.yottadb/r1.20_armv7l/r /root/.yottadb/r) /usr/local/lib/yottadb/r120/libyottadbutil.so',
+      gtmver: 'V6.3-004_armv7l',
+      ydb_rel: 'r1.22_armv7l',
+      gtmgbldir: '/root/.yottadb/r1.22_armv7l/g/yottadb.gld',
+      ydb_routines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/r1.22_armv7l/o*(/root/.yottadb/r1.22_armv7l/r /root/.yottadb/r) /usr/local/lib/yottadb/r122/libyottadbutil.so',
+      gtmroutines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/r1.22_armv7l/o*(/root/.yottadb/r1.22_armv7l/r /root/.yottadb/r) /usr/local/lib/yottadb/r122/libyottadbutil.so',
       GTMCI: '/opt/qewd/node_modules/nodem/resources/nodem.ci',
+      ydb_ci: '/opt/qewd/node_modules/nodem/resources/nodem.ci',
       gtmdir: '/root/.fis-gtm',
       gtm_etrap: 'Write:(0=$STACK) "Error occurred: ",$ZStatus,!',
-      ydb_tmp: '/tmp/yottadb/r1.20_armv7l',
-      gtm_tmp: '/tmp/yottadb/r1.20_armv7l',
-      gtm_dist: '/usr/local/lib/yottadb/r120',
-      ydb_dist: '/usr/local/lib/yottadb/r120'
+      ydb_tmp: '/tmp/yottadb/r1.22_armv7l',
+      gtm_tmp: '/tmp/yottadb/r1.22_armv7l',
+      gtm_dist: '/usr/local/lib/yottadb/r122',
+      ydb_dist: '/usr/local/lib/yottadb/r122'
     }
   }
 };
 
+setEnv(config.database.params.ydb_env);
 
 // workaround NPM5 bug
 
@@ -104,9 +114,18 @@ try {
   var nm = require('nodem');
 }
 catch(err) { 
-  setEnv(config.database.params.ydb_env);
   installModule('nodem');
 }
+
+// rundown the default region database (all globals except CacheTempEWDSession)
+//  it may return an error, so wrap in a try/catch
+
+try {
+  child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
+}
+catch(err) {}
+
+// ready to start QEWD now
 
 var qewd = require('qewd').master;
 console.log('Starting QEWD');
@@ -117,6 +136,9 @@ if (userDefined) {
     q.userDefined[name] = userDefined[name];
   }
 }
+
+// invoke user-specific startup code
+
 if (startup.onStarted) {
   startup.onStarted.call(q);
 }
