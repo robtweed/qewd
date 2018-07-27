@@ -1,6 +1,6 @@
 {
   "name": "qewd-server-rpi",
-  "version": "2.36.0",
+  "version": "2.37.0",
   "description": "Dockerised QEWD Server for Raspberry Pi",
   "author": "Rob Tweed <rtweed@mgateway.com>",
   "main": "qewd.js",
@@ -10,6 +10,8 @@
   "dependencies": {
     "qewd": "",
     "qewd-monitor": "",
-    "ewd-client": ""
+    "qewd-transform-json": "",
+    "ewd-client": "",
+    "request": ""
   }
 }
