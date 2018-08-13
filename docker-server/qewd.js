@@ -122,9 +122,19 @@ catch(err) {
 //  it may return an error, so wrap in a try/catch
 
 try {
+  console.log('Running down YottaDB...');
   child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
+  child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region qewdreg', {stdio:[0,1,2]});
+  //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region "*"', {stdio:[0,1,2]});
+  console.log('Rundown completed');
 }
-catch(err) {}
+catch(err) {
+  console.log('Error running down YottaDB: ' + err);
+  console.log('Recovering journal...');
+  child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip journal -recover -backward /root/.yottadb/r1.22_x86_64/g/yottadb.mjl', {stdio:[0,1,2]});
+  console.log('Journal recovered');
+
+}
 
 // ready to start QEWD now
 
