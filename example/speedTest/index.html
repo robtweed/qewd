@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <title id="NodeM / YottaDB Speed Test"></title>
+  </head>
+  <body>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <script src="ewd-client.js"></script>
+    <script>
+ 
+      function runTest(max) {
+        var message = {
+          type: 'runTest',
+          params: {
+            max: max
+          }
+        };
+        EWD.send(message, function(responseObj) {
+          console.log('Speed Test Results: ' + JSON.stringify(responseObj));
+        });
+        
+      }
+
+      var qewd = {
+        io_path: '/qewd_conductor'
+      };
+
+      $(document).ready(function() {
+
+        EWD.on('ewd-registered', function() {
+
+          // OK the app is now ready for use!
+
+          console.log('*** got the ewd-register event!!');
+        });
+
+        EWD.log = true;
+        EWD.start('speedTest', null, io);
+      });
+
+    </script>
+
+
+    <div>
+      <button onClick='runTest(100000)'>Run NodeM / YottaDB Speed Test</button>
+    </div>
+
+  </body>
+</html>

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# 20 June 2018
+# 25 September 2018
 
 # YottaDB
 
@@ -32,9 +32,12 @@ unset tmpfile gtmprofcmd gtmprof gtmcurrent gtmroot
 cd /opt/qewd
 mkdir sessiondb
 
+echo 'step 1...'
 /usr/local/lib/yottadb/r122/mumps -run ^GDE < /opt/qewd/gde.txt
-/usr/local/lib/yottadb/r122/mupip create
-/usr/local/lib/yottadb/r122/mupip set -file -nojournal /opt/qewd/sessiondb/qewd.dat
+echo 'step 2...'
+/usr/local/lib/yottadb/r122/mupip create -region=qewdreg
+echo 'step 3...'
+/usr/local/lib/yottadb/r122/mupip set -nojournal -region qewdreg
 
 echo 'YottaDB has been installed and configured, ready for use'
 
@@ -44,7 +47,9 @@ cd /opt/qewd
 
 echo 'Installing NodeM'
 
-npm install nodem
+# Install the trial version with SimpleAPI support
+
+npm install nodem@pre-release
 
 ln -sf $gtm_dist/libgtmshr.so /usr/local/lib/
 ldconfig

@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  20 June 2018
+  25 September 2018
 
 */
 
@@ -115,7 +115,7 @@ try {
   var nm = require('nodem');
 }
 catch(err) { 
-  installModule('nodem');
+  installModule('nodem@pre-release');
 }
 
 // rundown the default region database (all globals except CacheTempEWDSession)
