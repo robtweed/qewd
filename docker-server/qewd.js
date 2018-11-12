@@ -24,14 +24,18 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  25 September 2018
+  12 November 2018
 
 */
 
 var fs = require('fs');
 var module_exists = require('module-exists');
-
 var child_process = require('child_process');
+
+const gtm_version =  'V6.3-004';
+const ydb_versionp = 'r1.22';
+const ydb_version =  'r122';
+const ydb_arch =     'x86_64';
 
 function setEnv(params) {
   for (var name in params) {
@@ -39,9 +43,17 @@ function setEnv(params) {
   }
 }
 
-function installModule(moduleName) {
-  if (!module_exists(moduleName)) {
-    child_process.execSync('npm install ' + moduleName, {stdio:[0,1,2]});
+function installModule(moduleName, modulePath) {
+  if (!module_exists(moduleName) && !fs.existsSync('/opt/qewd/mapped/node_modules/' + moduleName)) {
+    var prefix = '';
+    if (typeof modulePath !== 'undefined') {
+      prefix = ' --prefix ' + modulePath;
+    }
+    child_process.execSync('npm install ' + moduleName + prefix, {stdio:[0,1,2]});
+    console.log('\n' + moduleName + ' installed');
+  }
+  else {
+    console.log(moduleName + ' already installed');
   }
 }
 
@@ -60,13 +72,21 @@ if (userDefined && userDefined.startup_commands) {
 }
 
 var npmModules;
+var modulePath;
 if (fs.existsSync('/opt/qewd/mapped/install_modules.json')) {
+  if (!fs.existsSync('/opt/qewd/mapped/node_modules')) {
+    fs.mkdirSync('/opt/qewd/mapped/node_modules');
+  }
+
+  modulePath = '/opt/qewd/mapped';
+  process.env.NODE_PATH = '/opt/qewd/mapped/node_modules:' + process.env.NODE_PATH;
+
   npmModules = require('/opt/qewd/mapped/install_modules.json');
   npmModules.forEach(function(moduleName) {
-    console.log('\nInstalling module ' + moduleName);
-    installModule(moduleName);
-    console.log('\n' + moduleName + ' installed');
+    console.log('\nInstalling module ' + moduleName + ' to ' + modulePath);
+    installModule(moduleName, modulePath);
   });
+  console.log('** NODE_PATH = ' + process.env.NODE_PATH);
 }
 
 // Define YottaDB Environment Variables for Worker Processes
@@ -75,33 +95,36 @@ console.log('Setting up YottaDB Environment');
 
 var config = startup.config;
 
+var ydb_path = ydb_versionp + '_' + ydb_arch;
+var gtm_path = gtm_version + '_' + ydb_arch;
+
 config.database = {
   type: 'gtm',
   params:{
     ydb_env: {
       ydb_retention: 42,
       gtm_retention: 42,
-      LD_LIBRARY_PATH: '/usr/local/lib/yottadb/r122',
-      ydb_log: '/tmp/yottadb/r1.22_x86_64',
-      gtm_log: '/tmp/yottadb/r1.22_x86_64',
-      gtm_repl_instance: '/root/.yottadb/r1.22_x86_64/g/yottadb.repl',
-      ydb_repl_instance: '/root/.yottadb/r1.22_x86_64/g/yottadb.repl',
-      ydb_gbldir: '/root/.yottadb/r1.22_x86_64/g/yottadb.gld',
+      LD_LIBRARY_PATH: '/usr/local/lib/yottadb/' + ydb_version,
+      ydb_log: '/tmp/yottadb/' + ydb_path,
+      gtm_log: '/tmp/yottadb/' + ydb_path,
+      gtm_repl_instance: '/root/.yottadb/' + ydb_path + '/g/yottadb.repl',
+      ydb_repl_instance: '/root/.yottadb/' + ydb_path + '/g/yottadb.repl',
+      ydb_gbldir: '/root/.yottadb/' + ydb_path + '/g/yottadb.gld',
       ydb_etrap: 'Write:(0=$STACK) "Error occurred: ",$ZStatus,!',
       ydb_dir: '/root/.yottadb',
-      gtmver: 'V6.3-004_x86_64',
-      ydb_rel: 'r1.22_x86_64',
-      gtmgbldir: '/root/.yottadb/r1.22_x86_64/g/yottadb.gld',
-      ydb_routines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/r1.22_x86_64/o*(/root/.yottadb/r1.22_x86_64/r /root/.yottadb/r) /usr/local/lib/yottadb/r122/libyottadbutil.so',
-      gtmroutines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/r1.22_x86_64/o*(/root/.yottadb/r1.22_x86_64/r /root/.yottadb/r) /usr/local/lib/yottadb/r122/libyottadbutil.so',
+      gtmver: gtm_path,
+      ydb_rel: ydb_path,
+      gtmgbldir: '/root/.yottadb/' + ydb_path + '/g/yottadb.gld',
+      ydb_routines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/' + ydb_path + '/o*(/root/.yottadb/' + ydb_path + '/r /root/.yottadb/r) /usr/local/lib/yottadb/' + ydb_version + '/libyottadbutil.so',
+      gtmroutines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/' + ydb_path + '/o*(/root/.yottadb/' + ydb_path + '/r /root/.yottadb/r) /usr/local/lib/yottadb/' + ydb_version + '/libyottadbutil.so',
       GTMCI: '/opt/qewd/node_modules/nodem/resources/nodem.ci',
       ydb_ci: '/opt/qewd/node_modules/nodem/resources/nodem.ci',
       gtmdir: '/root/.fis-gtm',
       gtm_etrap: 'Write:(0=$STACK) "Error occurred: ",$ZStatus,!',
-      ydb_tmp: '/tmp/yottadb/r1.22_x86_64',
-      gtm_tmp: '/tmp/yottadb/r1.22_x86_64',
-      gtm_dist: '/usr/local/lib/yottadb/r122',
-      ydb_dist: '/usr/local/lib/yottadb/r122'
+      ydb_tmp: '/tmp/yottadb/' + ydb_path,
+      gtm_tmp: '/tmp/yottadb/' + ydb_path,
+      gtm_dist: '/usr/local/lib/yottadb/' + ydb_version,
+      ydb_dist: '/usr/local/lib/yottadb/' + ydb_version
     }
   }
 };
@@ -115,7 +138,7 @@ try {
   var nm = require('nodem');
 }
 catch(err) { 
-  installModule('nodem@pre-release');
+  installModule('nodem');
 }
 
 // rundown the default region database (all globals except CacheTempEWDSession)
@@ -125,15 +148,13 @@ try {
   console.log('Running down YottaDB...');
   child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
   child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region qewdreg', {stdio:[0,1,2]});
-  //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region "*"', {stdio:[0,1,2]});
   console.log('Rundown completed');
 }
 catch(err) {
   console.log('Error running down YottaDB: ' + err);
   console.log('Recovering journal...');
-  child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip journal -recover -backward /root/.yottadb/r1.22_x86_64/g/yottadb.mjl', {stdio:[0,1,2]});
+  child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip journal -recover -backward /root/.yottadb/' + ydb_path + '/g/yottadb.mjl', {stdio:[0,1,2]});
   console.log('Journal recovered');
-
 }
 
 // ready to start QEWD now
@@ -142,7 +163,6 @@ var qewd = require('qewd').master;
 console.log('Starting QEWD');
 
 var q = qewd.start(config, startup.routes);
-
 if (userDefined) {
   for (var name in userDefined) {
     q.userDefined[name] = userDefined[name];

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+export ydb_log=/tmp/yottadb/r1.22_x86_64
+export gtm_log=/tmp/yottadb/r1.22_x86_64
+export gtm_repl_instance=/root/.yottadb/r1.22_x86_64/g/yottadb.repl
+export ydb_repl_instance=/root/.yottadb/r1.22_x86_64/g/yottadb.repl
+export ydb_gbldir=/root/.yottadb/r1.22_x86_64/g/yottadb.gld
+export ydb_dir=/root/.yottadb
+export gtmver='V6.3-004_x86_64'
+export ydb_rel=r1.22_x86_64
+export gtmgbldir=/root/.yottadb/r1.22_x86_64/g/yottadb.gld
+export ydb_routines="/opt/qewd/node_modules/nodem/src /root/.yottadb/r1.22_x86_64/o*(/root/.yottadb/r1.22_x86_64/r /root/.yottadb/r) /usr/local/lib/yottadb/r122/libyottadbutil.so"
+export gtmroutines="/opt/qewd/node_modules/nodem/src /root/.yottadb/r1.22_x86_64/o*(/root/.yottadb/r1.22_x86_64/r /root/.yottadb/r) /usr/local/lib/yottadb/r122/libyottadbutil.so"
+export GTMCI=/opt/qewd/node_modules/nodem/resources/nodem.ci
+export ydb_ci=/opt/qewd/node_modules/nodem/resources/nodem.ci
+export gtmdir=/root/.fis-gtm
+export ydb_tmp=/tmp/yottadb/r1.22_x86_64
+export gtm_tmp=/tmp/yottadb/r1.22_x86_64
+export gtm_dist=/usr/local/lib/yottadb/r122
+export ydb_dist=/usr/local/lib/yottadb/r122
+
+$ydb_dist/mumps -dir
+

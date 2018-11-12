@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# 25 September 2018
+# 30 October 2018
 
 # YottaDB
 
@@ -8,14 +8,20 @@ echo 'Installing YottaDB'
 
 mkdir /tmp/tmp # Create a temporary directory for the installer
 cd /tmp/tmp    # and change to it. Next command is to download the YottaDB installer
-wget https://raw.githubusercontent.com/YottaDB/YottaDB/master/sr_unix/ydbinstall.sh -O gtminstall
-chmod +x gtminstall # Make the file executable
+# wget https://raw.githubusercontent.com/YottaDB/YottaDB/master/sr_unix/ydbinstall.sh -O gtminstall
+
+wget https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
+chmod +x ydbinstall.sh
 
 gtmroot=/usr/lib/yottadb
 gtmcurrent=$gtmroot/current
 
 mkdir -p $gtmcurrent # make sure directory exists for links to current YottaDB
-./gtminstall --utf8 default --verbose --linkenv $gtmcurrent --linkexec $gtmcurrent
+
+./ydbinstall.sh --utf8 default --verbose --linkenv $gtmcurrent --linkexec $gtmcurrent --force-install
+
+#./gtminstall --utf8 default --verbose --linkenv $gtmcurrent --linkexec $gtmcurrent
+
 echo 'Configuring YottaDB'
 
 gtmprof=$gtmcurrent/gtmprofile
@@ -32,24 +38,28 @@ unset tmpfile gtmprofcmd gtmprof gtmcurrent gtmroot
 cd /opt/qewd
 mkdir sessiondb
 
+#echo 'step 1...'
+#/usr/local/lib/yottadb/r122/mumps -run ^GDE < /opt/qewd/gde.txt
+#echo 'step 2...'
+#/usr/local/lib/yottadb/r122/mupip create -region=qewdreg
+#echo 'step 3...'
+#/usr/local/lib/yottadb/r122/mupip set -nojournal -region qewdreg
+
 echo 'step 1...'
 /usr/local/lib/yottadb/r122/mumps -run ^GDE < /opt/qewd/gde.txt
 echo 'step 2...'
 /usr/local/lib/yottadb/r122/mupip create -region=qewdreg
 echo 'step 3...'
-/usr/local/lib/yottadb/r122/mupip set -nojournal -region qewdreg
+/usr/local/lib/yottadb/r122/mupip set -file -nojournal /opt/qewd/sessiondb/qewd.dat
+
 
 echo 'YottaDB has been installed and configured, ready for use'
-
-cd /opt/qewd
 
 # NodeM
 
 echo 'Installing NodeM'
 
-# Install the trial version with SimpleAPI support
-
-npm install nodem@pre-release
+npm install nodem
 
 ln -sf $gtm_dist/libgtmshr.so /usr/local/lib/
 ldconfig

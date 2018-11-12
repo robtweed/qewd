@@ -1,11 +1,11 @@
 {
   "name": "qewd-server-rpi",
-  "version": "2.39.2",
+  "version": "2.40.0",
   "description": "Dockerised QEWD Server for Raspberry Pi",
   "author": "Rob Tweed <rtweed@mgateway.com>",
   "main": "qewd.js",
   "scripts": {
-    "start": "NODE_PATH=/opt/qewd/mapped node qewd.js"
+    "start": "NODE_PATH=/opt/qewd/mapped/modules node qewd.js"
   },
   "dependencies": {
     "qewd": "",

@@ -3,10 +3,11 @@
 # Dockerised version of QEWD
 
 # M/Gateway Developments Ltd
-# 20 June 2018
+# 21 October 2018
 
 #FROM node:boron
-FROM node:carbon
+#FROM node:carbon
+FROM node:10-stretch
 
 RUN apt-get update && apt-get install -y \
   build-essential \
@@ -42,6 +43,8 @@ RUN ["/opt/qewd/install_yottadb.sh"]
 
 # Bundle app source
 COPY . /opt/qewd
+
+RUN chmod +x /opt/qewd/ydb
 
 RUN mkdir /opt/qewd/www
 RUN mkdir /opt/qewd/www/qewd-monitor
