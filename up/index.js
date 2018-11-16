@@ -1,10 +1,10 @@
-/*
+/*!
 
  ----------------------------------------------------------------------------
- | qewd: Quick and Easy Web Development                                     |
+ | qewd-up: Fast-tracked QEWD Application Development                       |
  |                                                                          |
- | Copyright (c) 2017 M/Gateway Developments Ltd,                           |
- | Reigate, Surrey UK.                                                      |
+ | Copyright (c) 2018 M/Gateway Developments Ltd,                           |
+ | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
  | http://www.mgateway.com                                                  |
@@ -24,16 +24,8 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  3 January 2017
+  15 November 2018
 
-*/
+ */
 
-var worker = require('./worker');
-var master = require('./master');
-var up = require('../up');
-
-module.exports = {
-  master: master,
-  worker: worker,
-  up: up
-};
+module.exports = require('./lib/docker_startup');

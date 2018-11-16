@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  12 November 2018
+  14 November 2018
 
 */
 
@@ -49,13 +49,16 @@ function installModule(moduleName, modulePath) {
     if (typeof modulePath !== 'undefined') {
       prefix = ' --prefix ' + modulePath;
     }
-    child_process.execSync('npm install ' + moduleName + prefix, {stdio:[0,1,2]});
+    child_process.execSync('npm install --unsafe-perm ' + moduleName + prefix, {stdio:[0,1,2]});
     console.log('\n' + moduleName + ' installed');
   }
   else {
     console.log(moduleName + ' already installed');
   }
 }
+
+process.env.USER = 'root';
+process.env.HOME = '/opt/qewd';
 
 var startup = require('/opt/qewd/mapped/startup');
 var userDefined = startup.userDefined;
@@ -80,6 +83,7 @@ if (fs.existsSync('/opt/qewd/mapped/install_modules.json')) {
 
   modulePath = '/opt/qewd/mapped';
   process.env.NODE_PATH = '/opt/qewd/mapped/node_modules:' + process.env.NODE_PATH;
+  require('module').Module._initPaths();
 
   npmModules = require('/opt/qewd/mapped/install_modules.json');
   npmModules.forEach(function(moduleName) {

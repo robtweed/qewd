@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
-# 12 November 2018
+# 14 November 2018
 
 # YottaDB
 
 echo 'Installing YottaDB'
 
-mkdir -p /tmp/tmp # Create a temporary directory for the installer
+ydbver="r122"
+
+# Create a temporary directory for the installer
+mkdir -p /tmp/tmp
 cd /tmp/tmp
 wget https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
 chmod +x ydbinstall.sh
@@ -14,7 +17,8 @@ chmod +x ydbinstall.sh
 gtmroot=/usr/lib/yottadb
 gtmcurrent=$gtmroot/current
 
-mkdir -p $gtmcurrent # make sure directory exists for links to current YottaDB
+# make sure directory exists for links to current YottaDB
+mkdir -p $gtmcurrent
 ./ydbinstall.sh --utf8 default --verbose --linkenv $gtmcurrent --linkexec $gtmcurrent --force-install
 echo 'Configuring YottaDB'
 
@@ -33,9 +37,9 @@ cd /opt/qewd
 mkdir sessiondb
 
 echo 'Setting up local internal, unjournalled region for QEWD Session global'
-/usr/local/lib/yottadb/r122/mumps -run ^GDE < /opt/qewd/gde.txt
-/usr/local/lib/yottadb/r122/mupip create -region=qewdreg
-/usr/local/lib/yottadb/r122/mupip set -file -nojournal /opt/qewd/sessiondb/qewd.dat
+/usr/local/lib/yottadb/$ydbver/mumps -run ^GDE < /opt/qewd/gde.txt
+/usr/local/lib/yottadb/$ydbver/mupip create -region=qewdreg
+/usr/local/lib/yottadb/$ydbver/mupip set -file -nojournal /opt/qewd/sessiondb/qewd.dat
 
 echo 'YottaDB has been installed and configured, ready for use'
 
