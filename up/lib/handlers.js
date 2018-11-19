@@ -1,4 +1,11 @@
-var routes_data = require(process.cwd() + '/configuration/routes.json');
+var fs = require('fs');
+
+var cwd = process.cwd();
+
+// check if running in Docker container
+if (fs.existsSync(cwd + '/mapped')) cwd = cwd + '/mapped';
+
+var routes_data = require(cwd + '/configuration/routes.json');
 var router = require('qewd-router');
 var routes = [];
 
@@ -7,7 +14,7 @@ routes_data.forEach(function(route) {
   routes.push({
     url: route.uri,
     method: route.method,
-    handler: require(process.cwd() + '/handlers' + path_root + '/' + route.handler)
+    handler: require(cwd + '/handlers' + path_root + '/' + route.handler)
   });
 });
 

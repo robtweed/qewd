@@ -1,5 +1,6 @@
 var fs = require('fs');
 var child_process = require('child_process');
+var uuid = require('uuid/v4'); // loaded as dependency of ewd-session
 
 var cwd = process.cwd() + '/mapped';
 var config_data;
@@ -52,19 +53,42 @@ var config_template = {
   poolSize: '=> either(conductor.qewd.poolSize, 2)',
   database: {
     type: 'gtm'
-  },
+  }
 };
 
 var routes = [];
 var roots = {};
 var config = transform(config_template, config_data, helpers);
 
+// Add in microservice definitions if present
+
+if (config_data.microservices && Array.isArray(config_data.microservices)) {
+  config.u_services = {
+    destinations: {}
+  };
+  var destinations = config.u_services.destinations;
+  config_data.microservices.forEach(function(microservice) {  
+    destinations[microservice.name] = {
+      host: microservice.host + ':' + microservice.port,
+      application: microservice.name
+    };
+  });
+  if (!config_data.jwt || !config.data.jwt.secret) {
+    config_data.jwt = {
+      secret: uuid()
+    };
+  }
+  config.jwt = config_data.jwt;
+}
+
+// local routes
+
 routes_data.forEach(function(route) {
   var path_root = '/' + route.uri.split('/')[1];
   if (!roots[path_root]) {
     routes.push({
       path: path_root,
-      module: cwd + '/handlers'
+      module: __dirname + '/lib/handlers'
     });
     roots[path_root] = true;
   }
