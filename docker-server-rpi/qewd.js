@@ -24,13 +24,14 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 November 2018
+  19 November 2018
 
 */
 
 var fs = require('fs');
 var module_exists = require('module-exists');
 var child_process = require('child_process');
+var qewd = require('qewd');
 
 const gtm_version =  'V6.3-004';
 const ydb_versionp = 'r1.22';
@@ -60,7 +61,29 @@ function installModule(moduleName, modulePath) {
 process.env.USER = 'root';
 process.env.HOME = '/opt/qewd';
 
-var startup = require('/opt/qewd/mapped/startup');
+var startup;
+var qewd_up = false;
+var qewd_up_config_path = '/opt/qewd/mapped/configuration/config.json';
+
+if (fs.existsSync(qewd_up_config_path)) {
+  var config = require(qewd_up_config_path);
+  qewd_up = (config.qewd_up === true);
+}
+
+if (qewd_up) {
+  if (process.env.microservice) {
+    startup = qewd.up_ms_docker();
+    console.log('starting up using up.ms_docker (ie this is a microservice)');
+  }
+  else {
+    startup = qewd.up_docker();
+    console.log('starting up using up.docker (ie conductor service)');
+  }
+}
+else {
+  startup = require('/opt/qewd/mapped/startup');
+}
+
 var userDefined = startup.userDefined;
 if (!userDefined && fs.existsSync('/opt/qewd/mapped/userDefined.json')) {
   userDefined = require('/opt/qewd/mapped/userDefined.json');
@@ -162,10 +185,10 @@ catch(err) {
 
 // ready to start QEWD now
 
-var qewd = require('qewd').master;
+var qewd_master = qewd.master;
 console.log('Starting QEWD');
 
-var q = qewd.start(config, startup.routes);
+var q = qewd_master.start(config, startup.routes);
 if (userDefined) {
   for (var name in userDefined) {
     q.userDefined[name] = userDefined[name];

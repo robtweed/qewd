@@ -64,7 +64,7 @@ var config_template = {
 
 var config = transform(config_template, ms_config, helpers);
 
-if (!config_data.jwt || !config.data.jwt.secret) {
+if (!config_data.jwt || !config_data.jwt.secret) {
   config_data.jwt = {
     secret: uuid()
   };

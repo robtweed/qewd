@@ -1,5 +1,6 @@
-var fs = require('fs');
+console.log('loading up/lib/handlers');
 
+var fs = require('fs');
 var cwd = process.cwd();
 
 // check if running in Docker container
@@ -10,6 +11,8 @@ var router = require('qewd-router');
 var routes = [];
 
 routes_data.forEach(function(route) {
+  if (route.on_microservice) return;
+
   var path_root = '/' + route.uri.split('/')[1];
   routes.push({
     url: route.uri,

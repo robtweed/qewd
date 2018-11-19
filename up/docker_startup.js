@@ -13,6 +13,7 @@ catch(err) {
   };
 }
 
+console.log('up.docker_startup - starting conductor service');
 console.log('cwd = ' + cwd);
 
 if (!fs.existsSync(cwd + '/www')) {
@@ -62,9 +63,12 @@ var config = transform(config_template, config_data, helpers);
 
 // Add in microservice definitions if present
 
+console.log('config_data.microservices: ' + JSON.stringify(config_data.microservices, null, 2));
+
 if (config_data.microservices && Array.isArray(config_data.microservices)) {
   config.u_services = {
-    destinations: {}
+    destinations: {},
+    routes: []
   };
   var destinations = config.u_services.destinations;
   config_data.microservices.forEach(function(microservice) {  
@@ -73,7 +77,18 @@ if (config_data.microservices && Array.isArray(config_data.microservices)) {
       application: microservice.name
     };
   });
-  if (!config_data.jwt || !config.data.jwt.secret) {
+
+  routes_data.forEach(function(route) {
+    if (route.on_microservice) {
+      config.u_services.routes.push({
+        path: route.uri,
+        method: route.method,
+        destination: route.on_microservice
+      });
+    }
+  });
+
+  if (!config_data.jwt || !config_data.jwt.secret) {
     config_data.jwt = {
       secret: uuid()
     };
