@@ -77,5 +77,18 @@ module.exports = function() {
 
   console.log('master config: ' + JSON.stringify(config, null ,2));
 
+  try {
+    console.log('Running down YottaDB...');
+    child_process.execSync(process.env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
+    child_process.execSync(process.env.ydb_dist + '/mupip rundown -region qewdreg', {stdio:[0,1,2]});
+    console.log('Rundown completed');
+  }
+  catch(err) {
+    console.log('Error running down YottaDB: ' + err);
+    console.log('Recovering journal...');
+    child_process.execSync(process.env.ydb_dist + '/mupip journal -recover -backward ' + process.env.ydb_dir + '/' + process.env.ydb_rel + '/g/yottadb.mjl', {stdio:[0,1,2]});
+    console.log('Journal recovered');
+  }
+
   qewd.start(config, routes);
 };
