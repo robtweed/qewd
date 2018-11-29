@@ -1,9 +1,9 @@
 
 {
   "name": "qewd",
-  "version": "2.42.11",
+  "version": "2.42.16",
   "config": {
-    "date": "20 November 2018"
+    "date": "29 November 2018"
   },
   "description": "Quick and Easy Web Development",
   "main": "index.js",

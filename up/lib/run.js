@@ -65,12 +65,30 @@ module.exports = function() {
   //console.log('__dirname: ' + __dirname);
 
   routes_data.forEach(function(route) {
+    if (route.else) return;
     var path_root = '/' + route.uri.split('/')[1];
     if (!roots[path_root]) {
-      routes.push({
+
+      var routeObj = {
         path: path_root,
-        module: __dirname + '/handlers'
-      });
+        module: __dirname + '/handlers',
+        //beforeRouter: [beforeRouter],
+        //afterRouter: [afterRouter]
+      };
+
+      var beforeRouterPath = cwd + '/handlers' + path_root + '/beforeRouter.js';
+      console.log('beforeRouterPath: ' + beforeRouterPath);
+      if (fs.existsSync(beforeRouterPath)) {
+        routeObj.beforeRouter = [require(beforeRouterPath)];
+      }
+
+      var afterRouterPath = cwd + '/handlers' + path_root + '/afterRouter.js';
+      console.log('afterRouterPath: ' + afterRouterPath);
+      if (fs.existsSync(afterRouterPath)) {
+        routeObj.afterRouter = [require(afterRouterPath)];
+      }
+
+      routes.push(routeObj);
       roots[path_root] = true;
     }
   });
@@ -90,5 +108,15 @@ module.exports = function() {
     console.log('Journal recovered');
   }
 
-  qewd.start(config, routes);
+  var q = qewd.start(config, routes);
+
+  var onStartedPath = cwd + '/conductor/onStarted.js';
+  var onStartedPath2 = cwd + '/onStarted.js';
+  if (fs.existsSync(onStartedPath)) {
+    require(onStartedPath).call(q, config);
+  }
+  else if (fs.existsSync(onStartedPath2)) {
+    require(onStartedPath2).call(q, config);
+  }
+
 };
