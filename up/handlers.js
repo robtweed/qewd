@@ -1,4 +1,4 @@
-console.log('running up/lib/handlers.js in process ' + process.pid);
+console.log('running up/handlers.js in process ' + process.pid);
 
 var ignorePaths = {};
 var beforeHandlerFn;
@@ -13,6 +13,15 @@ function getRoutes() {
 
   var routes_data = require(cwd + '/configuration/routes.json');
   var routes = [];
+  var isConductor = false;
+  var handlerRootPath = cwd + '/handlers';
+  var orchestratorHandlerPath = cwd + '/orchestrator/handlers';
+  if (fs.existsSync(orchestratorHandlerPath)) {
+    handlerRootPath = orchestratorHandlerPath;
+    isConductor = true;
+    console.log(111111);
+  }
+  console.log('handlerRootPath = ' + handlerRootPath);
 
   routes_data.forEach(function(route) {
     //console.log('** route = ' + JSON.stringify(route));
@@ -20,9 +29,10 @@ function getRoutes() {
       errorResponse = route.else;
       return;
     }
+    if (isConductor && route.on_microservice) return;  // ignore microservice routes
     var path_root = '/' + route.uri.split('/')[1];
     var handler;
-    var handlerPath = cwd + '/handlers' + path_root + '/' + route.handler;
+    var handlerPath = handlerRootPath + path_root + '/' + route.handler;
     if (fs.existsSync(handlerPath + '/handler.js')) {
       handler = require(handlerPath + '/handler.js');
       console.log('loaded handler from ' + handlerPath + '/handler.js');
@@ -37,7 +47,7 @@ function getRoutes() {
       handler: handler
     };
 
-    var onRequestPath = cwd + '/handlers' + path_root + '/' + route.handler + '/onRequest.js';
+    var onRequestPath = handlerPath + '/onRequest.js';
     console.log('onRequestPath: ' + onRequestPath);
     if (fs.existsSync(onRequestPath)) {
       routeObj.onRequest = require(onRequestPath);
@@ -50,7 +60,7 @@ function getRoutes() {
 
   });
 
-  var beforeHandlerPath = cwd + '/handlers/beforeHandler.js';
+  var beforeHandlerPath = handlerRootPath + '/beforeHandler.js';
   console.log('beforeHandlerPath: ' + beforeHandlerPath);
   if (fs.existsSync(beforeHandlerPath)) {
     beforeHandlerFn = require(beforeHandlerPath);
