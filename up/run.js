@@ -73,15 +73,17 @@ function setup(isDocker) {
   }
   catch(err) {
     config_data = {
-      orchestrator: {}
+      //orchestrator: {}
     };
   }
 
+  /*
   if (!isDocker && !config_data.orchestrator && config_data.qewd) {
     config_data.orchestrator = {
       qewd: config_data.qewd
     };
   }
+  */
 
   var routes;
   var ms_config;
@@ -89,6 +91,7 @@ function setup(isDocker) {
   var ms_index = {};
   var webServerRootPath = process.cwd() + '/www/';
   var serviceName;
+  var orchPath;
 
   if (ms_name) {
     webServerRootPath = cwd + '/' + ms_name + '/www/';
@@ -120,11 +123,17 @@ function setup(isDocker) {
   }
   else {
 
+    // not a microservice - either native or docker monolith, or docker orchestrator
+
     console.log('config_data: ' + JSON.stringify(config_data, null, 2));
 
     if (config_data.orchestrator) {
       if (isDocker) {
         webServerRootPath = cwd + '/orchestrator/www/';
+        orchPath = cwd + '/orchestrator';
+        if (!fs.existsSync(orchPath)) {
+          fs.mkdirSync(orchPath);
+        }
         serviceName = 'orchestrator';
       }
       else {
@@ -142,6 +151,7 @@ function setup(isDocker) {
     else {
       if (isDocker) {
         if (config_data.microservices) {
+          // this is Docker orchestrator
           webServerRootPath = cwd + '/orchestrator/www/';
           serviceName = 'orchestrator';
           console.log('3 enabling qewd-monitor *');
@@ -161,6 +171,17 @@ function setup(isDocker) {
           }
         }
       }
+      else {
+        webServerRootPath = cwd + '/www/';
+        serviceName = '';
+        if (!config_data.qewd || (config_data.qewd && config_data.qewd['qewd-monitor'] !== false)) {
+          console.log('5 enabling qewd-monitor');
+          linkMonitor(cwd, serviceName);
+        }
+        else {
+          unlinkMonitor(cwd, serviceName);
+        }
+      }
     }
 
     try {
@@ -178,13 +199,13 @@ function setup(isDocker) {
   var helpers = {};
 
   var config_template = {
-    managementPassword: '=> either(orchestrator.qewd.managementPassword, "keepThisSecret!")',
-    serverName: '=> either(orchestrator.qewd.serverName, "QEWD Server")',
-    port: '=> either(orchestrator.qewd.port, 8080)',
-    poolSize: '=> either(orchestrator.qewd.poolSize, 2)',
+    managementPassword: '=> either(qewd.managementPassword, "keepThisSecret!")',
+    serverName: '=> either(qewd.serverName, "QEWD Server")',
+    port: '=> either(qewd.port, 8080)',
+    poolSize: '=> either(qewd.poolSize, 2)',
     database: {
-      type: '=> either(orchestrator.qewd.database.type, "gtm")',
-      params: '=> either(orchestrator.qewd.database.params, "<!delete>")',
+      type: '=> either(qewd.database.type, "gtm")',
+      params: '=> either(qewd.database.params, "<!delete>")',
     },
     webServerRootPath: webServerRootPath
   };
@@ -195,7 +216,12 @@ function setup(isDocker) {
     config = transform(config_template, ms_config, helpers);
   }
   else {
-    config = transform(config_template, config_data, helpers);
+    if (isDocker && config_data.orchestrator) {
+      config = transform(config_template, config_data.orchestrator, helpers);
+    }
+    else {
+      config = transform(config_template, config_data, helpers);
+    }
   }
 
   if (isDocker) {
