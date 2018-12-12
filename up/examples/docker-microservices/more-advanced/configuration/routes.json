@@ -1,0 +1,20 @@
+[
+  {
+    "uri": "/api/orchestrator/info",
+    "method": "GET",
+    "handler": "getInfo"
+  },
+  {
+    "uri": "/api/info/info",
+    "method": "GET",
+    "handler": "getInfo",
+    "on_microservice": "info_service" 
+  },
+  {
+    "uri": "/api/login",
+    "method": "POST",
+    "handler": "login",
+    "on_microservice": "login_service",
+    "authenticate": false
+  }
+]

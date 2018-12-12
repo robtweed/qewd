@@ -1,0 +1,7 @@
+[
+  {
+    "uri": "/api/info",
+    "method": "GET",
+    "handler": "getInfo"
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "uri": "/api/info",
+    "method": "GET",
+    "handler": "getInfo"
+  },
+  {
+    "uri": "/api/test",
+    "method": "GET",
+    "handler": "test",
+    "applyBeforeHandler": false
+  },
+  {
+    "uri": "/api/store/:storeName",
+    "method": "GET",
+    "handler": "getStoreInfo"
+  },
+  {
+    "else": {
+      "statusCode": 404,
+      "text": "Not Found"
+    }
+  }
+]
