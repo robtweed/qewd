@@ -7,7 +7,7 @@ Twitter: @rtweed
 
 Google Group for discussions, support, advice etc: [http://groups.google.co.uk/group/enterprise-web-developer-community](http://groups.google.co.uk/group/enterprise-web-developer-community)
 
-#What is QEWD-Up?
+# What is QEWD-Up?
 
 Previously, in order to use QEWD, you needed to create a mixture of configuration settings and application code, and in doing so you needed to have a relatively detailed understanding of how QEWD worked under the covers.  This meant:
 
@@ -18,7 +18,7 @@ Previously, in order to use QEWD, you needed to create a mixture of configuratio
 
 QEWD-Up is a new layer of abstraction on top of QEWD that aims to hide all these issues away, leaving you with just a simple description of your API routes and the associated code that they invoke at the QEWD back-end.  You now just describe the What, and QEWD-up looks after the How.  Under the covers, it’s all standard QEWD as before - it’s just all been automated and abstracted out of the way for you!
 
-#QEWD-Up Modes
+# QEWD-Up Modes
 
 QEWD-Up can be used in three key architectural modes:
 
@@ -35,7 +35,7 @@ Getting started with each of the QEWD-Up modes is described below.  They all fol
 
 # Dockerised QEWD Monolith
 
-##Pre-requisites 
+## Pre-requisites 
 
 It's very quick and simple to get started in this mode, because all you need to install on your machine is Docker.  Everything else is handled by the QEWD Docker Container (which is available from the Docker Hub as rtweed/docker-server (or, if you use a Raspberry Pi: rtweed/docker-server-rpi )
 
@@ -75,7 +75,7 @@ Create two text files in the configuration folder:
             |
 
 
-###The *config.json* File
+### The *config.json* File
 
 The *config.json* file provides QEWD-Up with instructions on how to configure QEWD.  
 
@@ -92,7 +92,7 @@ At the very least, your *config.json* file should contain the following:
 See later in this document for more details on the *config.json* file and how to configure QEWD differently from the QEWD-Up defaults.
 
 
-###The *routes.json* File
+### The *routes.json* File
 
 You MUST create a file named *routes.json*.  This file contains the definitions of your REST routes, expressed as a JSON array of route objects.  Each route is described in terms of:
 
@@ -113,7 +113,7 @@ You MUST create a file named *routes.json*.  This file contains the definitions 
 You can describe as many routes as you wish in this file.  The syntax MUST be strict JSON - ie all property names and text-string values must be double-quoted.
 
 
-###Defining Your API Handlers
+### Defining Your API Handlers
 
 You define your API Handlers within the *apis* folder.  First create a sub-folder for each *handler* property name that you defined in the *routes.json* file (see above).  For example, using the *routes.json* example above, you'd create:
 
@@ -196,7 +196,7 @@ Your application's configuration and API files are mapped into the Docker Contai
 **Always** map your QEWD-Up Application Folder to */opt/qewd/mapped*
 
 
-##Running Your APIs
+## Running Your APIs
 
 Now you can try out your API(s).  By default, if you specified port 8080 as your host listener port, point a browser at:
 
@@ -252,7 +252,7 @@ This mode allows you to split out your APIs and run them as separate, discrete M
 
 Your MicroServices can run on separate physical machines, or they can all run on one host machine, or any combination between - it’s a very scalable and powerful approach.
 
-##Pre-requisites 
+## Pre-requisites 
 
 It's very quick and simple to get started in this mode, because all you need to install on each machine that will host a MicroService is Docker.  Everything else is handled by each instance of the QEWD Docker Container (which is available from the Docker Hub as rtweed/docker-server (or, if you use a Raspberry Pi: rtweed/docker-server-rpi )
 
@@ -265,7 +265,7 @@ if you want to try out QEWD-Up on a Raspberry Pi, you can install Docker by simp
       curl -sSL https://get.docker.com | sh
 
 
-##Key Concepts
+## Key Concepts
 
 In a QEWD-Up MicroService architecture, all external-facing communication is via a MicroService that is known as the Orchestrator (*aka* Orchestrator MicroService).  REST clients will send their requests to the Orchestrator MicroService.
 
@@ -280,7 +280,7 @@ In our example we’ll have 3 MicroServices:
 - **info_service** - once logged in, you’ll be able to send a query to this MicroService
 
 
-##JSON Web Tokens
+## JSON Web Tokens
 
 QEWD automatically uses JSON Web Tokens (JWTs) to maintain security between the MicroServices, and returns its JWTs to the REST client as part of the response.  Your REST client can make use of the JWT for its own purposes, but the JWT **must** be returned as a Bearer Token with all REST requests, except for APIs that you specifically tell QEWD-Up to ignore the JWT.
 
@@ -328,7 +328,7 @@ Create two text files in the configuration folder:
             |
 
 
-###The *config.json* File
+### The *config.json* File
 
 You **MUST** create a file named *config.json*.  This file tells QEWD to use the QEWD-Up mechanism and also defines the physical endpoint details of your MicroServices, for example we’ll use:
 
@@ -375,7 +375,7 @@ This ensures that all the MicroServices share this same secret.
 Optionally, the *config.json* file also allows you to specify how you want to configure QEWD itself on each MicroService.  QEWD-Up will apply sensible default settings that will be good enough for now.  See later in this document for more details on the *config.json* file and how to configure QEWD differently from the QEWD-Up defaults.
 
 
-###The *routes.json* File
+### The *routes.json* File
 
 You **MUST** create a file named *routes.json*.   This will contain the definition of your REST routes.  As its file extension implies, its contents must be correctly-structured JSON, describing the list of REST routes that your system will support.  Each route is described in terms of:
 
@@ -414,7 +414,7 @@ In the example above:
 - the third route includes the property **authenticate: false** which tells QEWD-Up that it will be invoked without first checking for a valid JWT
 
 
-###Defining Your MicroService API Handlers
+### Defining Your MicroService API Handlers
 
 You define your API Handlers within the *apis* folder.  First create a sub-folder for each *handler* property name that you defined in the *routes.json* file (see above).  Then, within each of these handler sub-folders, create the module file that defines what the handler actually does.  You can name this file either *handler.js* or *index.js*.
 
@@ -713,7 +713,7 @@ In the configuration folder, create a text file named *routes.json*:
             |
 
 
-###The *routes.json* File
+### The *routes.json* File
 
 This file contains the definitions of your REST routes, expressed as a JSON array of route objects.  Each route is described in terms of:
 
@@ -734,7 +734,7 @@ This file contains the definitions of your REST routes, expressed as a JSON arra
 You can describe as many routes as you wish in this file.  The syntax MUST be strict JSON - ie all property names and text-string values must be double-quoted.
 
 
-###The *config.json* File
+### The *config.json* File
 
 By Default, QEWD-Up applies a set of sensible default settings to the QEWD environment that will run your APIs.  If the defaults are satisfactory, then you don't need to create a *config.json* file. If you want different settings for QEWD (eg a larger Worker pool size), then here's what to do:
 
@@ -762,7 +762,7 @@ The *config.json* file provides QEWD-Up with instructions on how to configure QE
       }
 
 
-##Defining Your API Handlers
+## Defining Your API Handlers
 
 You define your API Handlers within the *apis* folder.  First create a sub-folder for each *handler* property name that you defined in the *routes.json* file (see above).  For example, using the *routes.json* example above, you'd create:
 
