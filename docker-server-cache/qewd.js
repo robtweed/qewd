@@ -36,7 +36,7 @@ var qewd = require('qewd');
 const gtm_version =  'V6.3-004';
 const ydb_versionp = 'r1.22';
 const ydb_version =  'r122';
-const ydb_arch =     'armv7l';
+const ydb_arch =     'x86_64';
 
 function setEnv(params) {
   for (var name in params) {
@@ -59,7 +59,7 @@ function installModule(moduleName, modulePath) {
 }
 
 process.env.USER = 'root';
-process.env.HOME = '/opt/qewd';
+process.env.HOME = '/opt/qewd'
 
 var startup;
 var qewd_up = false;
@@ -74,10 +74,12 @@ if (fs.existsSync(qewd_up_config_path)) {
 if (qewd_up) {
   if (process.env.microservice) {
     console.log('starting up microservice ' + process.env.microservice);
+    //startup = require(qewd_up_path + '/docker_ms_startup')();
     startup = require(qewd_up_path + '/run')(true);
   }
   else {
     console.log('starting up Docker Orchestrator service');
+    //startup = qewd.up_run_orchestrator();
     startup = require(qewd_up_path + '/run')(true);
   }
 }
@@ -204,3 +206,4 @@ if (userDefined) {
 if (startup.onStarted) {
   startup.onStarted.call(q);
 }
+

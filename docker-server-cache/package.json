@@ -1,0 +1,17 @@
+{
+  "name": "qewd-server",
+  "version": "2.40.1",
+  "description": "Dockerised QEWD Server",
+  "author": "Rob Tweed <rtweed@mgateway.com>",
+  "main": "qewd.js",
+  "scripts": {
+    "start": "NODE_PATH=/opt/qewd/mapped/modules node qewd.js"
+  },
+  "dependencies": {
+    "qewd": "",
+    "qewd-monitor": "",
+    "qewd-transform-json": "",
+    "ewd-client": "",
+    "request": ""
+  }
+}

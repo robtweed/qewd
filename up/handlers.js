@@ -1,3 +1,33 @@
+/*
+
+ ----------------------------------------------------------------------------
+ | qewd-up: Rapid QEWD API Development                                      |
+ |                                                                          |
+ | Copyright (c) 2018 M/Gateway Developments Ltd,                           |
+ | Redhill, Surrey UK.                                                      |
+ | All rights reserved.                                                     |
+ |                                                                          |
+ | http://www.mgateway.com                                                  |
+ | Email: rtweed@mgateway.com                                               |
+ |                                                                          |
+ |                                                                          |
+ | Licensed under the Apache License, Version 2.0 (the "License");          |
+ | you may not use this file except in compliance with the License.         |
+ | You may obtain a copy of the License at                                  |
+ |                                                                          |
+ |     http://www.apache.org/licenses/LICENSE-2.0                           |
+ |                                                                          |
+ | Unless required by applicable law or agreed to in writing, software      |
+ | distributed under the License is distributed on an "AS IS" BASIS,        |
+ | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. |
+ | See the License for the specific language governing permissions and      |
+ |  limitations under the License.                                          |
+ ----------------------------------------------------------------------------
+
+  12 December 2018
+
+*/
+
 console.log('running up/handlers.js in process ' + process.pid);
 
 var ignorePaths = {};
@@ -14,8 +44,8 @@ function getRoutes() {
   var routes_data = require(cwd + '/configuration/routes.json');
   var routes = [];
   var isConductor = false;
-  var handlerRootPath = cwd + '/handlers';
-  var orchestratorHandlerPath = cwd + '/orchestrator/handlers';
+  var handlerRootPath = cwd + '/apis';
+  var orchestratorHandlerPath = cwd + '/orchestrator/apis';
   if (fs.existsSync(orchestratorHandlerPath)) {
     handlerRootPath = orchestratorHandlerPath;
     isConductor = true;
@@ -30,7 +60,8 @@ function getRoutes() {
       return;
     }
     if (isConductor && route.on_microservice) return;  // ignore microservice routes
-    var path_root = '/' + route.uri.split('/')[1];
+    //var path_root = '/' + route.uri.split('/')[1];
+    var path_root = '';
     var handler;
     var handlerPath = handlerRootPath + path_root + '/' + route.handler;
     if (fs.existsSync(handlerPath + '/handler.js')) {
@@ -73,7 +104,7 @@ function getRoutes() {
 function beforeHandler(req, finished) {
   if (!beforeHandlerFn) return;
   if (ignorePaths[req.path]) return;
-  beforeHandlerFn(req, finished);
+  beforeHandlerFn.call(this, req, finished);
 }
 
 module.exports = {
@@ -94,5 +125,7 @@ module.exports = {
       });
     }
   },
-  beforeHandler: beforeHandler
+  beforeHandler: function(req, finished) {
+    beforeHandler.call(this, req, finished);
+  }
 };

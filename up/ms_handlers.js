@@ -1,8 +1,38 @@
+/*
+
+ ----------------------------------------------------------------------------
+ | qewd-up: Rapid QEWD API Development                                      |
+ |                                                                          |
+ | Copyright (c) 2018 M/Gateway Developments Ltd,                           |
+ | Redhill, Surrey UK.                                                      |
+ | All rights reserved.                                                     |
+ |                                                                          |
+ | http://www.mgateway.com                                                  |
+ | Email: rtweed@mgateway.com                                               |
+ |                                                                          |
+ |                                                                          |
+ | Licensed under the Apache License, Version 2.0 (the "License");          |
+ | you may not use this file except in compliance with the License.         |
+ | You may obtain a copy of the License at                                  |
+ |                                                                          |
+ |     http://www.apache.org/licenses/LICENSE-2.0                           |
+ |                                                                          |
+ | Unless required by applicable law or agreed to in writing, software      |
+ | distributed under the License is distributed on an "AS IS" BASIS,        |
+ | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. |
+ | See the License for the specific language governing permissions and      |
+ |  limitations under the License.                                          |
+ ----------------------------------------------------------------------------
+
+  12 December 2018
+
+*/
+
 var router = require('qewd-router');
 var ignore_jwt = {};
 var workerResponseHandler = {};
 
-function loadRoutes() {
+function loadRoutes(onHandledOnly) {
   var fs = require('fs');
   var cwd = process.cwd() + '/mapped';
   var ms_name = process.env.microservice;
@@ -11,9 +41,9 @@ function loadRoutes() {
   var config_data = require(cwd + '/configuration/config.json');
   var routes = {};
 
-  console.log('loading up/ms_handlers');
+  console.log('loading up/ms_handlers in process ' + process.pid);
   console.log('ms_name = ' + ms_name);
-  console.log('routes_data = ' + JSON.stringify(routes_data, null, 2));
+  //console.log('routes_data = ' + JSON.stringify(routes_data, null, 2));
 
   // check for any grouped destinations that include this microservice name
 
@@ -30,6 +60,7 @@ function loadRoutes() {
 
   routes_data.forEach(function(route) {
     var handler;
+    var onHandledPath;
     var ms_match = false;
     var ms_source = ms_name;
     if (route.on_microservice) {
@@ -55,44 +86,53 @@ function loadRoutes() {
     }
 
     if (ms_match) {
-      if (!routes[route.uri]) routes[route.uri] = {};
-      console.log('route.uri = ' + route.uri);
-      var path = cwd + '/' + ms_source + '/handlers/';
-      if (fs.existsSync(path + route.handler + '.js')) {
-        handler = require(path + route.handler);
-        console.log('loaded handler from ' + path + route.handler + '.js');
+      if (onHandledOnly) {
+        onHandledPath = path + route.handler + '/onHandled.js';
+        if (fs.existsSync(onHandledPath)) {
+          workerResponseHandler[route.uri] = require(onHandledPath);
+        }
       }
       else {
-        try {
-          handler = require(path + route.handler + '/handler.js');
-          console.log('loaded handler from ' + path + route.handler + '/handler.js');
+        if (!routes[route.uri]) routes[route.uri] = {};
+        console.log('route.uri = ' + route.uri);
+        //var path = cwd + '/' + ms_source + '/handlers/';
+        var path = cwd + '/' + ms_source + '/';
+        if (fs.existsSync(path + route.handler + '.js')) {
+          handler = require(path + route.handler);
+          console.log('loaded handler from ' + path + route.handler + '.js');
         }
-        catch(err) {
-          handler = require(path + route.handler + '/index.js');
-          console.log('loaded handler from ' + path + route.handler + '/index.js');
+        else {
+          try {
+            handler = require(path + route.handler + '/handler.js');
+            console.log('loaded handler from ' + path + route.handler + '/handler.js');
+          }
+          catch(err) {
+            handler = require(path + route.handler + '/index.js');
+            console.log('loaded handler from ' + path + route.handler + '/index.js');
+          }
         }
-      }
 
-      var onHandledPath = path + route.handler + '/onHandled.js';
-      if (fs.existsSync(onHandledPath)) {
-        workerResponseHandler[route.uri] = require(onHandledPath);
-      }
-
-      routes[route.uri][route.method] =  handler;
-      if (route.authenticate === false) {
-        ignore_jwt[route.uri] = true;
+        routes[route.uri][route.method] =  handler;
+        if (route.authenticate === false) {
+          ignore_jwt[route.uri] = true;
+        }
       }
     }
   });
+
+  if (onHandledOnly) return;
 
   console.log('routes: ' + JSON.stringify(routes, null, 2));
   return routes;
 }
 
-var routes = loadRoutes();
+loadRoutes(true); // when called by master process for workerResponseHandlers
+                  // to prevent unnecessary loading of route handlers
+ 
 
 module.exports = {
   init: function() {
+    var routes = loadRoutes();
     router.addMicroServiceHandler(routes, module.exports);
   },
   beforeMicroServiceHandler: function(req, finished) {

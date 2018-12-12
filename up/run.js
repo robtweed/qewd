@@ -1,17 +1,54 @@
-console.log('!!*** loading /up/run.js in process ' + process.pid);
+/*
+
+ ----------------------------------------------------------------------------
+ | qewd-up: Rapid QEWD API Development                                      |
+ |                                                                          |
+ | Copyright (c) 2018 M/Gateway Developments Ltd,                           |
+ | Redhill, Surrey UK.                                                      |
+ | All rights reserved.                                                     |
+ |                                                                          |
+ | http://www.mgateway.com                                                  |
+ | Email: rtweed@mgateway.com                                               |
+ |                                                                          |
+ |                                                                          |
+ | Licensed under the Apache License, Version 2.0 (the "License");          |
+ | you may not use this file except in compliance with the License.         |
+ | You may obtain a copy of the License at                                  |
+ |                                                                          |
+ |     http://www.apache.org/licenses/LICENSE-2.0                           |
+ |                                                                          |
+ | Unless required by applicable law or agreed to in writing, software      |
+ | distributed under the License is distributed on an "AS IS" BASIS,        |
+ | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. |
+ | See the License for the specific language governing permissions and      |
+ |  limitations under the License.                                          |
+ ----------------------------------------------------------------------------
+
+  12 December 2018
+
+*/
+
+console.log('Loading /up/run.js in process ' + process.pid);
 
 var fs = require('fs');
 var child_process = require('child_process');
 var qewd = require('../lib/master');
 
-function linkMonitor(cwd) {
-  var cmd = 'ln -sf ' + cwd + '/node_modules/qewd-monitor/www ' + cwd + '/www/qewd-monitor';
+function linkMonitor(cwd, name) {
+  if (name !== '') name = '/' + name;
+  var webServerRootPath = cwd + name + '/www';
+  if (!fs.existsSync(webServerRootPath)) {
+   fs.mkdirSync(webServerRootPath);
+  }
+  var cmd = 'ln -sf ' + process.cwd() + '/node_modules/qewd-monitor/www ' + webServerRootPath + '/qewd-monitor';
   child_process.execSync(cmd, {stdio:[0,1,2]});
 }
 
-function unlinkMonitor(cwd) {
-  if (fs.existsSync(cwd + '/www/qewd-monitor')) {
-    var cmd = 'unlink ' + cwd + '/www/qewd-monitor';
+function unlinkMonitor(cwd, name) {
+  if (name !== '') name = '/' + name;
+  var path = cwd + name + '/www/qewd-monitor'
+  if (fs.existsSync(path)) {
+    var cmd = 'unlink ' + path;
     child_process.execSync(cmd, {stdio:[0,1,2]});
   }
 }
@@ -40,16 +77,21 @@ function setup(isDocker) {
     };
   }
 
-  if (!fs.existsSync(cwd + '/www')) {
-    fs.mkdirSync(cwd + '/www');
+  if (!isDocker && !config_data.orchestrator && config_data.qewd) {
+    config_data.orchestrator = {
+      qewd: config_data.qewd
+    };
   }
 
   var routes;
   var ms_config;
   var routes_data;
   var ms_index = {};
+  var webServerRootPath = process.cwd() + '/www/';
+  var serviceName;
 
   if (ms_name) {
+    webServerRootPath = cwd + '/' + ms_name + '/www/';
     // this is running a microservice container
     config_data.microservices.forEach(function(microservice, index) {
       ms_index[microservice.name] = index;
@@ -68,23 +110,56 @@ function setup(isDocker) {
     }
 
     if (ms_config.qewd['qewd-monitor'] !== false) {
-      console.log('enabling qewd-monitor');
-      linkMonitor(cwd);
+      console.log('1 enabling qewd-monitor');
+      linkMonitor(cwd, ms_name);
     }
     else {
-      unlinkMonitor(cwd);
+      unlinkMonitor(cwd, ms_name);
     }
 
   }
   else {
 
+    console.log('config_data: ' + JSON.stringify(config_data, null, 2));
+
     if (config_data.orchestrator) {
-      if (config_data.orchestrator['qewd-monitor'] !== false) {
-        console.log('enabling qewd-monitor');
-        linkMonitor(cwd);
+      if (isDocker) {
+        webServerRootPath = cwd + '/orchestrator/www/';
+        serviceName = 'orchestrator';
       }
       else {
-        unlinkMonitor(cwd);
+        webServerRootPath = cwd + '/www/';
+        serviceName = '';
+      }
+      if (config_data.orchestrator['qewd-monitor'] !== false) {
+        console.log('2 enabling qewd-monitor');
+        linkMonitor(cwd, serviceName);
+      }
+      else {
+        unlinkMonitor(cwd, serviceName);
+      }
+    }
+    else {
+      if (isDocker) {
+        if (config_data.microservices) {
+          webServerRootPath = cwd + '/orchestrator/www/';
+          serviceName = 'orchestrator';
+          console.log('3 enabling qewd-monitor *');
+          linkMonitor(cwd, serviceName);
+        }
+        else {
+          // Docker monolith
+          webServerRootPath = cwd + '/www/';
+          serviceName = '';
+
+          if (config_data['qewd-monitor'] !== false) {
+            console.log('4 enabling qewd-monitor');
+            linkMonitor(cwd, serviceName);
+          }
+          else {
+            unlinkMonitor(cwd, serviceName);
+          }
+        }
       }
     }
 
@@ -108,8 +183,10 @@ function setup(isDocker) {
     port: '=> either(orchestrator.qewd.port, 8080)',
     poolSize: '=> either(orchestrator.qewd.poolSize, 2)',
     database: {
-      type: 'gtm'
+      type: '=> either(orchestrator.qewd.database.type, "gtm")',
+      params: '=> either(orchestrator.qewd.database.params, "<!delete>")',
     },
+    webServerRootPath: webServerRootPath
   };
 
   var config;
@@ -237,14 +314,16 @@ function setup(isDocker) {
               destination: route.on_microservice
             };
 
-            var onRequestPath = cwd + '/' + route.on_microservice + '/handlers/' + route.handler + '/onRequest.js';
+            //var onRequestPath = cwd + '/' + route.on_microservice + '/handlers/' + route.handler + '/onRequest.js';
+            var onRequestPath = cwd + '/' + route.on_microservice + '/' + route.handler + '/onRequest.js';
             console.log('Checking for onRequest path: ' + onRequestPath);
             if (fs.existsSync(onRequestPath)) {
               routeObj.onRequest = require(onRequestPath);
               console.log('Adding onRequest handler for ' + route.uri + ': ' + onRequestPath);
             }
 
-            var onResponsePath = cwd + '/' + route.on_microservice + '/handlers/' + route.handler + '/onResponse.js';
+            //var onResponsePath = cwd + '/' + route.on_microservice + '/handlers/' + route.handler + '/onResponse.js';
+            var onResponsePath = cwd + '/' + route.on_microservice + '/' + route.handler + '/onResponse.js';
             console.log('Checking for onResponse path: ' + onResponsePath);
             if (fs.existsSync(onResponsePath)) {
               routeObj.onResponse = require(onResponsePath);
@@ -280,19 +359,20 @@ function setup(isDocker) {
           module: __dirname + '/handlers'
         };
 
-        var handlerPath = cwd + '/handlers';
-        var orchestratorHandlerPath = cwd + '/orchestrator/handlers';
+        var handlerPath = cwd + '/apis';
+        var orchestratorHandlerPath = cwd + '/orchestrator/apis';
         if (fs.existsSync(orchestratorHandlerPath)) {
           handlerPath = orchestratorHandlerPath;
         }
-
-        var beforeRouterPath = handlerPath + path_root + '/beforeRouter.js';
+        //var beforeRouterPath = handlerPath + path_root + '/beforeRouter.js';
+        var beforeRouterPath = handlerPath + '/beforeRouter.js';
         console.log('beforeRouterPath: ' + beforeRouterPath);
         if (fs.existsSync(beforeRouterPath)) {
           routeObj.beforeRouter = [require(beforeRouterPath)];
         }
 
-        var afterRouterPath = handlerPath + path_root + '/afterRouter.js';
+        //var afterRouterPath = handlerPath + path_root + '/afterRouter.js';
+        var afterRouterPath = handlerPath + '/afterRouter.js';
         console.log('afterRouterPath: ' + afterRouterPath);
         if (fs.existsSync(afterRouterPath)) {
           routeObj.afterRouter = [require(afterRouterPath)];
