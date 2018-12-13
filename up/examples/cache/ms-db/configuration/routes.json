@@ -1,0 +1,39 @@
+[
+  {
+    "uri": "/api/login",
+    "method": "POST",
+    "handler": "login",
+    "on_microservice": "login_service",
+    "authenticate": false
+  },
+  {
+    "uri": "/api/db/:documentName",
+    "method": "POST",
+    "handler": "post",
+    "on_microservice": "db_service"
+  },
+  {
+    "uri": "/api/db/:documentName/list",
+    "method": "GET",
+    "handler": "list",
+    "on_microservice": "db_service"
+  },
+  {
+    "uri": "/api/db/:documentName/search",
+    "method": "GET",
+    "handler": "search",
+    "on_microservice": "db_service"
+  },
+  {
+    "uri": "/api/db/:documentName/:id",
+    "method": "GET",
+    "handler": "get",
+    "on_microservice": "db_service"
+  },
+  {
+    "uri": "/api/db/:documentName/:id",
+    "method": "DELETE",
+    "handler": "delete",
+    "on_microservice": "db_service"
+  }
+]

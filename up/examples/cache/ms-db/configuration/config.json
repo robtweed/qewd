@@ -1,0 +1,55 @@
+{
+  "qewd_up": true,
+  "orchestrator": {
+    "qewd": {
+      "poolSize": 1,
+      "database": {
+        "type": "cache",
+        "params": {
+          "path": "/opt/cachesys/mgr",
+          "username": "_SYSTEM",
+          "password": "SYS",
+          "namespace": "USER"
+        }
+      }
+    }
+  },
+  "microservices": [
+    {
+      "name": "login_service",
+      "host": "http://192.168.1.84",
+      "port": 8081,
+      "qewd": {
+        "serverName": "Login MicroService",
+        "poolSize": 1,
+        "database": {
+          "type": "cache",
+          "params": {
+            "path": "/opt/cachesys/mgr",
+            "username": "_SYSTEM",
+            "password": "SYS",
+            "namespace": "USER"
+          }
+        }
+      }
+    },
+    {
+      "name": "db_service",
+      "host": "http://192.168.1.84",
+      "port": 8082,
+      "qewd": {
+        "serverName": "Database MicroService",
+        "poolSize": 1,
+        "database": {
+          "type": "cache",
+          "params": {
+            "path": "/opt/cachesys/mgr",
+            "username": "_SYSTEM",
+            "password": "SYS",
+            "namespace": "USER"
+          }
+        }
+      }
+    }
+  ]
+}

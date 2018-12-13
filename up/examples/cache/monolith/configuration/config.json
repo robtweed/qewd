@@ -1,0 +1,15 @@
+{
+  "qewd_up": true,
+  "qewd": {
+    "poolSize": 1,
+    "database": {
+      "type": "cache",
+      "params": {
+        "path": "/opt/cachesys/mgr",
+        "username": "_SYSTEM",
+        "password": "SYS",
+        "namespace": "USER"
+      }
+    }
+  }
+}
