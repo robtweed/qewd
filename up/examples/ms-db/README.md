@@ -392,7 +392,14 @@ First, create a directory on your host machine for these files, eg:
 and clone the files into it:
 
       cd ~/ms-db/yottadb
-      git clone https://github.com/robtweed/yotta-gbldir-files db_service
+      svn export https://github.com/robtweed/yotta-gbldir-files/trunk --depth files db_service
+
+
+**Note**: if you're running this example on a Raspberry Pi, you need the correct versions of the files for the Raspberry Pi.  Change the commands above to:
+
+      cd ~/ms-db/yottadb
+      svn export https://github.com/robtweed/yotta-gbldir-files/trunk/rpi/r1.22 db_service
+
 
 You should now see the three files that will be used by YottaDB for persistent data storage in the *~/ms-db/yottadb/db_service* directory.
 
@@ -405,9 +412,9 @@ It's a good idea to change their permissions:
 
 Now start the *db_service* MicroService Container like this:
 
-      sudo docker run -it --name db --rm -p 8082:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped -v ~/ms-db/yottadb/db_service:/root/.yottadb/r1.22_x86_64/g -e microservice="db_service" rtweed/qewd-server
+      sudo docker run -it --name db --rm -p 8082:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped -v ~/qewd-up/ms-db/yottadb/db_service:/root/.yottadb/r1.22_x86_64/g -e microservice="db_service" rtweed/qewd-server
 
-*ie* add this to the *docker run* command: **-v ~/ms-db/yottadb/db_service:/root/.yottadb/r1.22_x86_64/g**
+*ie* add this to the *docker run* command: **-v ~/qewd-up/ms-db/yottadb/db_service:/root/.yottadb/r1.22_x86_64/g**
 
 This makes YottaDB within the Container use the external files on the host for its storage.
 

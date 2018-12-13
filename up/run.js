@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  12 December 2018
+  13 December 2018
 
 */
 
@@ -35,7 +35,13 @@ var child_process = require('child_process');
 var qewd = require('../lib/master');
 
 function linkMonitor(cwd, name) {
-  if (name !== '') name = '/' + name;
+  if (name !== '') {
+    name = '/' + name;
+    var path1 = cwd + name;
+    if (!fs.existsSync(path1)) {
+      fs.mkdirSync(path1);
+    }
+  }
   var webServerRootPath = cwd + name + '/www';
   if (!fs.existsSync(webServerRootPath)) {
    fs.mkdirSync(webServerRootPath);
@@ -91,7 +97,6 @@ function setup(isDocker) {
   var ms_index = {};
   var webServerRootPath = process.cwd() + '/www/';
   var serviceName;
-  var orchPath;
 
   if (ms_name) {
     webServerRootPath = cwd + '/' + ms_name + '/www/';
@@ -130,10 +135,10 @@ function setup(isDocker) {
     if (config_data.orchestrator) {
       if (isDocker) {
         webServerRootPath = cwd + '/orchestrator/www/';
-        orchPath = cwd + '/orchestrator';
-        if (!fs.existsSync(orchPath)) {
-          fs.mkdirSync(orchPath);
-        }
+        //orchPath = cwd + '/orchestrator';
+        //if (!fs.existsSync(orchPath)) {
+        //  fs.mkdirSync(orchPath);
+        //}
         serviceName = 'orchestrator';
       }
       else {
