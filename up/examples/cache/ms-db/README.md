@@ -191,7 +191,7 @@ You're now ready to try the other APIs that are described below, but in order fo
 For example:
 
 
-      GET http://192.168.1.100:8080/api/db/myDocs/list
+      GET http://192.168.1.84:8080/api/db/myDocs/list
       Content-type: application/json
       Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NDI2Mz……etc
 
@@ -284,7 +284,7 @@ Successful response example:
         {"ok":true}
 
 
-### Seaerch within a specific Document Name
+### Search within a specific Document Name
 
 When you save a document, index records are automatically created for each leaf-node path.  This API allows you search against these indices.
 
@@ -331,6 +331,61 @@ for the supported APIs.  All the examples use a persistent Document (*aka* Globa
 For more information on QEWD's JavaScript/JSON abstraction of Global Storage, go to the
 [QEWD.js Training Resources](http://docs.qewdjs.com/qewd_training.html) page and study Parts 17 - 27
 
+## Inspecting the Cach&#233; Database
+
+If you're interested in confirming that your persistent Documents are being created and/or seeing what the JSON storage looks like as Cach&#233; Globals, you can do a couple of things.
+
+### Use the *qewd-monitor* Application
+
+The *qewd-monitor* browser-based application provides a way of monitoring the health and activity of QEWD systems.  Each of your MicroServices have it available.  One of the things you can do from the *qewd-monitor* application is to inspect your Persistent Documents.
+
+So, start the *qewd-monitor* application on the *db_service* MicroService by entering this URL in a browser:
+
+      http://192.168.1.84:8082/qewd-monitor
+
+Change the IP address to match that of your host machine, but make sure you use port 8082 which is the port on which the *db_service* MicroService is listening.
+
+You'll need to enter the QEWD management password which has been set by default as:
+
+      keepThisSecret!
+
+The Overview panel will appear, showing configuration information and the activity in the QEWD Master and Worker process (there's only 1 Worker process due to the limitations of the evaluation version of Cach&#233;).
+
+Click the *Document Store* tab in the top banner and you should see two Persistent JSON Documents named *Documents* and *DocumentsIndex*.  Click on them to drill down into their structure.
+
+### Using the Cach&#233; Interactive Shell
+
+If you want to see the actual physical Globals used to store your JSON documents, you'll need to stop the *db_service* QEWD process - type CTRL & C in the terminal window where it's running.  You'll be returned to the Container's command line prompt, eg:
+
+      root@5f770ffdf9ac:/opt/qewd#
+
+Now enter the Cache shell:
+
+      cache
+
+and you should see the prompt:
+
+      USER>
+
+Now you can examine the Globals using, for example:
+
+
+      zw ^Documents
+
+and
+
+      zw ^DocumentsIndex
+
+To exit the Cach&#233; shell, type:
+
+      h
+
+and you'll return to the Container's prompt.
+
+To restart the QEWD process, just type:
+
+      npm start
+
 
 ## Stopping the MicroServices
 
@@ -358,7 +413,7 @@ my [Dockerfile](https://github.com/robtweed/qewd/tree/master/docker-server-cache
 ## License
 
  Copyright (c) 2018 M/Gateway Developments Ltd,                           
- Reigate, Surrey UK.                                                      
+ Redhill, Surrey UK.                                                      
  All rights reserved.                                                     
                                                                            
   http://www.mgateway.com                                                  
