@@ -1,0 +1,21 @@
+{
+  "qewd_up": true,
+  "microservices": [
+    {
+      "name": "login_service",
+      "host": "http://192.168.1.78",
+      "port": 8081,
+      "qewd": {
+        "serverName": "Login MicroService"
+      }
+    },
+    {
+      "name": "db_service",
+      "host": "http://192.168.1.78",
+      "port": 8082,
+      "qewd": {
+        "serverName": "Database MicroService"
+      }
+    }
+  ]
+}
