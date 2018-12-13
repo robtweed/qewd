@@ -52,7 +52,7 @@ The file currently contains these lines:
       "name": "db_service",
       "host": "http://192.168.1.84",
 
-These IP addresses are used by the **Orchestrator* MicroService Container to communicate with the *login_service* and *db_service*
+These IP addresses are used by the *Orchestrator* MicroService Container to communicate with the *login_service* and *db_service*
 MicroService Containers (see next section).
 
 
