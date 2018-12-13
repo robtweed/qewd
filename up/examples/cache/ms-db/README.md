@@ -64,7 +64,7 @@ The application runs as 3 MicroServices:
 - **login_service**: the MicroService that handles user login
 - **db_service**: the MicroService that handles access to the Cach&#233; JSON database
 
-You'll need to start up 3 instances of the *rtweed/qewd-server-cache* COntainer:
+You'll need to start up 3 instances of the *rtweed/qewd-server-cache* Container:
 
 The examples below will assume you installed the example files into *~/qewd-up/ms-db*.  Adjust the commands to match the
 directory you've used.
@@ -156,6 +156,47 @@ You'll need to point the REST Client requests at the Orchstrator MicroService, e
       http://192.168.1.84:8080
 
 Adjust the IP address to that of your host server.
+
+
+### Logging In
+
+First we must use the Login API. The example is hard-coded to expect a username of *rob* and
+a password of *secret*.  If you want to amend the login logic, edit the file
+*/ms-db/login_service/login/handler.js*.
+
+
+Using a REST client:
+
+      POST http://192.168.1.84:8080/api/login
+      Content-type: application/json
+
+        with a body payload containing
+
+        {
+          "username": "rob",
+          "password": "secret"  
+        }
+
+**Note**: Change the IP address to match that of the host machine that is running the Orchestrator Service.
+
+You should see activity in the console logs for both the *Orchestrator* and *login_service* QEWD instances, and back should come a response looking something like this:
+
+      {
+          "ok": true,
+          "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NDI2Mz……etc”
+      }
+
+You're now ready to try the other APIs that are described below, but in order for them to work, you need to include the JWT that was returned to us as the token property in the */api/login* response shown above.  You need to add it as a *Bearer Token* in the HTTP *Authorization* request header for all the other example APIs: *ie* the *Authorization* header value must be the word *Bearer * followed by the JWT value.
+
+For example:
+
+
+      GET http://192.168.1.100:8080/api/db/myDocs/list
+      Content-type: application/json
+      Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NDI2Mz……etc
+
+[Click here for more information on how QEWD uses JWTs to secure MicroService-based APIs](https://github.com/robtweed/qewd/tree/master/up#how-jwts-protect-your-apis).
+
 
 ### Save a JSON document into the database
 
