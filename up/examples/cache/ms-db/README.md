@@ -145,13 +145,13 @@ Everything should now be running and ready to try out!
 
 ## The Database CRUD Demonstration REST APIs
 
-Essentially the APIs implement a basic Cach&#233;-based JSON Storage Server, allowing you to save, retrieve, search and delete JSON documents.  The documents can contain any valid JSON - there's no pre-defined schema for the documents.
+Essentially the APIs implement a basic Cach&#233;-based JSON Storage Server, allowing you to save, retrieve, search and delete persistent JSON documents.  The documents can contain any valid JSON - there's no pre-defined schema needed for the documents.
 
-It's something of a showcase for what's possible with QEWD's persistent JSON storage.
+It's an introduction to what's possible with QEWD's persistent JSON storage.
 
-Here's a summary of the APIs - give them a try using a REST Client
+What follows is a summary of the APIs - give them a try using a REST Client
 
-You'll need to point the REST Client requests at the Orchstrator MicroService, eg:
+You'll need to point your REST Client requests at the *Orchstrator* MicroService, eg:
 
       http://192.168.1.84:8080
 
@@ -170,7 +170,7 @@ Using a REST client:
       POST http://192.168.1.84:8080/api/login
       Content-type: application/json
 
-        with a body payload containing
+with a body payload containing
 
         {
           "username": "rob",
@@ -325,8 +325,8 @@ but:
 
 ## Hacking the Demonstration Code
 
-If you want to understand how the APIs work, look in the */ms-db/db_service* directory where you'll find the handlers 
-for the supported APIs.  All the examples use a persistent Document (aka Global) named *Documents*.
+If you want to understand how the APIs work and perhaps have a go at modifying them, look in the */ms-db/db_service* directory where you'll find the handlers 
+for the supported APIs.  All the examples use a persistent Document (*aka* Global) named *Documents*.
 
 For more information on QEWD's JavaScript/JSON abstraction of Global Storage, go to the
 [QEWD.js Training Resources](http://docs.qewdjs.com/qewd_training.html) page and study Parts 17 - 27
@@ -343,14 +343,15 @@ the Container by typing
 
 Note that when you stop the *db_service* Container, you'll lose any Documents that you created using the APIs.
 
-This is because the *rtweed/qewd-server-cache* Container does not map Cach&#233; namespace volumes to the host.
+This is because the *rtweed/qewd-server-cache* Container does not map Cach&#233; namespace volumes to the host on which your Containers run.
 
 The *rtweed/qewd-server-cache* Container is deliberately limited in its capabilities and is only provided for the
 purposes of this demonstration, allowing Cach&#233; developers to quickly and easily explore and understand the
-capabilities of QEWD.js.  If you want something suitable for a more serious and/or production environment, you'll
-need to create a full-fledged Cach&#233; (or IRIS) Container that allows for database persistence.  Feel free to use
-my [DOckerfile](https://github.com/robtweed/qewd/tree/master/docker-server-cache) as a guide to what you need to
-do in order to integrate QEWD with Cach&#233;.
+capabilities of QEWD.js.  
+
+Having hopefully raised your interest in what QEWD.js is capable of and how it can be used with Cach&#233;, you'll probably want something suitable for a more serious and/or production environment.  You'll
+need to create a fully-fledged Cach&#233; (or IRIS) Container that allows for database persistence.  Feel free to use
+my [Dockerfile](https://github.com/robtweed/qewd/tree/master/docker-server-cache) as a guide to what you need to do in order to integrate QEWD with Cach&#233;.
 
 
 
