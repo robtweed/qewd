@@ -11,75 +11,97 @@ Thanks to Ward De Backer for debugging assistance and functionality suggestions
 
 ## What is QEWD?
 
-This is best answered by reading [this article on QEWD](https://robtweed.wordpress.com/2017/04/18/having-your-node-js-cake-and-eating-it-too/)
+In summary: [QEWD](http://qewdjs.com) is a Node.js-based platform for developing and running both interactive WebSocket-based applications and REST APIs.  QEWD can run as either a monolithic back-end or as a set of MicroServices.
 
-In summary: [QEWD](http://qewdjs.com) is a Node.js-based platform for developing and running interactive browser-based applications and Web/REST services.
-
-QEWD makes use of the [ewd-qoper8](https://github.com/robtweed/ewd-qoper8) module to provide an isolated run-time 
-environment for each of your message/request handler functions, meaning that your JavaScript handler functions can use synchronous, 
-blocking APIs if you wish / prefer.
-
-QEWD includes an embedded persistent JSON database and session store/cache using Global Storage provided by either the Redis, 
-GT.M or Cache databases.
-
-Interactive QEWD applications can be developed using any client-side JavaScript framework (eg Angular, React, etc).
-
-A single instance of QEWD can simultaneously support multiple browser-based applications and Web/REST services.
-
-QEWD uses Express to provide its outward-facing HTTP(S) interface, and Socket.io to provide its outward-facing Web-socket interface.
+QEWD uses a unique architecture [that is described here](https://robtweed.wordpress.com/2017/04/18/having-your-node-js-cake-and-eating-it-too/), and includes an integrated persistent JSON storage database.
 
 
-## Installing
+## Try it out
 
-You can install QEWD.js by typing:
+The quickest way to try out QEWD is using the pre-built Docker version.
 
-       npm install qewd
+    docker pull rtweed/qewd-server
 
-However, you'll need to then set up the run-time environment manually.
+There's also a Raspberry Pi version
 
-Simpler options are:
+    docker pull rtweed/qewd-server-rpi
 
-- If you're starting from a "clean slate", you should take a look at the [pre-built installer scripts](https://github.com/robtweed/qewd/tree/master/installers)
-for Linux and Raspberry Pi systems.
+Create two files within a folder of your choice (eg *~/myQEWDApp*), using the sub-folder structure shown below:
 
-- If you've already installed Node.js, first create a directory to act as the "root" directory for
-QEWD, eg:
-
-        ~/qewdjs
-
-Then do the following:
-
-        cd ~/qewdjs   # or whatever your 'root' directory is
-        wget https://raw.githubusercontent.com/robtweed/qewd/master/installers/package.json
-        npm install
-
-This will install QEWD using NPM as before, but then allows you to run a setup script:
-
-        npm run setup
+        ~/myQEWDApp
+            |
+            |— configuration
+            |            |
+            |            |— config.json
+            |            |
+            |            |— routes.json
+            |
+            |— apis
+            |    |
+            |    |— helloworld
+            |            |
+            |            |— index.js
 
 
-Answer the questions it ask you, and it will create a working run-time environment for you.
+### *config.json*
 
-###Note: this setup script will NOT install one of the databases used by QEWD (eg GT.M, YottaDB, 
-Cache or Redis).  You'll need to do this manually.  If you want to use Redis, QEWD expects a default
-installation, listening on port 6379.
-
-For further details on installing and configuring QEWD.js, see 
-[this presentation slide deck](https://www.slideshare.net/robtweed/installing-configuring-ewdxpress).
+      {
+        "qewd_up": true
+      }
 
 
-## Learning / Using QEWD
+### *routes.json*
 
-See the free online [training course](http://docs.qewdjs.com/qewd_training.html)
+      [
+        {
+          "uri": "/api/helloworld",
+          "method": "GET",
+          "handler": "helloworld"
+        }
+      ]
 
-- Parts 1 to 3 provide background to the core modules and concepts used by QEWD
-- Parts 4 onwards focus on QEWD
+
+### *index.js*
+
+      module.exports = function(args, finished) {
+        finished({
+          hello: 'world'
+        });
+      };
+
+
+Fire up the QEWD Docker instance:
+
+    docker run -it --name qewdup --rm -p 3000:8080 -v ~/myQEWDApp:/opt/qewd/mapped rtweed/qewd-server
+
+or on a Raspberry Pi:
+
+    docker run -it --name qewdup --rm -p 3000:8080 -v ~/myQEWDApp:/opt/qewd/mapped rtweed/qewd-server-rpi
+
+
+Try out your REST API:
+
+    http://{{host-ip-address}}:3000/api/helloworld
+
+*eg*:
+
+    http://192.168.1.100:3000/api/helloworld
+
+
+## Further Reading
+
+[Getting Started with QEWD using QEWD-Up](https://github.com/robtweed/qewd/tree/master/up)
+
+For more information on QEWD's integrated persistent JavaScript/JSON storage, go to the
+[QEWD.js Training Resources](http://docs.qewdjs.com/qewd_training.html) page and study Parts 17 - 27
+
+[To see this persistent JSON storage in action](https://github.com/robtweed/qewd/tree/master/up/examples/ms-db)
 
 
 ## License
 
- Copyright (c) 2016 M/Gateway Developments Ltd,                           
- Reigate, Surrey UK.                                                      
+ Copyright (c) 2016-18 M/Gateway Developments Ltd,                           
+ Redhill, Surrey UK.                                                      
  All rights reserved.                                                     
                                                                            
   http://www.mgateway.com                                                  
