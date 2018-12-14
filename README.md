@@ -26,7 +26,7 @@ There's also a Raspberry Pi version
 
     docker pull rtweed/qewd-server-rpi
 
-Create two files within a folder of your choice (eg *~/myQEWDApp*), using the sub-folder structure shown below:
+Create three files within a folder of your choice (eg *~/myQEWDApp*), using the sub-folder structure shown below:
 
         ~/myQEWDApp
             |
