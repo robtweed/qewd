@@ -30,9 +30,9 @@ Create three files within a folder of your choice (eg *~/myQEWDApp*), using the 
 
         ~/myQEWDApp
             |
-            |— configuration
+            |_ configuration
             |            |
-            |            |— config.json
+            |            |_ config.json
             |            |
             |            |_ routes.json
             |
