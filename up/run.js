@@ -535,7 +535,7 @@ function setup(isDocker) {
         }
 
         //var afterRouterPath = handlerPath + path_root + '/afterRouter.js';
-        var onWDResponsePath = handlerPath + '/onWSResponse.js';
+        var onWSResponsePath = handlerPath + '/onWSResponse.js';
         console.log('onWSResponsePath: ' + onWSResponsePath);
         if (fs.existsSync(onWSResponsePath)) {
           routeObj.afterRouter = [require(onWSResponsePath)];
