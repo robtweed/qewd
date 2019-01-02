@@ -145,22 +145,22 @@ Its placement depends on what mode you are using and/or microservice you are spe
 
         ~/dockerExample
             |
-            |— addMiddleware.js
+            |_ addMiddleware.js
             |
-            |— configuration
+            |_ configuration
             |
-            |— apis
+            |_ apis
             |
 
 #### MicroService: Orchestrator
 
         ~/microserviceExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— orchestrator
+            |_ orchestrator
             |         |
-            |         |— addMiddleware.js
+            |         |_ addMiddleware.js
 
 
 #### MicroService: Other Microservice
@@ -169,11 +169,11 @@ Its placement depends on what mode you are using and/or microservice you are spe
 
         ~/microserviceExample
             |
-            |— configuration
+            |_ configuration
             |
             |— login_service
             |         |
-            |         |— addMiddleware.js
+            |         |_ addMiddleware.js
 
 
 ### Module structure
@@ -281,22 +281,22 @@ Its placement depends on what mode you are using and/or microservice you are spe
 
         ~/dockerExample
             |
-            |— onStarted.js
+            |_ onStarted.js
             |
-            |— configuration
+            |_ configuration
             |
-            |— apis
+            |_ apis
             |
 
 #### MicroService: Orchestrator
 
         ~/microserviceExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— orchestrator
+            |_ orchestrator
             |         |
-            |         |— onStarted.js
+            |         |_ onStarted.js
 
 
 #### MicroService: Other Microservice
@@ -305,11 +305,11 @@ Its placement depends on what mode you are using and/or microservice you are spe
 
         ~/microserviceExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— login_service
+            |_ login_service
             |         |
-            |         |— onStarted.js
+            |         |_ onStarted.js
 
 
 ### Module structure
@@ -387,22 +387,22 @@ Its placement depends on what mode you are using and/or microservice you are spe
 
         ~/dockerExample
             |
-            |— onWSrequest.js
+            |_ onWSrequest.js
             |
-            |— configuration
+            |_ configuration
             |
-            |— apis
+            |_ apis
             |
 
 #### MicroService: Orchestrator
 
         ~/microserviceExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— orchestrator
+            |_ orchestrator
             |         |
-            |         |— onWSRequest.js
+            |         |_ onWSRequest.js
 
 
 
@@ -477,24 +477,24 @@ Its placement depends on what mode you are using:
 
         ~/dockerExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— apis
+            |_ apis
             |    |
-            |    |— beforeHandler.js
+            |    |_ beforeHandler.js
             |
 
 #### MicroService
 
         ~/microserviceExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— orchestrator
+            |_ orchestrator
             |       |
             |      apis
             |       |
-            |       |— beforeHandler.js
+            |       |_ beforeHandler.js
 
 
 
@@ -589,15 +589,15 @@ You would define an *onMSResponse* hook by adding the *onMSResponse.js* module f
 
         ~/microserviceExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— login_service
+            |_ login_service
             |         |
             |        login
             |           |
-            |           |— index.js
+            |           |_ index.js
             |           |
-            |           |— onMSResponse.js
+            |           |_ onMSResponse.js
 
 
 
@@ -740,15 +740,15 @@ You would define an *onOrchResponse* hook by adding the *onOrchResponse.js* modu
 
         ~/microserviceExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— login_service
+            |_ login_service
             |         |
             |        login
             |           |
-            |           |— index.js
+            |           |_ index.js
             |           |
-            |           |— onOrchResponse.js
+            |           |_ onOrchResponse.js
 
 
 
@@ -878,11 +878,11 @@ Its placement depends on what mode you are using and/or microservice you are spe
 
         ~/dockerExample
             |
-            |— onWSResponse.js
+            |_ onWSResponse.js
             |
-            |— configuration
+            |_ configuration
             |
-            |— apis
+            |_ apis
             |
 
 The *onWSResponse* hook is applied to *ALL* responses received by the Master process.
@@ -892,11 +892,11 @@ The *onWSResponse* hook is applied to *ALL* responses received by the Master pro
 
         ~/microserviceExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— orchestrator
+            |_ orchestrator
             |         |
-            |         |— onWSResponse.js
+            |         |_ onWSResponse.js
 
 
 The *onWSResponse* hook is applied to *ALL* responses received by the Orchestrator's Master process.
