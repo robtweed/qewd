@@ -34,13 +34,13 @@ Create three files within a folder of your choice (eg *~/myQEWDApp*), using the 
             |            |
             |            |— config.json
             |            |
-            |            |— routes.json
+            |            |_ routes.json
             |
-            |— apis
+            |_ apis
             |    |
-            |    |— helloworld
+            |    |_ helloworld
             |            |
-            |            |— index.js
+            |            |_ index.js
 
 
 ### *config.json*

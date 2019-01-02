@@ -68,7 +68,7 @@ Finally, the Master process sends the JSON response to the REST Client.  By defa
 Understanding how and why to control the life-cycle of your MicroService application APIs requires an understanding of:
 
 - **each MicroService instance**: Each MicroService is an instance of QEWD, with its Master Process / Worker Process architecture;
-- ** how QEWD's MicroServices interoperate**.  In summary, all incoming requests from REST Clients are handled by a MicroService known as the *Orchestrator*.  This communicates with all your other MicroService QEWD instances over persistent WebSocket connections.  The *Orchestrator* MicroService routes incoming requests to the appropriate MicroService that is designated to handle that request.  Responses are returned to the *Orchestrator* which then forwards them to the REST client.
+- **how QEWD's MicroServices interoperate**.  In summary, all incoming requests from REST Clients are handled by a MicroService known as the *Orchestrator*.  This communicates with all your other MicroService QEWD instances over persistent WebSocket connections.  The *Orchestrator* MicroService routes incoming requests to the appropriate MicroService that is designated to handle that request.  Responses are returned to the *Orchestrator* which then forwards them to the REST client.
 
 ### The QEWD Run-Time Environment
 
@@ -171,7 +171,7 @@ Its placement depends on what mode you are using and/or microservice you are spe
             |
             |_ configuration
             |
-            |— login_service
+            |_ login_service
             |         |
             |         |_ addMiddleware.js
 
