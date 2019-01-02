@@ -245,6 +245,50 @@ To stop your running QEWD instance, just type CTRL & C.
 To restart QEWD-Up, just re-use the *docker run* command (as shown above) again.
 
 
+## Installing Additional Node.js Modules
+
+if you need to use additional Node.js modules (ie ones not automatically included with QEWD itself), you can do this by adding the file *install_modules.json*, eg:
+
+        ~/dockerExample
+            |
+            |— install_modules.json
+            |
+            |— configuration
+            |            |
+            |            |— routes.json
+            |            |
+            |            |— config.json
+            |
+
+This file should contain a JSON array, listing the names of the modules you want loaded from NPM.  For example:
+
+      [
+        "a-find",
+        "body-parser-xml",
+        "multer"
+      ]
+
+The modules in this file are loaded from NPM when the *qewd-server* Docker Container is next started.  Modules are saved into a *node_modules* folder in your mapped host file volume.  As a result, the next time(s) you start the Docker Container, your additional modules are already available and don't need to be reloaded.
+
+So, after starting the Container, you'll see the *node_modules* folder that will have been created, eg:
+
+        ~/dockerExample
+            |
+            |— install_modules.json
+            |
+            |— node_modules
+            |            |
+            |            a_find
+            |            ...etc
+            |
+            |— configuration
+            |            |
+            |            |— routes.json
+            |            |
+            |            |— config.json
+
+
+If you later modify your *install_modules.json* file and add new modules, they will be loaded from NPM into the *node_modules* folder when the Container is next restarted.
 
 # Dockerised QEWD MicroServices
 
@@ -671,6 +715,49 @@ Finally, see what happens if you try to use a valid but expired JWT in the Autho
     }
 
 
+## Installing Additional Node.js Modules
+
+if you need to use additional Node.js modules (ie ones not automatically included with QEWD itself) in any of your application's MicroServices, you can do this by adding the file *install_modules.json*, eg:
+
+        ~/microserviceExample
+            |
+            |— install_modules.json
+            |
+            |— configuration
+            |            |
+            |            |— routes.json
+            |            |
+            |            |— config.json
+            |
+
+This file should contain a JSON array, listing the names of the modules you want loaded from NPM.  For example:
+
+      [
+        "a-find",
+        "body-parser-xml",
+        "multer"
+      ]
+
+The modules in this file are loaded from NPM when one of your MicroService Containers is next started.  Modules are saved into a *node_modules* folder in your mapped host file volume.  As a result, the next time(s) you start/restart any of your MicroService Containers, your additional modules are already available for use and don't need to be reloaded.
+
+If you later modify your *install_modules.json* file and add new modules, they will be loaded from NPM when a MicroService Container is next restarted.
+
+So, after starting one of your MicroServices, you'll see the *node_modules* folder that will have been created, eg:
+
+        ~/microserviceExample
+            |
+            |— install_modules.json
+            |
+            |— node_modules
+            |            |
+            |            a_find
+            |            ...etc
+            |
+            |— configuration
+            |            |
+            |            |— routes.json
+            |            |
+            |            |— config.json
 
 
 # Native QEWD Monolith
@@ -918,3 +1005,29 @@ You can now add more routes and their associated handler methods.  If you do, yo
 To stop your running QEWD instance, just type CTRL & C.
 
 To restart QEWD-Up, just type *npm start* again.
+
+
+## Installing Additional Node.js Modules
+
+if you need to use additional Node.js modules (ie ones not automatically included with QEWD itself), you can do this by adding them to the *package.json* **dependencies**.  For example:
+
+      {
+        "name": "qewd-up",
+        "version": "1.0.0",
+        "description": "Automated QEWD Builder",
+        "author": "Rob Tweed <rtweed@mgateway.com>",
+        "scripts": {
+          "start": "node node_modules/qewd/up/run_native"
+        },
+        "dependencies": {
+          "qewd": "",
+          "qewd-transform-json": "",
+          "nodem": "",
+          "a-find": "",
+          "multer": ""
+        }
+      }
+
+
+
+

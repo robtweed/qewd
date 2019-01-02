@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-up: Rapid QEWD API Development                                      |
  |                                                                          |
- | Copyright (c) 2018 M/Gateway Developments Ltd,                           |
+ | Copyright (c) 2018-19 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,15 +24,50 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  13 December 2018
+  2 January 2019
 
 */
 
 console.log('Loading /up/run.js in process ' + process.pid);
 
 var fs = require('fs');
+var module_exists = require('module-exists');
 var child_process = require('child_process');
 var qewd = require('../lib/master');
+
+function installModule(moduleName, modulePath) {
+  if (!module_exists(moduleName) && !fs.existsSync(modulePath + '/node_modules/' + moduleName)) {
+    var prefix = '';
+    if (typeof modulePath !== 'undefined') {
+      prefix = ' --prefix ' + modulePath;
+    }
+    child_process.execSync('npm install --unsafe-perm ' + moduleName + prefix, {stdio:[0,1,2]});
+    console.log('\n' + moduleName + ' installed');
+  }
+  else {
+    console.log(moduleName + ' already installed');
+  }
+}
+
+function installModules(cwd) {
+  var npmModules;
+  var modulePath;
+  if (fs.existsSync(cwd + '/install_modules.json')) {
+    if (!fs.existsSync(cwd + '/node_modules')) {
+      fs.mkdirSync(cwd + '/node_modules');
+    }
+
+    process.env.NODE_PATH = cwd + '/node_modules:' + process.env.NODE_PATH;
+    require('module').Module._initPaths();
+
+    npmModules = require(cwd + '/install_modules.json');
+    npmModules.forEach(function(moduleName) {
+      console.log('\nInstalling module ' + moduleName + ' to ' + cwd);
+      installModule(moduleName, cwd);
+    });
+    console.log('** NODE_PATH = ' + process.env.NODE_PATH);
+  }
+}
 
 function linkMonitor(cwd, name) {
   if (name !== '') {
@@ -68,6 +103,7 @@ function setup(isDocker) {
   if (isDocker) {
     cwd = cwd + '/mapped';
     uuid = require('uuid/v4'); // loaded as dependency of ewd-session
+    installModules(cwd);
   }
 
   console.log('isDocker: ' + isDocker);
@@ -201,7 +237,22 @@ function setup(isDocker) {
   }
 
   var transform = require('qewd-transform-json').transform;
-  var helpers = {};
+  var helpers = {
+    getBodyParser(bodyParser) {
+      if (typeof bodyParser !== 'undefined' || bodyParser !== '') {
+        try {
+          return require(bodyParser);
+        }
+        catch(err) {
+          return false;
+        }
+      }
+      else {
+        console.log('No bodyParser specified - use default');
+        return false;
+      }
+    }
+  };
 
   var config_template = {
     managementPassword: '=> either(qewd.managementPassword, "keepThisSecret!")',
@@ -212,21 +263,40 @@ function setup(isDocker) {
       type: '=> either(qewd.database.type, "gtm")',
       params: '=> either(qewd.database.params, "<!delete>")',
     },
-    webServerRootPath: webServerRootPath
+    webServerRootPath: webServerRootPath,
+    cors: '=> either(qewd.cors, true)',
+    bodyParser: '=> getBodyParser(qewd.bodyParser)',
   };
 
   var config;
+  var addMiddlewarePath;
 
   if (ms_name) {
     config = transform(config_template, ms_config, helpers);
+    addMiddlewarePath = cwd + '/' + ms_name + '/addMiddleware.js';
   }
   else {
-    if (isDocker && config_data.orchestrator) {
-      config = transform(config_template, config_data.orchestrator, helpers);
+    if (isDocker) {
+      if (config_data.orchestrator) {
+        config = transform(config_template, config_data.orchestrator, helpers);
+      }
+      else {
+        config = transform(config_template, config_data, helpers);
+      }
+      if (config_data.microservices) {
+        addMiddlewarePath = cwd + '/orchestrator/addMiddleware.js';
+      }
+      else {
+        addMiddlewarePath = cwd + '/addMiddleware.js';
+      }
     }
     else {
       config = transform(config_template, config_data, helpers);
+      addMiddlewarePath = cwd + '/addMiddleware.js';
     }
+  }
+  if (fs.existsSync(addMiddlewarePath)) {
+    config.addMiddlewareUp = require(addMiddlewarePath);
   }
 
   if (isDocker) {
@@ -326,6 +396,10 @@ function setup(isDocker) {
         });
 
         routes_data.forEach(function(route) {
+          var routeObj;
+          var onOrchResponsePath;
+          var onOrchResponseFn;
+
           if (route.on_microservice || route.on_microservices) {
 
             if (route.from_microservices) {
@@ -339,11 +413,13 @@ function setup(isDocker) {
               if (!onConductor) return;
             }
 
-            var routeObj = {
+            routeObj = {
               path: route.uri,
               method: route.method,
               destination: route.on_microservice
             };
+
+            /*
 
             //var onRequestPath = cwd + '/' + route.on_microservice + '/handlers/' + route.handler + '/onRequest.js';
             var onRequestPath = cwd + '/' + route.on_microservice + '/' + route.handler + '/onRequest.js';
@@ -353,16 +429,70 @@ function setup(isDocker) {
               console.log('Adding onRequest handler for ' + route.uri + ': ' + onRequestPath);
             }
 
+            */
+
             //var onResponsePath = cwd + '/' + route.on_microservice + '/handlers/' + route.handler + '/onResponse.js';
-            var onResponsePath = cwd + '/' + route.on_microservice + '/' + route.handler + '/onResponse.js';
-            console.log('Checking for onResponse path: ' + onResponsePath);
-            if (fs.existsSync(onResponsePath)) {
-              routeObj.onResponse = require(onResponsePath);
-              console.log('Adding onResponse handler for ' + route.uri + ': ' + onResponsePath);
+            onOrchResponsePath = cwd + '/' + route.on_microservice + '/' + route.handler + '/onOrchResponse.js';
+            console.log('Checking for onOrchResponse path: ' + onOrchResponsePath);
+            if (fs.existsSync(onOrchResponsePath)) {
+              //routeObj.onResponse = require(onOrchResponsePath);
+
+              onOrchResponseFn = require(onOrchResponsePath);
+              routeObj.onResponse = function(args) {
+                var _this = this;
+
+                function handleResponse(obj) {
+                  if (!obj.message) {
+                    obj = {
+                      message: obj
+                    };
+                  }
+                  args.handleResponse.call(_this, obj);
+                }
+
+                function forwardToMS(message, callback) {
+                  var msgObj = message;
+                  if (!msgObj.headers) {
+                    msgObj.headers = {};
+                  }
+                  msgObj.headers.authorization = 'Bearer ' + args.responseObj.message.token;
+                  console.log('sending ' + JSON.stringify(msgObj, null, 2));
+                  var status = args.send(msgObj, callback);
+                  console.log('status = ' + status);
+                  if (status === false) {
+                    callback({error: 'No such route: ' + message.method + ' ' + message.path})
+                  }
+                }
+
+                function getJWTProperty(name) {
+                  return _this.jwt.handlers.getProperty(name, args.responseObj.message.token);
+                }
+
+                return onOrchResponseFn.call(this, args.responseObj, args.message, forwardToMS, handleResponse, getJWTProperty);
+              };
+
+              console.log('Adding onOrchResponse handler for ' + route.uri + ': ' + onOrchResponsePath);
             }
 
             config.u_services.routes.push(routeObj);
           }
+
+          else if (route.router) {
+            // dynamically-controlled routing to other API
+
+            var onRequestPath = cwd + '/orchestrator/routers/' + route.router + '.js';
+ 
+            routeObj = {
+              path: route.uri,
+              method: route.method
+            };
+            if (fs.existsSync(onRequestPath)) {
+              routeObj.onRequest = require(onRequestPath);
+              console.log('Adding onRequest handler for ' + route.uri + ': ' + onRequestPath);
+            }
+            config.u_services.routes.push(routeObj);
+          }
+
         });
       }
     }
@@ -390,23 +520,25 @@ function setup(isDocker) {
           module: __dirname + '/handlers'
         };
 
-        var handlerPath = cwd + '/apis';
-        var orchestratorHandlerPath = cwd + '/orchestrator/apis';
+        //var handlerPath = cwd + '/apis';
+        var handlerPath = cwd;
+        //var orchestratorHandlerPath = cwd + '/orchestrator/apis';
+        var orchestratorHandlerPath = cwd + '/orchestrator';
         if (fs.existsSync(orchestratorHandlerPath)) {
           handlerPath = orchestratorHandlerPath;
         }
         //var beforeRouterPath = handlerPath + path_root + '/beforeRouter.js';
-        var beforeRouterPath = handlerPath + '/beforeRouter.js';
-        console.log('beforeRouterPath: ' + beforeRouterPath);
-        if (fs.existsSync(beforeRouterPath)) {
-          routeObj.beforeRouter = [require(beforeRouterPath)];
+        var onWSRequestPath = handlerPath + '/onWSRequest.js';
+        console.log('onWSRequestPath: ' + onWSRequestPath);
+        if (fs.existsSync(onWSRequestPath)) {
+          routeObj.beforeRouter = [require(onWSRequestPath)];
         }
 
         //var afterRouterPath = handlerPath + path_root + '/afterRouter.js';
-        var afterRouterPath = handlerPath + '/afterRouter.js';
-        console.log('afterRouterPath: ' + afterRouterPath);
-        if (fs.existsSync(afterRouterPath)) {
-          routeObj.afterRouter = [require(afterRouterPath)];
+        var onWDResponsePath = handlerPath + '/onWSResponse.js';
+        console.log('onWSResponsePath: ' + onWSResponsePath);
+        if (fs.existsSync(onWSResponsePath)) {
+          routeObj.afterRouter = [require(onWSResponsePath)];
         }
 
         routes.push(routeObj);
@@ -440,7 +572,7 @@ module.exports = function(isDocker) {
   var onStartedPath2;
 
   if (ms_name) {
-    onStartedPath = cwd + '/microservices/' + ms_name + '/onStarted.js';
+    onStartedPath = cwd + '/' + ms_name + '/onStarted.js';
   }
   else {
     onStartedPath = cwd + '/orchestrator/onStarted.js';
@@ -464,26 +596,29 @@ module.exports = function(isDocker) {
   }
   else {
 
-    try {
-      console.log('Running down YottaDB...');
-      child_process.execSync(process.env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
-      child_process.execSync(process.env.ydb_dist + '/mupip rundown -region qewdreg', {stdio:[0,1,2]});
-      console.log('Rundown completed');
-    }
-    catch(err) {
-      console.log('Error running down YottaDB: ' + err);
-      console.log('Recovering journal...');
-      child_process.execSync(process.env.ydb_dist + '/mupip journal -recover -backward ' + process.env.ydb_dir + '/' + process.env.ydb_rel + '/g/yottadb.mjl', {stdio:[0,1,2]});
-      console.log('Journal recovered');
-    }
+    if (config.database && config.database.type === 'gtm') {
 
+      try {
+        console.log('Running down YottaDB...');
+        child_process.execSync(process.env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
+        child_process.execSync(process.env.ydb_dist + '/mupip rundown -region qewdreg', {stdio:[0,1,2]});
+        console.log('Rundown completed');
+      }
+      catch(err) {
+        console.log('Error running down YottaDB: ' + err);
+        console.log('Recovering journal...');
+        child_process.execSync(process.env.ydb_dist + '/mupip journal -recover -backward ' + process.env.ydb_dir + '/' + process.env.ydb_rel + '/g/yottadb.mjl', {stdio:[0,1,2]});
+        console.log('Journal recovered');
+      }
+    }
     var q = qewd.start(config, routes);
+    var xp = qewd.intercept();
 
     if (fs.existsSync(onStartedPath)) {
-      require(onStartedPath).call(q, config);
+      require(onStartedPath).call(q, config, xp.app, xp.qx.router, xp.qx);
     }
     else if (fs.existsSync(onStartedPath2)) {
-      require(onStartedPath2).call(q, config);
+      require(onStartedPath2).call(q, config, xp.app, xp.qx.router, xp.qx);
     }
   }
 };

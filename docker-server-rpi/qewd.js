@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  12 December 2018
+  19 December 2018
 
 */
 
@@ -199,8 +199,11 @@ if (userDefined) {
   }
 }
 
+var xp = qewd_master.intercept();
+
 // invoke user-specific startup code
 
 if (startup.onStarted) {
-  startup.onStarted.call(q);
+  startup.onStarted.call(q, config, xp.app, xp.qx.router, xp.qx);
 }
+

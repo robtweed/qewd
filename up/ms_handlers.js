@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-up: Rapid QEWD API Development                                      |
  |                                                                          |
- | Copyright (c) 2018 M/Gateway Developments Ltd,                           |
+ | Copyright (c) 2018-19 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  12 December 2018
+  2 January 2019
 
 */
 
@@ -36,6 +36,7 @@ function loadRoutes(onHandledOnly) {
   var fs = require('fs');
   var cwd = process.cwd() + '/mapped';
   var ms_name = process.env.microservice;
+  var ms_path = cwd + '/' + ms_name + '/';
 
   var routes_data = require(cwd + '/configuration/routes.json');
   var config_data = require(cwd + '/configuration/config.json');
@@ -60,9 +61,10 @@ function loadRoutes(onHandledOnly) {
 
   routes_data.forEach(function(route) {
     var handler;
-    var onHandledPath;
+    var onMSResponsePath;
     var ms_match = false;
     var ms_source = ms_name;
+
     if (route.on_microservice) {
       if (route.on_microservice === ms_name) {
         // direct match
@@ -87,9 +89,9 @@ function loadRoutes(onHandledOnly) {
 
     if (ms_match) {
       if (onHandledOnly) {
-        onHandledPath = path + route.handler + '/onHandled.js';
-        if (fs.existsSync(onHandledPath)) {
-          workerResponseHandler[route.uri] = require(onHandledPath);
+        onMSResponsePath = ms_path + route.handler + '/onMSResponse.js';
+        if (fs.existsSync(onMSResponsePath)) {
+          workerResponseHandler[route.uri] = require(onMSResponsePath);
         }
       }
       else {
@@ -151,8 +153,10 @@ module.exports = {
           _this.microServiceRouter.call(_this, message, callback);
         }
         var jwt = message.token;
-        workerResponseHandler[message.path](message, jwt, forward, send);
-        return true;
+        var status = workerResponseHandler[message.path](message, jwt, forward, send);
+        if (typeof status === 'undefined') return true;
+        if (status === false) return;
+        return status;
       }
     }
   }

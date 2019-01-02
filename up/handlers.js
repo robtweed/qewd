@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-up: Rapid QEWD API Development                                      |
  |                                                                          |
- | Copyright (c) 2018 M/Gateway Developments Ltd,                           |
+ | Copyright (c) 2018-19 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  12 December 2018
+  2 January 2019
 
 */
 
@@ -49,12 +49,16 @@ function getRoutes() {
   if (fs.existsSync(orchestratorHandlerPath)) {
     handlerRootPath = orchestratorHandlerPath;
     isConductor = true;
-    console.log(111111);
   }
   console.log('handlerRootPath = ' + handlerRootPath);
 
   routes_data.forEach(function(route) {
-    //console.log('** route = ' + JSON.stringify(route));
+    console.log('** route = ' + JSON.stringify(route));
+    if (route.router) {
+      console.log('dynamically routed');
+      // dynamically-routed, so this isn't to be loaded into the Worker
+      return;
+    }
     if (route.else) {
       errorResponse = route.else;
       return;
@@ -63,7 +67,11 @@ function getRoutes() {
     //var path_root = '/' + route.uri.split('/')[1];
     var path_root = '';
     var handler;
-    var handlerPath = handlerRootPath + path_root + '/' + route.handler;
+    var ms_source = handlerRootPath;
+    if (route.handler_source) {
+      ms_source = cwd + '/' + route.handler_source;
+    }
+    var handlerPath = ms_source + '/' + route.handler;
     if (fs.existsSync(handlerPath + '/handler.js')) {
       handler = require(handlerPath + '/handler.js');
       console.log('loaded handler from ' + handlerPath + '/handler.js');
@@ -104,7 +112,7 @@ function getRoutes() {
 function beforeHandler(req, finished) {
   if (!beforeHandlerFn) return;
   if (ignorePaths[req.path]) return;
-  beforeHandlerFn.call(this, req, finished);
+  return beforeHandlerFn.call(this, req, finished);
 }
 
 module.exports = {
@@ -126,6 +134,6 @@ module.exports = {
     }
   },
   beforeHandler: function(req, finished) {
-    beforeHandler.call(this, req, finished);
+    return beforeHandler.call(this, req, finished);
   }
 };
