@@ -32,6 +32,9 @@ In the first two modes, *all* you need to install on your hardware is Docker.  E
 
 Getting started with each of the QEWD-Up modes is described below.  They all follow a similar pattern, but there are some mode-specific differences.
 
+For advanced use of QEWD-Up, see the [detailed documentation here.](https://github.com/robtweed/qewd/tree/master/up/docs)
+
+
 
 # Dockerised QEWD Monolith
 
