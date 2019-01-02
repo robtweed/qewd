@@ -55,9 +55,9 @@ Create a folder for your application / suite of APIs.  I'm going to name my exam
 
         ~/dockerExample
             |
-            |— configuration
+            |_ configuration
             |
-            |— apis
+            |_ apis
             |
 
 Create two text files in the configuration folder:
@@ -65,13 +65,13 @@ Create two text files in the configuration folder:
 
         ~/dockerExample
             |
-            |— configuration
+            |_ configuration
             |            |
-            |            |— routes.json
+            |            |_ routes.json
             |            |
-            |            |— config.json
+            |            |_ config.json
             |
-            |— apis
+            |_ apis
             |
 
 
