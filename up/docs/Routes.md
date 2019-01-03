@@ -11,6 +11,10 @@
   - [The beforeHandler Hook in Monolithic Applications](#the-beforehandler-hook-in-monolithic-applications)
   - [Authenticated JWTs in MicroService Applications](#authenticated-jwts-in-microservice-applications)
 - [Customising Invalid Route Error Responses](#customising-invalid-route-error-responses)
+- [Variable API Paths](#variable-api-paths)
+- [Variable MicroService Destinations](#variable-microservice-destinations)
+- [Federated Data Using Group Destinations](#federated-data-using-group-destinations)
+- [Dynamically Routed APIs](#dynamically-routed-apis)
 
 # Defining Routes in QEWD-Up
 
@@ -281,3 +285,301 @@ Now, any API request other than *POST /api/login* or *GET /api/info/info* will r
       }
 
 
+
+# Variable API Paths
+
+Your API route paths can contain one or more variable components.  These are simply specified with a preceding colon. For example:
+
+      "uri": "/api/patient/:patientId"
+
+      "uri": "/api/patient/:patientId/heading/:heading"
+
+
+
+In the first example above, the third part of the API route will be mapped automatically by QEWD to a variable named *patientId*.
+
+In the second example above, the third part of the API route will be mapped automatically by QEWD to a variable named *patientId*, and the fifth part of the API route will be mapped to a variable named *heading*.
+
+These variables are available to you in your handler module as *args[variableName]*.
+
+For example, if your route definition is:
+
+    {
+      "uri": "/api/patient/:patientId/heading/:heading",
+      "method": "GET",
+      "handler": "getPatientHeading",
+      "on_microservice": "clinical_data_service" 
+    }
+
+Then, in your *getPatientHeading* handler module, you can access the variables *patientId* and *heading* like this:
+
+
+      module.exports = function(args, finished) {
+        var patientId = args.patientId;
+        var heading = args.heading;
+
+        //.... etc
+
+      };
+
+So, if the user sent the request: *GET /api/patient/1234567/heading/allergies*:
+
+      args.patientId = "1234567"
+      args.heading = "allergies"
+
+
+# Variable MicroService Destinations
+
+The API path variable name *destination* is a reserved name.  If specified in an API path, QEWD will attempt to route the request to a MicroService with that name.  If the *destination* value does not match a configured MicroService name, then QEWD will return an appropriate error response.
+
+
+For example:
+
+    {
+      "uri": "/api/store/:destination/stockLevels",
+      "method": "GET",
+      "handler": "getStockLevels",
+      "on_microservices: [
+        "london_store",
+        "leeds_store",
+        "edinburgh_store"
+      ],
+      "handler_source": "london_store" 
+    }
+
+This can be used to get stock level information from three MicroServices named *london_store*, *leeds_store* and *edinburgh_store*.  The *getStockLevels* handler module definition is speficied once only and can be found in the handlers folder for the *london_store* MicroService.
+
+So, for example, a user wanting the stock level information for the Leeds store would send the request:
+
+      GET /api/store/leeds_store/stockLevels
+
+
+# Federated Data Using Group Destinations
+
+In the above example, if we wanted to find out stock levels at all three stores, we'd need to send three separate requests, one for each store MicroService destination.
+
+However, QEWD provides a way of combining MicroServices into a named *Group Destination*.  By sending a request for an API that uses such a Group Destination, the Orchestrator automatically sends simultaneous asynchronous requests to all the MicroServices that make up the Group, and returns a composite response once it receives the responses from all the MicroServices in the Group.
+
+If any of the MicroServices in the Group return an error, that error will be included in the composite response.
+
+This mechanism can be used for automatic federation of data across distributed systems.
+
+## Creating a Group Destination
+
+Group destinations are defined in the */configuration/config.json* file.
+
+First, define the individual MicroServices as normal in the *config.json* file, eg:
+
+      {
+        "qewd_up": true,
+        "microservices": [
+          {
+            "name": "london_store",
+            "host": "http://192.168.1.78",
+            "port": 8081,
+            "qewd": {
+              "serverName": "London Store"
+            }
+          },
+          {
+            "name": "leeds_store",
+            "host": "http://192.168.1.78",
+            "port": 8082,
+            "qewd": {
+              "serverName": "Leeds Store"
+            }
+          },
+          {
+            "name": "edinburgh_store",
+            "host": "http://192.168.1.78",
+            "port": 8083,
+            "qewd": {
+              "serverName": "Edinburgh Store"
+            }
+          }
+        ]
+      }
+
+
+Then add a Group destination - we'll call it *all_stores* in this example, but its name is up to you.  Define the MicroServices that are included in the Group using the *members* array, for example:
+
+      {
+        "qewd_up": true,
+        "microservices": [
+          {
+            "name": "london_store",
+            "host": "http://192.168.1.78",
+            "port": 8081,
+            "qewd": {
+              "serverName": "London Store"
+            }
+          },
+          {
+            "name": "leeds_store",
+            "host": "http://192.168.1.78",
+            "port": 8082,
+            "qewd": {
+              "serverName": "Leeds Store"
+            }
+          },
+          {
+            "name": "edinburgh_store",
+            "host": "http://192.168.1.78",
+            "port": 8083,
+            "qewd": {
+              "serverName": "Edinburgh Store"
+            }
+          },
+          {
+            "name": "all_stores",
+            "members": [
+              "london_store",
+              "leeds_store",
+              "edinburgh_store"
+             ]
+          }
+        ]
+      }
+
+
+## Create a Route that Uses the Group Destination
+
+Now, in our *routes.json* file we can define a new route for getting the stock levels for all stores:
+
+      {
+        "uri": "/api/all/stockLevels",
+        "method": "GET",
+        "handler": "getStockLevels",
+        "on_microservice": "all_stores",
+        "handler_source": "london_store"
+      }
+
+
+## Try it Out
+
+If you now send a *GET /api/all/stockLevels* request, you should get back a composite result.  These are returned in an object named *results*.  Each store MicroService will return its results (as returned from the *getStockLevels* handler module) in a sub-object whose name is the MicroService name, eg:
+
+      {
+        "results":{
+          "london_store":{
+            "product":"Widgets",
+            "quantity":34
+          },
+          "leeds_store":{
+            "product":"Widgets",
+            "quantity":35
+          },
+          "edinburgh_store":{
+            "product":"Widgets",
+            "quantity":21
+          }
+        },
+        "token": "eyJ0eXA..."
+     }
+
+The *token* property is always returned with non-Error responses, and is the updated JWT.
+
+**Note 1*: Although the example uses a GET method, you can also use POST, PUT and DELETE to create or modify information in all MicroServices within a Group Destination.
+
+**Note 2*: You can even use a Group Destination name in an API route that has a variable destination.
+
+
+# Dynamically Routed APIs
+
+QEWD-Up is not limited to API routing that is explicitly defined within the *routes.json* route properties.
+
+Sometimes, you need an API whose routing needs to be determined at run-time on the basis of some aspect of its content and/or structure/format.  QEWD-Up's Dynamic Routing provides you with the mechanism for doing this.
+
+## Defining a Dynamically-Routed API
+
+A Dynamically-Routed API is specified using the standard *uri* and *method* properties and a third property:
+
+- **router**: The name of a module that you write, whose purpose is to define how to handle it.  The module name is up to you.
+
+For example:
+
+      {
+        "uri": "/api/dynamicallyRouted",
+        "method": "GET",
+        "router": "myCustomRouter"
+      }
+
+## Defining a Router Module
+
+In the example above, we're specifying that the routing for a *GET /api/dynamicallyRouted* request will be the responsibility of a module named *myCustomRouter*
+
+This module is created in the *orchestrator* folder, in a sub-folder named *routers*, eg:
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ orchestrator
+            |       |
+            |      routers
+            |       |
+            |       |_ myCustomRouter.js
+
+
+
+## Router Module structure
+
+Your Router Module file should export a function of the structure shown below:
+
+      module.exports = function(args, send, handleResponse) {
+        // Router logic here
+      };
+
+
+## Router Module Arguments
+
+### args
+
+This object contains the incoming request as restructured by QEWD's Master process.  Most of the information you'll need for your routing logic is in *args.req*.  eg:
+
+- **args.req.headers**: The HTTP request headers
+- **args.req.query**: The parsed name/value pairs in the URL query string (if any)
+- **args.req.body**: The parsed JSON body payload
+
+### handleResponse
+
+Use this function to return the response to the REST Client. It is your responsibility to return the response if you are using a Router module.
+
+It has a single argument: the object containing your response.  Note: the response **MUST* be included in a property named *message*. 
+
+### send
+
+This is a function you can use to forward an API request.  To use it you must first create an object that contains the path and method (and optionally any payload) of an API route that you want to invoke.  
+
+**Note**: This API route must be defined within your *routes.json* file.
+
+The *send()* function takes two further arguments:
+
+- args: as provided by the router module interface
+- handleResponse: as described above
+
+## Router Module Example
+
+      module.exports = function(args, send, handleResponse) {
+        if (args.req.query.bypass) {
+          handleResponse({
+            message: {
+              login: 'bypassed'
+            }
+          });
+        }
+        else {
+          var message = {
+            path: '/api/info/info',
+            method: 'GET'
+          };
+          send(message, args, handleResponse);
+        }
+      };
+
+In the example above:
+
+- sending *GET /api/dynamicallyRouted?bypass=true will return a response of {login: 'bypassed'}
+
+- sending *GET /api/dynamicallyRouted* will forward a request for the *GET /api/info/info* API (which must be defined in the *routes.json* file.  Its response is returned via the *send()* function's *handleResponse* argument.
+ 
