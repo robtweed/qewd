@@ -471,7 +471,7 @@ It is applied to **all** of the above API requests, and is invoked on the QEWD W
 
 Its most common use is for determining whether or not the request has been authenticated, and rejecting un-authenticated or otherwise invalid requests before the appropriate API handler method is invoked.
 
-**Note**: Although the *beforeHandler* hook is applied to all of the above API requests, it can be over-ridden on a per-API basis by setting a route's *applyBeforeHandler* property to *false*.
+**Note**: Although the *beforeHandler* hook is applied to all of the above API requests, it can be over-ridden on a per-API basis by setting a route's [*applyBeforeHandler* property to *false*](https://github.com/robtweed/qewd/blob/master/up/docs/Routes.md#the-beforehandler-hook-in-monolithic-applications).
 
 Its placement depends on what mode you are using:
 

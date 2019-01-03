@@ -109,7 +109,7 @@ For example:
 
 ## *Internal* MicroService APIs
 
-You can use the *onWSResponse* Event Hook to chain MicroService APIs - ie a MicroService can forward one or more API requests that will be handled on other MicroServices.  You may not want these APIs to be publicly accessible via the Orchestrator, but instead be *internally* accessible only.
+You can use the [*onMSResponse*](https://github.com/robtweed/qewd/blob/master/up/docs/Life_Cycle_Events.md#onmsresponse) Event Hook to chain MicroService APIs - ie a MicroService can forward one or more API requests that will be handled on other MicroServices.  You may not want these APIs to be publicly accessible via the Orchestrator, but instead be *internally* accessible only.
 
 QEWD-Up therefore allows you to define routes that are only accessible from one or more MicroServices.  Simply add the *route* property:
 
