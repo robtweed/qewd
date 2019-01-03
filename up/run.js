@@ -35,6 +35,25 @@ var module_exists = require('module-exists');
 var child_process = require('child_process');
 var qewd = require('../lib/master');
 
+function getDirectories(path) {
+  return fs.readdirSync(path).filter(function(file) {
+    return fs.statSync(path + '/' + file).isDirectory();
+  });
+}
+
+function createModuleMap(cwd, config) {
+  var qewdAppsPath = cwd + '/qewd-apps';
+  if (fs.existsSync(qewdAppsPath)) {
+    if (!config.moduleMap) {
+      config.moduleMap = {};
+    }
+    var appList = getDirectories(qewdAppsPath);
+    appList.forEach(function(appName) {
+      config.moduleMap[appName] = qewdAppsPath + '/' + appName;
+    });
+  }
+}
+
 function installModule(moduleName, modulePath) {
   if (!module_exists(moduleName) && !fs.existsSync(modulePath + '/node_modules/' + moduleName)) {
     var prefix = '';
@@ -83,6 +102,9 @@ function linkMonitor(cwd, name) {
   }
   var cmd = 'ln -sf ' + process.cwd() + '/node_modules/qewd-monitor/www ' + webServerRootPath + '/qewd-monitor';
   child_process.execSync(cmd, {stdio:[0,1,2]});
+
+  var cmd = 'ln -sf ' + process.cwd() + '/node_modules/ewd-client/lib/proto/ewd-client.js ' + webServerRootPath + '/ewd-client.js';
+  child_process.execSync(cmd, {stdio:[0,1,2]});
 }
 
 function unlinkMonitor(cwd, name) {
@@ -106,8 +128,8 @@ function setup(isDocker) {
     installModules(cwd);
   }
 
-  console.log('isDocker: ' + isDocker);
-  console.log('cwd = ' + cwd);
+  //console.log('isDocker: ' + isDocker);
+  //console.log('cwd = ' + cwd);
 
   var config_data;
   try {
@@ -154,7 +176,7 @@ function setup(isDocker) {
     }
 
     if (ms_config.qewd['qewd-monitor'] !== false) {
-      console.log('1 enabling qewd-monitor');
+      //console.log('1 enabling qewd-monitor');
       linkMonitor(cwd, ms_name);
     }
     else {
@@ -182,7 +204,7 @@ function setup(isDocker) {
         serviceName = '';
       }
       if (config_data.orchestrator['qewd-monitor'] !== false) {
-        console.log('2 enabling qewd-monitor');
+        //console.log('2 enabling qewd-monitor');
         linkMonitor(cwd, serviceName);
       }
       else {
@@ -195,7 +217,7 @@ function setup(isDocker) {
           // this is Docker orchestrator
           webServerRootPath = cwd + '/orchestrator/www/';
           serviceName = 'orchestrator';
-          console.log('3 enabling qewd-monitor *');
+          //console.log('3 enabling qewd-monitor *');
           linkMonitor(cwd, serviceName);
         }
         else {
@@ -204,7 +226,7 @@ function setup(isDocker) {
           serviceName = '';
 
           if (config_data['qewd-monitor'] !== false) {
-            console.log('4 enabling qewd-monitor');
+            //console.log('4 enabling qewd-monitor');
             linkMonitor(cwd, serviceName);
           }
           else {
@@ -216,7 +238,7 @@ function setup(isDocker) {
         webServerRootPath = cwd + '/www/';
         serviceName = '';
         if (!config_data.qewd || (config_data.qewd && config_data.qewd['qewd-monitor'] !== false)) {
-          console.log('5 enabling qewd-monitor');
+          //console.log('5 enabling qewd-monitor');
           linkMonitor(cwd, serviceName);
         }
         else {
@@ -303,6 +325,9 @@ function setup(isDocker) {
 
     if (ms_name) {
       // This is a micro-service, not the orchestrator
+
+      createModuleMap(cwd + '/' + ms_name, config);
+
       routes = [{
         path: ms_config.name,
         module: __dirname + '/ms_handlers',
@@ -386,6 +411,11 @@ function setup(isDocker) {
     }
     else {
       // This is the orchestrator (or Docker monolith)
+
+      // Add module map if necessary
+
+      createModuleMap(cwd, config);
+
       // Add in microservice definitions if present
 
       console.log('config_data.microservices: ' + JSON.stringify(config_data.microservices, null, 2));
@@ -474,9 +504,9 @@ function setup(isDocker) {
                     msgObj.headers = {};
                   }
                   msgObj.headers.authorization = 'Bearer ' + args.responseObj.message.token;
-                  console.log('sending ' + JSON.stringify(msgObj, null, 2));
+                  //console.log('sending ' + JSON.stringify(msgObj, null, 2));
                   var status = args.send(msgObj, callback);
-                  console.log('status = ' + status);
+                  //console.log('status = ' + status);
                   if (status === false) {
                     callback({error: 'No such route: ' + message.method + ' ' + message.path})
                   }
@@ -574,7 +604,7 @@ function setup(isDocker) {
 
 module.exports = function(isDocker) {
 
-  console.log('running module.exports function for run.js');
+  //console.log('running module.exports function for run.js');
 
   var results = setup(isDocker);
   var config = results.config;
