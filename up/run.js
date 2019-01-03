@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  2 January 2019
+  3 January 2019
 
 */
 
@@ -314,6 +314,29 @@ function setup(isDocker) {
         }
       }];
 
+      try {
+        routes_data = require(cwd + '/configuration/routes.json');
+      }
+      catch(err) {
+        routes_data = [];
+      }
+
+      // dynamically create connections info from routes if not already defined in the config.json information
+      routes_data.forEach(function(route) {
+        if (route.from_microservices) {
+          route.from_microservices.forEach(function(ms) {
+            if (ms === ms_name) {
+              if (route.on_microservice) {
+                if (!ms_config.connections) {
+                  ms_config.connections = [];
+                }
+                ms_config.connections.push(route.on_microservice);
+              }
+            }
+          });
+        }
+      });
+
       if (ms_config.connections) {
         config.u_services = {
           destinations: {}
@@ -335,12 +358,7 @@ function setup(isDocker) {
           }
         });
 
-        try {
-          routes_data = require(cwd + '/configuration/routes.json');
-        }
-        catch(err) {
-          routes_data = [];
-        }
+
         var ms_routes = [];
         routes_data.forEach(function(route) {
           if (route.from_microservices) {
