@@ -7,7 +7,7 @@
   - [Docker Monolith](#docker-monolith)
   - [Docker MicroServices](#docker-microservices)
   - [QEWD Startup Properties](#qewd-startup-properties)
-- [Specifying Your MicroService Instances](#specifying-your microservice-instances)
+- [Specifying Your MicroService Instances](#specifying-your-microservice-instances)
 
 # The QEWD-Up Configuration File
 
