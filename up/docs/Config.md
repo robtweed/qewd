@@ -138,7 +138,7 @@ Of the available properties, it is recommended you limit your overrides to the f
 - **serverName**: controls the QEWD instance name that is displayed in the *qewd-monitor Overview* screen.  Default: *QEWD Server*
 - **port**: the TCP/IP port on which the QEWD instance will listen.  Default: *8080*. This property is really only applicable to the Native Monolith mode.  When using the Docker modes, you will map the QEWD listener port to an external one anyway, so you might as well use the default value for the port on which QEWD listens within the QEWD Docker Container
 - **poolSize**: the maximum number of Worker processes that QEWD will startup and run concurrently.  Default: *2*
-- *database**: defines the Global Storage database that will be integrated with the QEWD instance to provide persistent JSON storage.  This is done using one or two sub-properties:
+- **database**: defines the Global Storage database that will be integrated with the QEWD instance to provide persistent JSON storage.  This is done using one or two sub-properties:
 
   - **type**: the Global Storage database type.  Default: *gtm* (which, for historical reasons, is the type that is used to specify [YottaDB](https://yottadb.com/)).  Other possible values include:
 
