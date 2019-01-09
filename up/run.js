@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  3 January 2019
+  9 January 2019
 
 */
 
@@ -371,8 +371,11 @@ function setup(isDocker) {
           var index = ms_index[ms_name];
           if (typeof index !== 'undefined') {
             var ms_info = config_data.microservices[index];
-            var host = ms_info.host;
-            var port = ms_info.port;
+            var host = ms_info.host || ms_info.name;  // default to Docker name
+            if (!host.startsWith('http://') && !host.startsWith('https://')) {
+              host = 'http://' + host;
+            }
+            var port = ms_info.port || 8080;
             if (port !== 80 && port !== 443) {
               host = host + ':' + port;
             }
@@ -428,6 +431,9 @@ function setup(isDocker) {
         var destinations = config.u_services.destinations;
         config_data.microservices.forEach(function(microservice) {
 
+          var host;
+          var port;
+
           if (microservice.members) {
             // group destination
             destinations[microservice.name] = {
@@ -436,8 +442,18 @@ function setup(isDocker) {
           }
           else {
             // physical endpoint destination
+
+            host = microservice.host || microservice.name;
+            if (!host.startsWith('http://') && !host.startsWith('https://')) {
+              host = 'http://' + host;
+            }
+            port = microservice.port || 8080;
+            if (port !== 80 && port !== 443) {
+              host = host + ':' + port;
+            }
+
             destinations[microservice.name] = {
-              host: microservice.host + ':' + microservice.port,
+              host: host,
               application: microservice.name
             };
           }
