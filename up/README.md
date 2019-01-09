@@ -311,6 +311,10 @@ if you want to try out QEWD-Up on a Raspberry Pi, you can install Docker by simp
 
       curl -sSL https://get.docker.com | sh
 
+Finally, create a bridged Docker network that will be used exclusively by your QEWD Orchestrator and MicroService instances:
+
+     sudo docker network create qewd-net
+
 
 ## Key Concepts
 
@@ -377,23 +381,19 @@ Create two text files in the configuration folder:
 
 ### The *config.json* File
 
-You **MUST** create a file named *config.json*.  This file tells QEWD to use the QEWD-Up mechanism and also defines the physical endpoint details of your MicroServices, for example we’ll use:
+You **MUST** create a file named *config.json*.  This file tells QEWD to use the QEWD-Up mechanism and also defines the names of your MicroServices, for example we’ll use:
 
       {
         "qewd_up": true,
         "microservices": [
           {
             "name": "login_service",
-            "host": "http://192.168.1.77",
-            "port": 8081,
             "qewd": {
               "serverName": "Login MicroService"
             }
           },
           {
             "name": "info_service",
-            "host": "http://192.168.1.77",
-            "port": 8082,
             "qewd": {
               "serverName": "Info MicroService"
             }
@@ -401,11 +401,9 @@ You **MUST** create a file named *config.json*.  This file tells QEWD to use the
         ]
       }
 
-You can see that the MicroServices are defined in the *microservices* array which contains one or more MicroService objects, each defining:
+You can see that the MicroServices are defined in the *microservices* array which contains one or more MicroService objects, each defining the MicroService name (which must match the MicroService folder names that we previously created)
 
-- **name** - the MicroService name (which must match the MicroService folder names that we previously created)
-- **host** - the Host endpoint IP address (or domain name) and port.  http:// or https:// must prefix this value
-- **port** - the port on which the MicroService QEWD instance will be listening
+Provided we use the *qewd-net* bridged Docker network that we created earlier, and provided we use these names when we start up each Docker instance, the *Orchestrator* can use Docker's automatic service discovery to find and connect to the MicroServices.
 
 Optionally, if you want to use the *qewd-monitor* application with the MicroService (it is enabled by default), then you can specify the name that will appear in the *qewd-monitor* main page.  In the example above you can see we’re specifying this using the **qewd.serverName** property for each MicroService.
 
@@ -545,18 +543,18 @@ In this simple example, I'm simply returning some information about the info_ser
 
 First fire up the Orchestrator QEWD Docker Container, eg:
 
-    docker run -it --name orchestrator --rm -p 8080:8080 -v ~/microserviceExample:/opt/qewd/mapped rtweed/qewd-server
+    docker run -it --name orchestrator --rm --net qewd-net -p 8080:8080 -v ~/microserviceExample:/opt/qewd/mapped rtweed/qewd-server
 
 Note: you may need to add sudo to the start of this command, depending on how you configured your Docker environment.
 
 If you’re using a Raspberry Pi, simply substitute the Docker container name *rtweed/qewd-server-rpi*, eg:
 
-    docker run -it --name orchestrator --rm -p 8080:8080 -v ~/microserviceExample:/opt/qewd/mapped rtweed/qewd-server-rpi
+    docker run -it --name orchestrator --rm --net qewd-net -p 8080:8080 -v ~/microserviceExample:/opt/qewd/mapped rtweed/qewd-server-rpi
 
 
 By default, QEWD listens within the Docker Container on port 8080.  The command examples above are mapping this to port 8080 on your host machine.  If you want to use a different host port, just change the -p directive, eg to listen on port 3000:
 
-    docker run -it --name orchestrator --rm -p 3000:8080 -v ~/microserviceExample:/opt/qewd/mapped rtweed/qewd-server
+    docker run -it --name orchestrator --rm --net qewd-net -p 3000:8080 -v ~/microserviceExample:/opt/qewd/mapped rtweed/qewd-server
 
 Your application's configuration and API files are mapped into the Docker Container using this parameter:
 
@@ -567,7 +565,7 @@ Your application's configuration and API files are mapped into the Docker Contai
 
 Secondly, in a separate terminal window, start up the *login_service* MicroService:
 
-       docker run -it --name login --rm -p 8081:8080 -v ~/microserviceExample:/opt/qewd/mapped -e microservice="login_service" rtweed/qewd-server
+       docker run -it --name login_service --rm --net qewd-net -v ~/microserviceExample:/opt/qewd/mapped -e microservice="login_service" rtweed/qewd-server
 
 Note how we’ve specified an environment variable to tell QEWD-Up which MicroService this is:
 
@@ -576,21 +574,11 @@ Note how we’ve specified an environment variable to tell QEWD-Up which MicroServ
 
 And finally, in a third terminal window, start up the *info_service* MicroService:
 
-       docker run -it --name login --rm -p 8082:8080 -v ~/microserviceExample:/opt/qewd/mapped -e microservice=“info_service" rtweed/qewd-server
+       docker run -it --name info_service --rm --net qewd-net -v ~/microserviceExample:/opt/qewd/mapped -e microservice=“info_service" rtweed/qewd-server
 
+**IMPORTANT**: Make sure the MicroService name in the *--name** and *-e* parameters match exactly with each other and also with the MicroService name used in the *routes.json* file.
 
-**IMPORTANT NOTE**: you must ensure that the external port that you specify in the *-p* directive matches that defined in the *config.json* file for the MicroService named in the Docker environment variable.  In our example we defined the following:
-
-            "name": "login_service",
-            "host": "http://192.168.1.77",
-            "port": 8081
-
-            ...
-
-            "name": "info_service",
-            "host": "http://192.168.1.77",
-            "port": 8082
-
+[See here](https://github.com/robtweed/qewd/blob/master/up/docs/MicroServices.md) for more details on setting up QEWD-Up MicroServices.
 
 ## Running Your APIs
 

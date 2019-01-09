@@ -157,12 +157,16 @@ This section is only relevant if you're using QEWD-Up's Docker MicroService mode
 
 You don't need to do anything further to configure your Orchestrator - when you start up the Orchestrator Docker Container, it will be listening on the port you mapped in your *docker run* command for incoming REST requests.
 
-However, the Orchestrator needs to know how to make its connections to your MicroService instances.  This is done using the *microservices* array within your *config.json* file.  You define each MicroService using an object with 3 properties as follows:
+However, the Orchestrator needs to know how to make its connections to your MicroService instances.  This is done using the *microservices* array within your *config.json* file.  You define each MicroService using an object, the properties of which will depend on your physical networking set-up.  At least one property is mandatory:
 
 - **name**: The name of your MicroService.  It's up to you what you call it.  The name should start with an alphabetic character and otherwise contain alphanumeric characters and/or _ (underscore) or - (hyphen) characters.
+
+If your MicroService Docker instances are not co-located on the same host, you will also need to specify:
+
 - **host**: The IP address or domain name of the system hosting the Docker container
 - **port**: The port on which the MicroService Docker container is listening
 
+See [here for further details](https://github.com/robtweed/qewd/blob/master/up/docs/MicroServices.md#separately-hosted-qewd-microservices).
 
 Optionally, as described above, you can define any QEWD startup default configuration over-rides via the *qewd* sub-object within the MicroService configuration object.
 
@@ -178,16 +182,12 @@ For example:
         "microservices": [
           {
             "name": "login_service",
-            "host": "http://192.168.1.78",
-            "port": 8081,
             "qewd": {
               "serverName": "Login MicroService"
             }
           },
           {
             "name": "info_service",
-            "host": "http://192.168.1.78",
-            "port": 8082,
             "qewd": {
               "serverName": "Info MicroService"
             }
@@ -195,9 +195,9 @@ For example:
         ]
       }
 
-In this example, the Orchestrator will connect to two MicroService QEWD Docker Containers that listen on port 8081 and 8082 respectively, both hosted on the server at IP address *192.168.1.78*.
+In this example, the Orchestrator will connect to two MicroService QEWD Docker Containers named *login_service* and *info_service* respectively, both hosted on the same host as the *Orchestrator*.  See [here for further details on setting up co-hosted MicroServices](https://github.com/robtweed/qewd/blob/master/up/docs/MicroServices.md#co-hosted-qewd-microservices).
 
-The MicroService names are then referenced within your [*routes.json*](https://github.com/robtweed/qewd/blob/master/up/docs/Routes.md) file.
+**IMPORTANT**: the MicroService names that you specify in the *config.json* file **must** match those referenced within your [*routes.json*](https://github.com/robtweed/qewd/blob/master/up/docs/Routes.md) file.
 
 
 

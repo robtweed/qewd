@@ -375,24 +375,18 @@ First, define the individual MicroServices as normal in the *config.json* file, 
         "microservices": [
           {
             "name": "london_store",
-            "host": "http://192.168.1.78",
-            "port": 8081,
             "qewd": {
               "serverName": "London Store"
             }
           },
           {
             "name": "leeds_store",
-            "host": "http://192.168.1.78",
-            "port": 8082,
             "qewd": {
               "serverName": "Leeds Store"
             }
           },
           {
             "name": "edinburgh_store",
-            "host": "http://192.168.1.78",
-            "port": 8083,
             "qewd": {
               "serverName": "Edinburgh Store"
             }
@@ -408,24 +402,18 @@ Then add a Group destination - we'll call it *all_stores* in this example, but i
         "microservices": [
           {
             "name": "london_store",
-            "host": "http://192.168.1.78",
-            "port": 8081,
             "qewd": {
               "serverName": "London Store"
             }
           },
           {
             "name": "leeds_store",
-            "host": "http://192.168.1.78",
-            "port": 8082,
             "qewd": {
               "serverName": "Leeds Store"
             }
           },
           {
             "name": "edinburgh_store",
-            "host": "http://192.168.1.78",
-            "port": 8083,
             "qewd": {
               "serverName": "Edinburgh Store"
             }

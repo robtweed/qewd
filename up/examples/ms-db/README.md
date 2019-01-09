@@ -25,6 +25,16 @@ Note: if you want to try this Persistent Database example on a Raspberry Pi, use
 
 and change references in the examples below from *rtweed/qewd-server* to *rtweed/qewd-server-rpi*
 
+Make sure you have created a bridged Docker network for exclusive use by your QEWD-Up instances.  To create this:
+
+      sudo docker network create qewd-net
+
+You can confirm that it exists by running:
+
+      sudo docker network ls
+
+*qewd-net* should appear in the list of networks.
+
 
 ## Installing the QEWD-Up Example
 
@@ -39,22 +49,6 @@ Then type:
       svn export https://github.com/robtweed/qewd/trunk/up/examples/ms-db
 
 This will create a sub-directory named *ms-db* in your current working directory.  It will contain all the source files needed to run the demonstration application.
-
-
-## Adjust the QEWD-Up Configuration
-
-You'll need to edit the *host* IP addresses in the */ms-db/configuration/config.json* file to match that of your host server.
-
-The file currently contains these lines:
-
-      "name": "login_service",
-      "host": "http://192.168.1.78",
-
-
-      "name": "db_service",
-      "host": "http://192.168.1.78",
-
-These IP addresses are used by the *Orchestrator* MicroService Container to communicate with the *login_service* and *db_service* MicroService Containers (see next section).
 
 
 ## Running the QEWD-Up Example
@@ -73,7 +67,7 @@ The examples below will assume you installed the example files into *~/qewd-up/m
 
 Run this command:
 
-     sudo docker run -it --name orchestrator --rm -p 8080:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped rtweed/qewd-server
+     sudo docker run -it --name orchestrator --rm --net qewd-net -p 8080:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped rtweed/qewd-server
 
 You'll see QEWD starting up and you'll see this when it's ready for use:
 
@@ -88,7 +82,9 @@ You'll see QEWD starting up and you'll see this when it's ready for use:
 
 Run this command:
 
-      sudo docker run -it --name login --rm -p 8081:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped -e microservice="login_service" rtweed/qewd-server
+      sudo docker run -it --name login_service --rm --net qewd-net -p 8081:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped -e microservice="login_service" rtweed/qewd-server
+
+**IMPORTANT**: make sure you use the same name for the *--name* and *-e microservice* parameters
 
 You'll see QEWD starting up and you'll see this when it's ready for use:
 
@@ -104,7 +100,9 @@ You'll see QEWD starting up and you'll see this when it's ready for use:
 
 Run this command:
 
-      sudo docker run -it --name db --rm -p 8082:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped -e microservice="db_service" rtweed/qewd-server
+      sudo docker run -it --name db_service --rm --net qewd-net -p 8082:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped -e microservice="db_service" rtweed/qewd-server
+
+**IMPORTANT**: make sure you use the same name for the *--name* and *-e microservice* parameters
 
 You'll see QEWD starting up and you'll see this when it's ready for use:
 
@@ -403,16 +401,14 @@ and clone the files into it:
 
 You should now see the three files that will be used by YottaDB for persistent data storage in the *~/ms-db/yottadb/db_service* directory.
 
-It's a good idea to change their permissions:
+It's a good idea to ensure their permissions allow read/write access:
 
       cd db_service
-      sudo chmod 666 yottadb.dat
-      sudo chmod 664 yottadb.gld
-      sudo chmod 666 yottadb.mjl
+      sudo chmod 666 *
 
 Now start the *db_service* MicroService Container like this:
 
-      sudo docker run -it --name db --rm -p 8082:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped -v ~/qewd-up/ms-db/yottadb/db_service:/root/.yottadb/r1.22_x86_64/g -e microservice="db_service" rtweed/qewd-server
+      sudo docker run -it --name db_service --rm --net qewd-net -p 8082:8080 -v ~/qewd-up/ms-db:/opt/qewd/mapped -v ~/qewd-up/ms-db/yottadb/db_service:/root/.yottadb/r1.22_x86_64/g -e microservice="db_service" rtweed/qewd-server
 
 *ie* add this to the *docker run* command: **-v ~/qewd-up/ms-db/yottadb/db_service:/root/.yottadb/r1.22_x86_64/g**
 
@@ -423,7 +419,7 @@ Now, even if you stop and restart the *db_service* MicroService, any persistent 
 
 ## License
 
- Copyright (c) 2018 M/Gateway Developments Ltd,                           
+ Copyright (c) 2018-19 M/Gateway Developments Ltd,                           
  Redhill, Surrey UK.                                                      
  All rights reserved.                                                     
                                                                            
