@@ -43,12 +43,12 @@ function getRoutes() {
 
   var routes_data = require(cwd + '/configuration/routes.json');
   var routes = [];
-  var isConductor = false;
+  //var isConductor = false;
   var handlerRootPath = cwd + '/apis';
   var orchestratorHandlerPath = cwd + '/orchestrator/apis';
   if (fs.existsSync(orchestratorHandlerPath)) {
     handlerRootPath = orchestratorHandlerPath;
-    isConductor = true;
+    //isConductor = true;
   }
   console.log('handlerRootPath = ' + handlerRootPath);
 
@@ -63,7 +63,8 @@ function getRoutes() {
       errorResponse = route.else;
       return;
     }
-    if (isConductor && route.on_microservice) return;  // ignore microservice routes
+    //if (isConductor && route.on_microservice) return;  // ignore microservice routes
+    if (route.on_microservice) return;  // ignore microservice routes
     //var path_root = '/' + route.uri.split('/')[1];
     var path_root = '';
     var handler;
