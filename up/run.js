@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  9 January 2019
+  14 January 2019
 
 */
 
@@ -569,6 +569,10 @@ function setup(isDocker) {
       fs.writeFileSync(cwd + '/configuration/config.json', JSON.stringify(config_data, null, 2));
     }
     config.jwt = config_data.jwt;
+  }
+  else {
+    // native app
+    createModuleMap(cwd, config);
   }
 
   if (!ms_name) {
