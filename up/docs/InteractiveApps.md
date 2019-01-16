@@ -4,7 +4,7 @@
 - [The QEWD WebSocket Client](#the-qewd-websocket-client)
   - [Loading *ewd-client* into the Browser](#loading-ewd-client-into-the-browser)
   - [Application Registration](#application-registration)
-    - [The *start()* Method](#the-start()-method)
+    - [The *start()* Method](#the-start-method)
   - [Sending Messages from the Browser](#sending-messages-from-the-browser)
   - [Handling Messages Sent from the QEWD Back-end](#handling-messages-sent-from-the-qewd-back-end)
 - [The QEWD Application Back-end](#the-qewd-application-back-end)
