@@ -49,7 +49,19 @@ function createModuleMap(cwd, config) {
     }
     var appList = getDirectories(qewdAppsPath);
     appList.forEach(function(appName) {
-      config.moduleMap[appName] = qewdAppsPath + '/' + appName;
+      var appPath = qewdAppsPath + '/' + appName;
+      var indexPath = appPath + '/index.js';
+      var handlerList = getDirectories(appPath);
+      // if handler modules exist, create the dynamic handler for this path
+      //  otherwise use the existing index.js
+      if (handlerList.length > 0) {
+        var text;
+        text = "module.exports = require('" + __dirname + "/qewdAppHandler" + "')('" + appPath + "');"
+        fs.writeFileSync(indexPath, text);
+      }
+      if (fs.existsSync(indexPath)) {
+        config.moduleMap[appName] = appPath;
+      }
     });
   }
 }
