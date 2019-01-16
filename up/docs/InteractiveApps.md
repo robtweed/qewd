@@ -16,8 +16,8 @@
     - [Message Handler Function Context](#message-handler-function-context)
     - [The Incoming Message Object](#the-incoming-message-object)
     - [Returning a Response from your Message Handler Function](#returning-a-response-from-your-message-handler-function)
-    - [Accessing the User's QEWD Session](#accessing-the-user's-qewd-session)
-    - [Accessing the Integrated Persistent JSON/Document Database](#accessing-the-integrated-persistent-json/document-database)
+    - [Accessing the User's QEWD Session](#accessing-the-users-qewd-session)
+    - [Accessing the Integrated Persistent JSON/Document Database](#accessing-the-integrated-persistent-jsondocument-database)
     - [Intermediate Messages](#intermediate-messages)
 
 
