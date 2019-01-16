@@ -409,11 +409,11 @@ For example, for an interactive QEWD Application named *myQEWDApplication*:
 
         ~/dockerExample
             |
-            |— configuration
+            |_ configuration
             |            |
             |            |_ config.json
             |
-            |— www
+            |_ www
             |    |
             |    |_ myQEWDApplication
             |            |
@@ -463,11 +463,11 @@ When you start up the QEWD-Up instance, you'll see that symbolic links to additi
 
         ~/dockerExample
             |
-            |— configuration
+            |_ configuration
             |            |
             |            |_ config.json
             |
-            |— www
+            |_ www
             |    |
             |    |_ ewd-Client.js
             |    |
@@ -502,11 +502,11 @@ The first step is to create a sub-folder named *qewd-apps* in your QEWD-Up direc
 
         ~/dockerExample
             |
-            |— configuration
+            |_ configuration
             |            |
             |            |_ config.json
             |
-            |— qewd-apps
+            |_ qewd-apps
             |    
 
 
@@ -541,11 +541,11 @@ Within the *qewd-apps* folder, you create a sub-folder for each application you 
 
         ~/dockerExample
             |
-            |— configuration
+            |_ configuration
             |            |
             |            |_ config.json
             |
-            |— qewd-apps
+            |_ qewd-apps
             |       |
             |       |_ myQEWDApplication
 
@@ -726,7 +726,7 @@ In the example above, the QEWD Worker process will not be released until after 5
 
 ### Accessing the User's QEWD Session
 
-YOu can use the QEWD Session to save and retrieve user-specific information that you want to exist for the duration of the user's session.  
+You can use the QEWD Session to save and retrieve user-specific information that you want to exist for the duration of the user's session.  
 
 A user's session starts when they load your applications's client-side resources into their browser and your code invoked the *ewd-client's start()* method.
 
