@@ -19,6 +19,11 @@
     - [Accessing the User's QEWD Session](#accessing-the-users-qewd-session)
     - [Accessing the Integrated Persistent JSON/Document Database](#accessing-the-integrated-persistent-jsondocument-database)
     - [Intermediate Messages](#intermediate-messages)
+- [Life-Cycle Event Hooks](#life-cycle-event-hooks)
+  - [The Life-Cycle of an Interactive QEWD Application](#the-life-cycle-of-an-interactive-qewd-application)
+  - [onLoad](#onload)
+  - [beforeHandler](#beforehandler)
+  = [onResponse](#onresponse)
 
 
 # QEWD Interactive Applications
@@ -994,9 +999,6 @@ Each of your *message handler functions* can *require()* any additional Node.js 
 Any/all of your *message handler functions* could then make use of the *moment* module without having to explicity *require()* it, since they also have the same *this* context, for example:
 
       module.exports = function(messageObj, session, send, finished) {
-        if (!session.authenticated) {
-          return finished({error: 'You have not logged in'});
-        }
 
         var moment = this.myModules[session.application].moment;
 
@@ -1004,4 +1006,246 @@ Any/all of your *message handler functions* could then make use of the *moment* 
       };
 
 
+## beforeHandler
+
+### Location
+
+Create a file named *beforeHandler.js* within your Interactive QEWD Application sub-folder.  Note: the file name is case-sensitive.
+
+For example:
+
+#### Monolith
+
+        ~/dockerExample
+            |
+            |_ configuration
+            |            |
+            |            |_ config.json
+            |
+            |_ qewd-apps
+            |       |
+            |       |_ myQEWDApplication
+            |       |            |
+            |       |            |_ beforeHandler.js
+
+
+#### MicroService: Other MicroService
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |    |
+            |    |_ qewd-apps
+            |    |  |
+            |    |  |_ myQEWDApplication
+            |    |  |           |
+            |    |  |           |_ beforeHandler.js
+
+
+### Signature
+
+The *beforeHandler.js* file must export a function with the following signature:
+
+      module.exports = function(messageObj, session, send, finished) {
+        // perform your beforeHandler logic
+      };
+
+
+### Arguments
+
+The arguments of the *beforeHandler* hook function are the same as your *message handler function*:
+
+- **messageObj**: The incoming message object, which will be identical to the object you sent from the browser using the [*ewd-client's send()*](#sending-messages-from-the-browser) method
+- **session**: The QEWD Session for the incoming message instance.  QEWD uses the session token that was included in the message by the *ewd-client* module to automatically link your handler function to the user's QEWD Session
+- **send**: a function provided by QEWD that you can use to send *intermediate* messages to the browser
+- **finished**: a function provided by QEWD that you must use to return a response from your *beforeHandler*(if any) and with which you signal to QEWD that you have finished using the Worker process (so that it can be returned to QEWD's available pool).
+
+### returnValue
+
+If the *beforeHandler* function simply returns (ie returns a *null* returnValue), then your *message handler function* will be triggered.  In this circumstance you **must not** invoke the *finished()* function within the *beforeHandler*.
+
+If the *beforeHandler* function returns *false*, then your *message handler function* will **not** be invoked.  In this circumstance you **must** invoke the *finished()* function within the *beforeHandler* before *return*ing.
+
+See the example below.
+
+
+### Context
+
+The *this* object within your *beforeHandler* event hook method is the QEWD object.  You therefore have access to the integrated persistent JSON database and all the QEWD configuration information.
+
+### Example Use
+
+You will typically use the *beforeHandler* to check whether or not the user that sent the incoming message was autheticated or not, and therefore whether or not they can invoke your *message handler function*.
+
+You'll want certain incoming message types, eg a *login* message with which a user is authenticated, to bypass the *beforeHandler* tests.
+
+For example:
+
+      module.exports = function(messageObj, session, send, finished) {
+
+        // bypass authentication test for login messages:
+
+        if (messageObj.type === 'login') return;
+
+        // for all other messages, check if user is already authenticated:
+
+        if (!session.authenticated) {
+
+          // if not return an error message and release the Worker process:
+
+          finished({error: 'User MUST be authenticated'});
+
+          // bypass the handler function for this message type:
+
+          return false;
+        }
+      };
+
+
+
+## onResponse
+
+### Location
+
+Create a file named *onResponse.js* within the sub-folder for the message type too which this hook will apply, ie alongside the *index.js* file containing the *message handler function*.  Note: the file name is case-sensitive.
+
+For example:
+
+#### Monolith
+
+        ~/dockerExample
+            |
+            |_ configuration
+            |            |
+            |            |_ config.json
+            |
+            |_ qewd-apps
+            |       |
+            |       |_ myQEWDApplication
+            |       |            |
+            |       |            |_ getStats
+            |       |            |       |
+            |       |            |       |_index.js
+            |       |            |       |
+            |       |            |       |_onResponse.js
+
+
+
+#### MicroService: Other MicroService
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |    |
+            |    |_ qewd-apps
+            |    |    |
+            |    |    |_ myQEWDApplication
+            |    |    |            |
+            |    |    |            |_ getStats
+            |    |    |            |       |
+            |    |    |            |       |_index.js
+            |    |    |            |       |
+            |    |    |            |       |_onResponse.js
+
+
+### Signature
+
+The *onResponse.js* file must export a function with the following signature:
+
+      module.exports = function(messageObj, send) {
+        // perform your onResponse logic
+      };
+
+
+### Arguments
+
+The arguments of the *onResponse* hook function are:
+
+- **messageObj**: The message object returned from the *finished()* function within your *message handler function* (or *beforeHandler* function)
+- **send**: a function provided by QEWD that you can use to return a message object to the browser.
+
+
+### Context
+
+The *this* object within your *onResponse* event hook method is the QEWD object, as instantiated on the Master process.  
+
+**NOTE*: The *onResponse* function is invoked on the QEWD Master Process which **does not** have access to either the user's QEWD Session or the integrated JSON database.
+
+### Best Practice
+
+Because the *onResponse* function is invoked on the QEWD Master Process, you should avoid performing any CPU-intensive or long-running processing.  Otherwise you risk causing performance problems for all other users.
+
+Such activity, if necessary, should be conducted, instead, in a QEWD Worker Process.  To do this, use the *this.handleMessage()* function.  This will place a new message object onto the QEWD queue.  QEWD will then dispatch it to the first available Worker process for handling.  You will need to define a *message handler function* for the *type* you assign to your new message.  Its response will be handled within the callback function of *this.handleMessage()*.  See the example below.
+
+If you want to perform this kind of action, you'll need to have access to the token that was sent with the original incoming message and put it into the new message that you dispatch to a Worker Process via *this.handleMessage()*.  The simplest way to do this is to return *session.token* as one of the response properties of your *message handler function*.
+
+
+### Example Use
+
+Typically you'll use the *onResponse* hook to trigger some background activity whilst returning a message back to the browser.
+
+For example, here's the *message handler function* for the original incoming message of type *getInfo*:
+
+      
+      module.exports = function(messageObj, session, send, finished) {
+        finished({
+          username: session.data.$('username').value,
+          token: session.token
+        });
+      };
+
+
+This response will be intercepted on the QEWD Master Process by the *onResponse* hook for the *getInfo* message type:
+
+
+      module.exports = function(message, send) {
+
+        // get hold of the QEWD Session token and remove it from the message object
+
+        var token = message.token;
+        delete message.token;
+
+        // return the message to the browser:
+
+        send(message);
+
+        // construct a new message of type getStats, and add the Session token:
+
+        var msgObj = {
+          type: 'getStats',
+          token: token        
+        };
+
+        // place it on the QEWD queue for processing
+        //  it will be sent to a Worker process and the 'getStats' handler function
+        //  will be used to process it
+
+        this.handleMessage(msgObj, function(responseObj) {
+
+          // responseObj will be the response from the 'getStats' handler function
+
+          // send the 'getStats' response to the browser
+          send(responseObj);
+        });
+      };
+
+
+We'll need to define a *message handler function* for this new *getStats* message *type*.  For example:
+
+      module.exports = function(messageObj, session, send, finished) {
+
+        // because we sent back the token, we can access the user's session again
+
+        finished({
+          stats: session.data.$('stats').getDocument()
+        });
+      };
+
+Note that the response from the *finished()* function of this *getStats* handler will not be automatically returned to the browser, but instead it will be picked up by the callback function of the *this.handleMessage()* function in the *onResponse* hook above.
+
+From this relatively trivial example, you can probably see that you can potentially chain together complex sequences of events and messages.  By using WebSockets, QEWD allows you to send the results from the server as separate messages as they are obtained, rather than waiting until a composite set of values is collated, which is what would have to be done if you were using HTTP-based messaging (eg REST or Ajax).
 
