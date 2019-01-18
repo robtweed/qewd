@@ -724,6 +724,16 @@ If your *message handler function* includes asynchronous logic, then you must ma
 In the example above, the QEWD Worker process will not be released until after 5 seconds, when the *setTimeout* has triggered.
 
 
+**NOTE**: If you are using WebSockets for your application message transport, you do not have to return a response.  You still **MUST** use the *finished()* function to signal that you have completed your *message handler function's* logic, but simply don't provide an argument, eg:
+
+      module.exports = (messageObj, session, send, finished) => {
+        //.. process the incoming message
+        finished();
+      };
+
+No response will be returned to the browser in this situation.
+
+
 ### Accessing the User's QEWD Session
 
 You can use the QEWD Session to save and retrieve user-specific information that you want to exist for the duration of the user's session.  
@@ -866,5 +876,53 @@ The associated browser/client-side logic might look like this:
 
 
 In theory, you could create a *message handler function* that sent a series of intermediate messages using a timed event (eg using *setInterval*), but it would be a bad idea to do so - it would mean that the QEWD Worker process handling the *message handler function* would be tied up and not released back to the QEWD Available Worker Pool for the entire duration of the timed events.  See later for alternative techniques for this kind of scenario that avoid tying up a Worker process for long periods of time.
+
+
+# Life-Cycle Event Hooks
+
+For many interactive QEWD Applications, the functionality provided by the *ewd-client* front-end module and your back end *message handler functions* will be sufficient for your needs.  However, QEWD-Up provides additional advanced techniques for customising, automating and/or simplifying your applications.  These take the form of *Life-Cycle Event Hooks* that allow you to define logic that gets invoked at various stages of the server-side processing of your applications' messages.
+
+In order to make best use of these Life-Cycle Event Hooks, you need to fully understand the complete life-cycle of a QEWD Application and its handling of messages.
+
+## The Life-Cycle of an Interactive QEWD Application
+
+1. The Life-Cycle starts when an instance of the *ewd-client* module registers an application.  This has been [explained in detail earlier](#application-registration).  In summary:
+  - the *ewd-client's start()* method sends to the QEWD back-end an *ewd-register* message that identifies the application name;
+  - on receipt of this message, the QEWD back-end starts a user QEWD Session, generates a random Uid-formatted token as a pointer to that Session, saves the application name in the Session, and returns the token to in the response that is returned to the browser;
+  - on receipt of this response, *ewd-client* saves the token and creates the *send()* method that will provide the means by which subsequent user/application messages are sent to the QEWD back-end
+
+2. A message is sent from a browser using the *ewd-client's send()* method.  The *send()* method always automatically adds the QEWD Session token to the message behind the scenes.
+
+3. The message is received by the QEWD back-end, queued and dispatched to an available Worker process
+
+4. The QEWD Worker process performs a number of initial tests:
+  - does the message include a token?  If not, an error message is returned immediately to the browser, the message is discarded without any further processing and the Worker process returned to QEWD's Available Worker Pool
+  - does the token exist as a pointer to a QEWD Session, and, if so, has that QEWD Session not yet expired?  If it fails either of these tests, an error message is returned immediately to the browser, the message is discarded without any further processing and the Worker process returned to QEWD's Available Worker Pool
+
+5. The token is used to access the user's Session, from which it can identify the application to which this message applies.  Note that *ewd-client* deliberately does not send a property that explicitly identifies the application: this prevents malicious attempts by a user to access a different application from the one they have been registered to use.  The application is implicitly defined via the QEWD Session token.
+
+6. The Worker process checks to see whether the *application handler module* that handles messages for this application has been loaded.  When the QEWD-Up instance was started, it created this *application handler module* automatically from the set of *message handler function* modules that you had defined for the application.  If the *application handler module* hasn't yet been loaded into the QEWD Worker process, this is now done.  However, if the QEWD Worker process to which the message has been dispatched had previously handled a message for this application (for **any** browser user), the *application handler module* will already be loaded and ready for re-use.  Step 6 therefore only occurs once per named application in any one QEWD Worker Process.
+
+7. The Worker process checks to see whether the incoming message object includes a *type* property.  If not, an error message is returned immediately to the browser, the message is discarded without any further processing and the Worker process returned to QEWD's Available Worker Pool
+
+8. QEWD checks to see whether a *message handler function* has been defined within the *application handler module* for the specified message *type* in the incoming message.  If not, an error message is returned immediately to the browser, the message is discarded without any further processing and the Worker process returned to QEWD's Available Worker Pool
+
+9. QEWD can now invoke your *message handler function*.  As described earlier, your function will use the *finished()* method to signal completion of your handler logic and, optionally, to define a response message object.
+
+10. If your *message handler function* defined a response message object as an argument of the *finished() method*, it is passed from the QEWD Worker Process to QEWD's Master process.  The Worker Process is returned to the QEWD Available Pool.
+
+11. If you had created a response object in your *message handler function*, QEWD's Master Process sends it to the browser.
+
+12. *ewd-client* handles the response object within the browser, either via the *send()* method's callback function, or via a *type*-specific *EWD.on()* event handler.
+
+
+You have three Life-Cycle Event Hooks available to you:
+
+- **onLoad**: triggered when a QEWD Worker process first loads the suite of *message handler functions* you've defined for an application.  This is a fairly specialised event hook, but can be useful for augmenting the context environment for all of an application's *message handler functions*.
+
+- **beforeHandler**: triggered within the QEWD Worker process and applied to *all* of the messages for a specific QEWD application, **before** they are handled by an appropriate *message handler function*.
+
+
+
 
 
