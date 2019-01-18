@@ -605,11 +605,6 @@ Each Message Handler Function *index.js* file must export a function with the fo
       module.exports = function(messageObj, session, send, finished) {
       };
 
-or
-
-      module.exports = (messageObj, session, send, finished) => {
-      };
-
 
 ### Arguments
 
@@ -654,7 +649,7 @@ You would handle this using a *message handler function* within a folder named *
 
 So, your message handler logic for this example might look like this:
 
-      module.exports = (messageObj, session, send, finished) => {
+      module.exports = function(messageObj, session, send, finished) {
         var username = messageObj.params.username;
         var password = messageObj.params.password;
         // perform the appropriate logic to confirm the validity of the username and password
@@ -671,7 +666,7 @@ The structure and content of the response object is up to you, but to return an 
 
 For example, extending the above example:
 
-      module.exports = (messageObj, session, send, finished) => {
+      module.exports = function(messageObj, session, send, finished) {
         var username = messageObj.params.username;
         var password = messageObj.params.password;
         // simple hard-coded validation by way of example:
@@ -715,7 +710,7 @@ The response object that you specify in your *finished()* method will be returne
 
 If your *message handler function* includes asynchronous logic, then you must make sure you invoke the *finished()* method from within the asynchronous logic's callback.  For example:
 
-      module.exports = (messageObj, session, send, finished) => {
+      module.exports = function(messageObj, session, send, finished) {
         setTimeout(() => {
           finished({ok: true});
         }, 5000);
@@ -726,7 +721,7 @@ In the example above, the QEWD Worker process will not be released until after 5
 
 **NOTE**: If you are using WebSockets for your application message transport, you do not have to return a response.  You still **MUST** use the *finished()* function to signal that you have completed your *message handler function's* logic, but simply don't provide an argument, eg:
 
-      module.exports = (messageObj, session, send, finished) => {
+      module.exports = function(messageObj, session, send, finished) {
         //.. process the incoming message
         finished();
       };
@@ -750,7 +745,7 @@ The QEWD Session object is a *Document Node Object* (ie it is implemented using 
 
 Here's an example demonstrating typical use of the QEWD Session.
 
-      module.exports = (messageObj, session, send, finished) => {
+      module.exports = function(messageObj, session, send, finished) {
         var username = messageObj.params.username;
         var password = messageObj.params.password;
         // simple hard-coded validation by way of example:
@@ -774,7 +769,7 @@ Here's an example demonstrating typical use of the QEWD Session.
 Your other *message handler functions* can check the *session.authenticated* property to confirm that the user has logged in - you'll want to prevent unauthorised access by users who have not logged in!  They can also make use of or update the user's session information.  For example:
 
 
-      module.exports = (messageObj, session, send, finished) => {
+      module.exports = function(messageObj, session, send, finished) {
         if (!session.authenticated) {
           return finished({error: 'You have not logged in'});
         }
@@ -843,7 +838,7 @@ The *send()* method takes a single argument: *messageObject*.  The content and s
 Here's an example of a *message handler function*, let's say for a mesage of type *intermediateTest*, that generates an intermediate and final response message provided the user is logged in:
 
 
-      module.exports = (messageObj, session, send, finished) => {
+      module.exports = function(messageObj, session, send, finished) {
         if (!session.authenticated) {
           return finished({error: 'You have not logged in'});
         }
@@ -909,20 +904,104 @@ In order to make best use of these Life-Cycle Event Hooks, you need to fully und
 
 9. QEWD can now invoke your *message handler function*.  As described earlier, your function will use the *finished()* method to signal completion of your handler logic and, optionally, to define a response message object.
 
-10. If your *message handler function* defined a response message object as an argument of the *finished() method*, it is passed from the QEWD Worker Process to QEWD's Master process.  The Worker Process is returned to the QEWD Available Pool.
+10. The expiry time of the user's QEWD session is updated, by adding the current time to the session timeout value.
 
-11. If you had created a response object in your *message handler function*, QEWD's Master Process sends it to the browser.
+11. If your *message handler function* defined a response message object as an argument of the *finished() method*, it is passed from the QEWD Worker Process to QEWD's Master process.  The Worker Process is returned to the QEWD Available Pool.
 
-12. *ewd-client* handles the response object within the browser, either via the *send()* method's callback function, or via a *type*-specific *EWD.on()* event handler.
+12. If you had created a response object in your *message handler function*, QEWD's Master Process sends it to the browser.
 
-
-You have three Life-Cycle Event Hooks available to you:
-
-- **onLoad**: triggered when a QEWD Worker process first loads the suite of *message handler functions* you've defined for an application.  This is a fairly specialised event hook, but can be useful for augmenting the context environment for all of an application's *message handler functions*.
-
-- **beforeHandler**: triggered within the QEWD Worker process and applied to *all* of the messages for a specific QEWD application, **before** they are handled by an appropriate *message handler function*.
+13. *ewd-client* handles the response object within the browser, either via the *send()* method's callback function, or via a *type*-specific *EWD.on()* event handler.
 
 
+Within this Life-Cycle, there are three points at which you can intercept the process and customise/augment the processing.  This is done via the three Life-Cycle Event Hooks that you have available:
+
+- **onLoad**: triggered during step 6 above, when a QEWD Worker process first loads the *application handler module* for the application to which an incoming message belongs.  This is a fairly specialised event hook, but can be useful for augmenting the context environment for all of an application's *message handler functions*.
+
+- **beforeHandler**: triggered at step 9 above, within the QEWD Worker process.  This hoow is applied to *all* of the messages for a specific QEWD application, **before** they are handled by their appropriate *message handler function*.  A typical use for this hook is to carry out some processing that should apply to all, if not most, of an application's message *types*: for example, ensuring that the user has been authenticated before allowing the *type*-specific *message handler function* to be invoked, and returning an error response if not.
+
+- **onResponse**: triggered between steps 11 and 12 above, and invoked on the QEWD Master process when it receives the response object returned by the *message handler function's finished()* method, but before it sends it to the browser.  This event hook is message *type*-specific.  A typical use of this hook is to trigger one or more further messages to be generated on the QEWD back-end that perform other tasks in the background, whilst the primary response is returned to the browser.  This hook can therefore be used to prevent QEWD Worker Processes being unnecessarily tied up.
+
+Each of these Life-Cycle Event Hooks are described in more detail below:
+
+## onLoad
+
+### Location
+
+Create a file named *onLoad.js* within your Interactive QEWD Application sub-folder.  Note: the file name is case-sensitive.
+
+For example:
+
+#### Monolith
+
+        ~/dockerExample
+            |
+            |_ configuration
+            |            |
+            |            |_ config.json
+            |
+            |_ qewd-apps
+            |       |
+            |       |_ myQEWDApplication
+            |       |            |
+            |       |            |_ onLoad.js
+
+
+#### MicroService: Other MicroService
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |    |
+            |    |_ qewd-apps
+            |    |  |
+            |    |  |_ myQEWDApplication
+            |    |  |           |
+            |    |  |           |_ onLoad.js
+
+
+### Signature
+
+The *onLoad.js* file must export a function with the following signature:
+
+      module.exports = function(application) {
+        // perform your onLoad logic
+      };
+
+
+### Arguments
+
+- **application**: the name of the application to which the incoming message belongs.  This can be usefully used to distinguish application-specific *this* context augmentation.
+
+### Context
+
+The *this* object within your *onLoad* event hook method is the QEWD object.  You therefore have access to the integrated persistent JSON database and all the QEWD configuration information.
+
+### Example Use
+
+Each of your *message handler functions* can *require()* any additional Node.js modules that you want to make use of in your processing logic.  However, if all, or most, of your *message handler functions* are going to use the same module(s), you can use the *onLoad* event hook to load the module(s) and augment *this* with them.  For example:
+
+      module.exports = function(application) {
+        if (!this.myModules) {
+          this.myModules = {};
+        }
+        this.myModules[application] = {
+          moment: require('moment')
+        };
+      };
+
+Any/all of your *message handler functions* could then make use of the *moment* module without having to explicity *require()* it, since they also have the same *this* context, for example:
+
+      module.exports = function(messageObj, session, send, finished) {
+        if (!session.authenticated) {
+          return finished({error: 'You have not logged in'});
+        }
+
+        var moment = this.myModules[session.application].moment;
+
+        //...etc
+      };
 
 
 
