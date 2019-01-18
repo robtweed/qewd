@@ -23,7 +23,7 @@
   - [The Life-Cycle of an Interactive QEWD Application](#the-life-cycle-of-an-interactive-qewd-application)
   - [onLoad](#onload)
   - [beforeHandler](#beforehandler)
-  = [onResponse](#onresponse)
+  - [onResponse](#onresponse)
 
 
 # QEWD Interactive Applications
