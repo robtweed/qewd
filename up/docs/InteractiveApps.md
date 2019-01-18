@@ -882,7 +882,7 @@ In theory, you could create a *message handler function* that sent a series of i
 
 For many interactive QEWD Applications, the functionality provided by the *ewd-client* front-end module and your back end *message handler functions* will be sufficient for your needs.  However, QEWD-Up provides additional advanced techniques for customising, automating and/or simplifying your applications.  These take the form of *Life-Cycle Event Hooks* that allow you to define logic that gets invoked at various stages of the server-side processing of your applications' messages.
 
-In order to make best use of these Life-Cycle Event Hooks, you need to fully understand the complete life-cycle of a QEWD Application and its handling of messages.
+In order to make best use of these Life-Cycle Event Hooks, you need to fully understand the complete life-cycle of a QEWD Application and its handling of messages.  [This slide-deck](https://www.slideshare.net/robtweed/ewd-3-training-course-part-8-anatomy-of-the-ewdxpress-messaging-cycle) describes the life-cycle diagrammatically, but it is also described below in detail.
 
 ## The Life-Cycle of an Interactive QEWD Application
 
