@@ -13,7 +13,7 @@ Thanks to Ward De Backer for debugging assistance and functionality suggestions
 
 In summary: [QEWD](http://qewdjs.com) is a Node.js-based platform for developing and running both interactive WebSocket-based applications and REST APIs.  QEWD can run as either a monolithic back-end or as a set of MicroServices.
 
-QEWD uses a [unique architecture](https://robtweed.wordpress.com/2017/04/18/having-your-node-js-cake-and-eating-it-too/) that prevents CPU-intensive or long-running APIs bringing a Node.js system to its knees, and includes a powerful high-performance integrated persistent JSON storage database.
+QEWD uses a [unique architecture](https://medium.com/the-node-js-collection/having-your-node-js-cake-and-eating-it-too-799e90d40186) that prevents CPU-intensive or long-running APIs bringing a Node.js system to its knees, and includes a powerful high-performance integrated persistent JSON storage database.
 
 
 ## Try it out
@@ -100,7 +100,7 @@ For more information on QEWD's integrated persistent JavaScript/JSON storage, go
 
 ## License
 
- Copyright (c) 2016-18 M/Gateway Developments Ltd,                           
+ Copyright (c) 2016-19 M/Gateway Developments Ltd,                           
  Redhill, Surrey UK.                                                      
  All rights reserved.                                                     
                                                                            
