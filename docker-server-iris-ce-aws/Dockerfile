@@ -34,6 +34,3 @@ RUN cd /opt/qewd
 RUN chmod +x /opt/qewd/start_qewd.sh
 
 EXPOSE 8080
-
-
-

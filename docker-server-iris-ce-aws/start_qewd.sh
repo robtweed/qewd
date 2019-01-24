@@ -30,9 +30,15 @@
 
 # Force password change
 
+if [ -e /opt/qewd/mapped/password_cpy.txt.done ]
+then
+  rm /opt/qewd/mapped/password_cpy.txt.done
+fi
+
 if [ -e /opt/qewd/mapped/password.txt ]
 then
   echo "Changing password"
+  PASSWORD=$(</opt/qewd/mapped/password.txt)
   cp /opt/qewd/mapped/password.txt /opt/qewd/mapped/password_cpy.txt
   cd /usr/irissys/dev/Cloud/ICM
   chmod +x changePassword.sh
@@ -45,14 +51,19 @@ echo "start IRIS"
 
 iris start iris
 
-echo "iris started; now start QEWD"
+printf '_SYSTEM\n%s\nzn "%%SYS"\nS props("Enabled")=1\nI ##class(Security.Services).Modify("%%Service_Callin", .props)\n' "$PASSWORD" | irissession IRIS
+
+echo "IRIS started"
 
 cp /usr/irissys/bin/iris800.node /opt/qewd/node_modules/iris.node
 
-#cp /opt/qewd/mapped/master.js /opt/qewd/node_modules/qewd/lib/master.js
-#cp /opt/qewd/mapped/start.js /opt/qewd/node_modules/ewd-qoper8/lib/master/proto/start.js
+RUN_MODE=${QEWD_RUN_MODE:-'interactive'}
 
-npm start
+if [ "$RUN_MODE" == 'daemon' ]
+then
+  npm start
+else
+  echo "To start QEWD by typing: npm start"
+  /bin/bash -l
+fi
 
-# NOTE: Callin Service must be manually enabled using System Management Portal
-#  before QEWD will work
