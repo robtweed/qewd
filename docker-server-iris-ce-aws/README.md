@@ -36,7 +36,10 @@ Once the EC2 instance is up and running, SSH into it and do the following:
 
         sudo docker stop try-iris
 
-## Install Subversion (which provides us a quick and easy way of downloading just the individual sections of the QEWD Github repository that we need):
+## Install Subversion
+
+Subversion provides a quick and easy way of downloading just the individual sections of the QEWD Github repository that we need.
+
 
         sudo apt-get install -y subversion
 
@@ -152,7 +155,7 @@ Click the tabs in the banner to view your IRIS USER namespace Global Storage and
 
 # Further Information on Developing using QEWD-Up
 
-You now have a fully-working IRIS-based QEWD-Up environment.
+You now have a fully-working IRIS-based QEWD-Up environment, and you can begin to try building your own applications.
 
 For further information about QEWD-Up:
 
@@ -163,7 +166,7 @@ For further information about QEWD-Up:
 
 # QEWD-IRIS Container Run-Time Modes
 
-##Interactive Mode
+## Interactive Mode
 
 Using the *docker run* command above, the QEWD-IRIS Container will have started in *interactive* mode and you should see the *bash shell* prompt - something like this:
 
@@ -187,7 +190,7 @@ You'll return to the *bash shell* prompt.
 
         exit
 
-##Daemon Mode
+## Daemon Mode
 
 If you start the Container as a daemon process, you should set the Environment Variable *QEWD_RUN_MODE* to *daemon" in your *docker run* command, eg:
 
