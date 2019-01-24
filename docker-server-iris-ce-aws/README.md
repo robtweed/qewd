@@ -16,7 +16,9 @@ It involves building a new Docker Container, derived from the one that is suppli
 
 # Provisioning the EC2 Server
 
-On AWS, select and provision a InterSystems IRIS Community Edition EC2 instance.  
+On AWS, select and provision a InterSystems IRIS Community Edition EC2 instance. 
+
+For testing purposes and to try QEWD out, a *t2.micro* EC2 instance will be sufficient.
 
 During the provisioning steps, configure it manually to customise the Security Group.  Specifically, add a new Rule as follows:
 
