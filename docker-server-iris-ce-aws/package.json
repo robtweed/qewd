@@ -1,0 +1,17 @@
+{
+  "name": "qewd-iris",
+  "version": "2.44.23",
+  "description": "Dockerised QEWD Server fir IRIS",
+  "author": "Rob Tweed <rtweed@mgateway.com>",
+  "main": "qewd.js",
+  "scripts": {
+    "start": "NODE_PATH=/opt/qewd/mapped/modules node qewd.js"
+  },
+  "dependencies": {
+    "qewd": "",
+    "qewd-monitor": "",
+    "qewd-transform-json": "",
+    "ewd-client": "",
+    "request": ""
+  }
+}

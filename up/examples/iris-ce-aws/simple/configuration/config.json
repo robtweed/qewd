@@ -1,0 +1,15 @@
+{
+  "qewd_up": true,
+  "qewd": {
+    "poolSize": 2,
+    "database": {
+      "type": "iris",
+      "params": {
+        "path": "/usr/irissys/mgr",
+        "username": "_SYSTEM",
+        "password": "secret123",
+        "namespace": "USER"
+      }
+    }
+  }
+}
