@@ -79,6 +79,7 @@ Start up the QEWD-IRIS container using this QEWD-Up application folder:
 
 Note: we're exposing port 8080 for the QEWD Web Server, and 51773 and 52773 for IRIS management purposes
 
+
 ## **NOTE**: IRIS Password
 
 Note the file within the *~/qewd-example* directory named *password.txt*.  
@@ -88,6 +89,27 @@ This file is used when the QEWD-IRIS container starts up to define the System pa
 Currently *password.txt* contains the password *secret123*, which is also the password expected in the *~/qewd-example/configuration/config.json* file.  
 
 If you change the password in the *password.txt* file, make sure you similarly change the password in your QEWD-Up application's */configuration/config.json* file.
+
+
+## Start QEWD
+
+When the Container has fully started and is ready to run, you'll be given the *bash shell* prompt which will look something like this:
+
+        root@4e067a779d54:/opt/qewd#
+
+Now start QEWD:
+
+        npm start
+
+QEWD is ready for use when you see this:
+
+        ========================================================
+        ewd-qoper8 is up and running.  Max worker pool size: 2
+        ========================================================
+        ========================================================
+        QEWD.js is listening on port 8080
+        ========================================================
+
 
 
 # Try the QEWD-Up Application's REST APIs
