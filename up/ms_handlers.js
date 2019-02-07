@@ -24,13 +24,15 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  2 January 2019
+  7 February 2019
 
 */
 
 var router = require('qewd-router');
 var ignore_jwt = {};
 var workerResponseHandler = {};
+var onWorkerLoad;
+var beforeHandler;
 
 function loadRoutes(onHandledOnly) {
   var fs = require('fs');
@@ -124,6 +126,18 @@ function loadRoutes(onHandledOnly) {
 
   if (onHandledOnly) return;
 
+  var onWorkerLoadPath = ms_path + 'onWorkerLoad.js';
+  if (fs.existsSync(onWorkerLoadPath)) {
+    onWorkerLoad = require(onWorkerLoadPath);
+    console.log('Loaded onWorkerLoad module from ' + onWorkerLoadPath);
+  }
+
+  var beforeHandlerPath = ms_path + 'beforeHandler.js';
+  if (fs.existsSync(beforeHandlerPath)) {
+    beforeHandler = require(beforeHandlerPath);
+    console.log('Loaded beforeHandler module from ' + beforeHandlerPath);
+  }
+
   console.log('routes: ' + JSON.stringify(routes, null, 2));
   return routes;
 }
@@ -135,11 +149,17 @@ loadRoutes(true); // when called by master process for workerResponseHandlers
 module.exports = {
   init: function() {
     var routes = loadRoutes();
+    if (onWorkerLoad) {
+      onWorkerLoad.call(this);
+    }
     router.addMicroServiceHandler(routes, module.exports);
   },
   beforeMicroServiceHandler: function(req, finished) {
     if (ignore_jwt[req.pathTemplate]) return;
     var authorised = this.jwt.handlers.validateRestRequest.call(this, req, finished);
+    if (authorised && beforeHandler) {
+      return beforeHandler.call(this, req, finished);
+    }
     return authorised;
   },
   workerResponseHandlers: {
@@ -150,10 +170,10 @@ module.exports = {
           message.headers = {
             authorization: 'Bearer ' + jwt
           };
-          _this.microServiceRouter.call(_this, message, callback);
+          return _this.microServiceRouter.call(_this, message, callback);
         }
         var jwt = message.token;
-        var status = workerResponseHandler[message.path](message, jwt, forward, send);
+        var status = workerResponseHandler[message.path].call(this, message, jwt, forward, send);
         if (typeof status === 'undefined') return true;
         if (status === false) return;
         return status;

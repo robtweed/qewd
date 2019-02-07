@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 January 2019
+  6 February 2019
 
 */
 
@@ -494,6 +494,10 @@ function setup(isDocker) {
               method: route.method,
               destination: route.on_microservice
             };
+
+            if (route.authenticate === false) {
+              routeObj.bypassJWTCheck = true;
+            }
 
             /*
 
