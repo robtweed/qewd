@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  2 January 2019
+  10 February 2019
 
 */
 
@@ -73,14 +73,29 @@ function getRoutes() {
       ms_source = cwd + '/' + route.handler_source;
     }
     var handlerPath = ms_source + '/' + route.handler;
-    if (fs.existsSync(handlerPath + '/handler.js')) {
-      handler = require(handlerPath + '/handler.js');
-      console.log('loaded handler from ' + handlerPath + '/handler.js');
+    var handlerPaths = [
+      handlerPath + '/handler.js',
+      handlerPath
+    ];
+    var handlerFound = false;
+    for (var i = 0; i < handlerPaths.length; i++) {
+      if (fs.existsSync(handlerPaths[i])) {
+        try {
+          handler = require(handlerPaths[i]);
+          console.log('loaded handler from ' + handlerPaths[i]);
+        }
+        catch(err) {
+          console.log('** Warning - unable to load handler from ' + handlerPaths[i] + ': ');
+          console.log(err);
+        }
+        handlerFound = true;
+        break;
+      }
     }
-    else {
-      handler = require(handlerPath);
-      console.log('loaded handler from ' + handlerPath);
+    if (!handlerFound) {
+      console.log('** Warning: unable to find handler module for ' + route.handler);
     }
+
     var routeObj = {
       url: route.uri,
       method: route.method,

@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  7 February 2019
+  10 February 2019
 
 */
 
@@ -99,21 +99,30 @@ function loadRoutes(onHandledOnly) {
       else {
         if (!routes[route.uri]) routes[route.uri] = {};
         console.log('route.uri = ' + route.uri);
-        //var path = cwd + '/' + ms_source + '/handlers/';
         var path = cwd + '/' + ms_source + '/';
-        if (fs.existsSync(path + route.handler + '.js')) {
-          handler = require(path + route.handler);
-          console.log('loaded handler from ' + path + route.handler + '.js');
+        var handlerPaths = [
+          path + route.handler + '.js',
+          path + route.handler + '/handler.js',
+          path + route.handler + '/index.js',
+          path + 'apis/' + route.handler + '/index.js'
+        ];
+        var handlerFound = false;
+        for (var i = 0; i < handlerPaths.length; i++) {
+          if (fs.existsSync(handlerPaths[i])) {
+            try {
+              handler = require(handlerPaths[i]);
+              console.log('loaded handler from ' + handlerPaths[i]);
+            }
+            catch(err) {
+              console.log('*** Warning - handler for ' + route.handler + ' found but could not be loaded from ' + handlerPaths[i]);
+              console.log(err);
+            }
+            handlerFound = true;
+            break;
+          }
         }
-        else {
-          try {
-            handler = require(path + route.handler + '/handler.js');
-            console.log('loaded handler from ' + path + route.handler + '/handler.js');
-          }
-          catch(err) {
-            handler = require(path + route.handler + '/index.js');
-            console.log('loaded handler from ' + path + route.handler + '/index.js');
-          }
+        if (!handlerFound) {
+          console.log('*** Warning - handler for ' + route.handler + ' not found');
         }
 
         routes[route.uri][route.method] =  handler;
