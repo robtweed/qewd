@@ -137,14 +137,36 @@ function loadRoutes(onHandledOnly) {
 
   var onWorkerLoadPath = ms_path + 'onWorkerLoad.js';
   if (fs.existsSync(onWorkerLoadPath)) {
-    onWorkerLoad = require(onWorkerLoadPath);
-    console.log('Loaded onWorkerLoad module from ' + onWorkerLoadPath);
+    try {
+      onWorkerLoad = require(onWorkerLoadPath);
+      console.log('Loaded onWorkerLoad module from ' + onWorkerLoadPath);
+    }
+    catch(err) {
+      console.log('** Warning - unable to load onWorkerLoad module from ' + onWorkerLoadPath);
+    }
   }
 
   var beforeHandlerPath = ms_path + 'beforeHandler.js';
   if (fs.existsSync(beforeHandlerPath)) {
-    beforeHandler = require(beforeHandlerPath);
-    console.log('Loaded beforeHandler module from ' + beforeHandlerPath);
+    try {
+      beforeHandler = require(beforeHandlerPath);
+      console.log('Loaded beforeHandler module from ' + beforeHandlerPath);
+    }
+    catch(err) {
+      console.log('** Warning - unable to load ' + beforeHandlerPath);
+    }
+  }
+  else {
+    beforeHandlerPath = ms_path + 'apis/beforeHandler.js';
+    if (fs.existsSync(beforeHandlerPath)) {
+      try {
+        beforeHandler = require(beforeHandlerPath);
+        console.log('Loaded beforeHandler module from ' + beforeHandlerPath);
+      }
+      catch(err) {
+        console.log('** Warning - unable to load ' + beforeHandlerPath);
+      }
+    }
   }
 
   console.log('routes: ' + JSON.stringify(routes, null, 2));

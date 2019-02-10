@@ -10,6 +10,7 @@
   - [addMiddleware](#addmiddleware)
   - [onStarted](#onstarted)
   - [onWSRequest](#onwsrequest)
+  - [onWorkerLoad](#onWorkerLoad)
   - [beforeHandler](#beforehandler)
   - [onMSResponse](#onmsresponse)
   - [onOrchResponse](#onorchresponse)
@@ -117,7 +118,11 @@ On receipt of the response from another MicroService, the *Orchestrator* returns
 - **onWSRequest**: triggered as part of your Orchestrator's Middelware chain, and before each incoming API request is routed to its appropriate handling MicroService destination.  Its usual purpose is to allow you to modify some aspect(s) of the incoming request, for example modifying and/or adding HTTP headers, and/or modifying the request payload.  This hook is invoked in the QEWD Master process, before the incoming request is forwarded to its handling MicroService, and applies to **ALL** incoming requests.
 
 
-#### Request from Orchestrator Received by Handling MicroService
+#### Request forwarded from Orchestrator Received by Handling MicroService
+
+- **onWorkerLoad**: triggered when a new QEWD Worker process starts and loads the generated Application Module that contains all your application's handler modules.  A typical use for this event hook is to load one or more third-party Node.js modules that should be available to all your handler modules.
+
+- **beforeHandler**: triggered in the QEWD Worker process that handles the incoming request **before** your handler method is invoked. This hook is applied to **all** incoming requests.  Typically it is used to define logic that should be applied to all incoming requests.  A typical use for this event hook in a MicroService is to create and maintain a QEWD Session, linked to the JWT attached to the request.  Rejected messages will **not** invoke your handler method.  Because this hook is invoked in the QEWD Worker process, it has access to the integrated persistent JSON database.
 
 - **onMSResponse**: applied to a specific API and triggered on the Master process on receipt of the response from the Worker process that handled the API.  This allows you to intercept the response from your API handler and optionally invoke one or more additional API requests that may be sent to be handled on other MicroServices.  This allows you, for example, to build up a composite response from a series of chained APIs spread across multiple MicroServices
 
@@ -454,6 +459,47 @@ This *onWSRequest* example implements CSRF protection for all incoming requests:
 
 
 
+## onWorkerLoad
+
+
+### Filename and Directory location
+
+The filename is **onWorkerLoad.js**.  Its name is case-sensitive.
+
+This event hook is useful if most or all of the handler modules for the MicroService require the use of the same third-party Node.js module.  Rather than each handler module *require()*ing the module, you can do this once when the QEWD Worker loads the Application Module that QEWD-Up generates, and augment the *this* object with the loaded Node.js module(s).
+
+A more complex scenario is where you want to load a Node.js module and then instantiate an instance of a class or object from it, and make that class or object available to some or all of your handler modules.
+
+Placement of the *onWorkerLoad.js* file is within a MicroService's folder, eg:
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |       |
+            |       |_ onWorkerLoad.js
+
+
+### Module structure
+
+Your *onWorkerLoad.js* file should export a function of the structure shown below:
+
+      module.exports = function() {
+        // onWorkerLoad logic here
+      };
+
+### Module Function Context
+
+The *onWorkerLoad* module's **this** object is the QEWD Worker Process object.  This provides access to, for example:
+
+- **this.db.use**: Giving access to a document within the integrated persistent JSON database
+- **this.session**: The QEWD Session (if relevant)
+- **this.userDefined**: Any custom objects that were defined at QEWD Startup
+
+Typically you'll load one or more third-party modules and add them (or a derived instantiated class or object) to *this*.
+
+
 
 ## beforeHandler
 
@@ -462,18 +508,17 @@ This *onWSRequest* example implements CSRF protection for all incoming requests:
 
 The filename is **beforeHandler.js**.  Its name is case-sensitive.
 
-The *beforeHandler* hook is only relevant to:
-
-- APIs invoked in Monolithic applications
-- APIs that are invoked on the *Orchestrator* within MicroService applications
-
 It is applied to **all** of the above API requests, and is invoked on the QEWD Worker process that handles the API
 
-Its most common use is for determining whether or not the request has been authenticated, and rejecting un-authenticated or otherwise invalid requests before the appropriate API handler method is invoked.
+Its most common uses are:
 
-**Note**: Although the *beforeHandler* hook is applied to all of the above API requests, it can be over-ridden on a per-API basis by setting a route's [*applyBeforeHandler* property to *false*](https://github.com/robtweed/qewd/blob/master/up/docs/Routes.md#the-beforehandler-hook-in-monolithic-applications).
+  - in a Monolithic application, for determining whether or not the request has been authenticated, and rejecting un-authenticated or otherwise invalid requests before the appropriate API handler method is invoked.
 
-Its placement depends on what mode you are using:
+  - in a MicroService application, for establishing and sunsequently maintaining a QEWD Session that is linked to the incoming JWT that is included with the user's request, eg for cacheing user-specific data for the duration of the user's activity.
+
+**Note**: In a Monolithic application, although the *beforeHandler* hook is applied to all of the above API requests, it can be over-ridden on a per-API basis by setting a route's [*applyBeforeHandler* property to *false*](https://github.com/robtweed/qewd/blob/master/up/docs/Routes.md#the-beforehandler-hook-in-monolithic-applications).
+
+The placement of the *beforeHandler.js* file depends on what mode you are using:
 
 #### Monolith
 
@@ -486,7 +531,7 @@ Its placement depends on what mode you are using:
             |    |_ beforeHandler.js
             |
 
-#### MicroService
+#### MicroService (Orchestrator)
 
         ~/microserviceExample
             |
@@ -498,6 +543,18 @@ Its placement depends on what mode you are using:
             |       |
             |       |_ beforeHandler.js
 
+
+#### MicroService (MicroService)
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |       |
+            |      apis
+            |       |
+            |       |_ beforeHandler.js
 
 
 ### Module structure
@@ -547,6 +604,17 @@ The *finished* function performs two tasks in QEWD:
 - it tells QEWD's Master process that you have finished with the Worker process, and it can be returned to the available pool
 
 **Note:** If you invoke the *finished()* function, you **MUST** *return false* from your *beforeHandler* module.  Doing so instructs QEWD to bypass your normal handler method.  See the example above
+
+### Example
+
+In a MicroService application, you can establish and maintain a QEWD Session that is linked to the incoming request's JWT simply by defining the following *beforeHandler* module:
+
+      module.exports = function(req, finished) {
+        req.qewdSession = this.qewdSessionByJWT.call(this, req);
+        return true;
+      };
+
+Your handler modules can then access this QEWD Session via *args.req.qewdSession*.
 
 
 ## onMSResponse
