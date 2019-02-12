@@ -546,6 +546,22 @@ The placement of the *beforeHandler.js* file depends on what mode you are using:
 
 #### MicroService (MicroService)
 
+If you have defined your handler modules directly within your MicroService folder, then the *beforeHandler.js* module should also be placed there, eg:
+
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |       |
+            |       |
+            |       |_ beforeHandler.js
+
+
+Alternatively, if you have placed all your handlers within their own *apis* folder, you should also place the *beforeHandler.js* module within the *apis* folder, eg:
+
+
         ~/microserviceExample
             |
             |_ configuration
@@ -805,7 +821,7 @@ An *onOrchResponse* module is placed is along-side the API handler module, eg: f
   }
 
 
-You would define an *onOrchResponse* hook by adding the *onOrchResponse.js* module file here:
+You would define an *onOrchResponse* hook by adding the *onOrchResponse.js* module file alongside the handler's *index.js* file, eg:
 
 
         ~/microserviceExample
@@ -813,6 +829,24 @@ You would define an *onOrchResponse* hook by adding the *onOrchResponse.js* modu
             |_ configuration
             |
             |_ login_service
+            |         |
+            |        login
+            |           |
+            |           |_ index.js
+            |           |
+            |           |_ onOrchResponse.js
+
+
+Or, if you had grouped all your handler modules within an *apis* subfolder:
+
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |       |
+            |       apis
             |         |
             |        login
             |           |

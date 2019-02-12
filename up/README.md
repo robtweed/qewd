@@ -461,7 +461,15 @@ In the example above:
 
 ### Defining Your MicroService API Handlers
 
-You define your API Handlers within the *apis* folder.  First create a sub-folder for each *handler* property name that you defined in the *routes.json* file (see above).  Then, within each of these handler sub-folders, create the module file that defines what the handler actually does.  You can name this file either *handler.js* or *index.js*.
+#### Location
+
+You define your API Handlers within the MicroService folder in which it will execute.  You have two options:
+
+- if your handler modules are simple and you don't want or need to break them into smaller sub-modules, you can define each one using sub-folder names that correspond to the handler names, placing each sub-folder under the MicroService folder.
+
+- in more complex situations, you may find it neater to add an intermediate sub-folder named *apis*, below which you define your handler modules.
+
+So, first create a sub-folder for each *handler* property name that you defined in the *routes.json* file (see above).  Then, within each of these handler sub-folders, create the module file that defines what the handler actually does.  You can name this file either *handler.js* or *index.js*.
 
 For example, using the *routes.json* example above, you'd create:
 
@@ -485,7 +493,56 @@ For example, using the *routes.json* example above, you'd create:
             |                  |
             |                  |— handler.js
             |
-  
+ 
+Alternatively, you could use an intermediate *apis* sub-folder:
+
+        ~/microserviceExample
+            |
+            |— configuration
+            |            |
+            |            |— routes.json
+            |            |
+            |            |— config.json
+            |
+            |— login_service
+            |            |
+            |            |— apis
+            |                 |
+            |                 |— login
+            |                     |
+            |                     |— index.js
+            |
+            |— info_service
+            |            |
+            |            |— apis
+            |                 |
+            |                 |— getInfo
+            |                     |
+            |                     |— index.js
+            |
+
+This latter structure allows you to add other MicroService folders in which to place your own modules on which your handler modules depend, eg:
+
+        ~/microserviceExample
+            |
+            |
+            |— login_service
+            |            |
+            |            |— apis
+            |            |    |
+            |            |    |— login
+            |            |        |
+            |            |        |— index.js
+            |            |— utils
+            |            |    |
+            |            |    |— encrypt.js
+            |            |    |
+            |            |    |— decrypt.js
+
+
+So in the above example, your login handler and other API handler methods may need to use encryption and decryption logic.  We can put the modules for these in a *utils* folder (apart from *apis*, any other folder names are up to you), keeping them neatly separated from the main handler modules.
+
+#### API Handler Module Arguments
 
 QEWD REST handler modules export a function with 2 arguments:
 
@@ -494,9 +551,11 @@ QEWD REST handler modules export a function with 2 arguments:
 - **finished**: the QEWD function that you use to end your handler.  This function releases the QEWD worker process that handled your module back to QEWD's available worker pool, and tells QEWD to return the object you provide as its argument as a JSON response to the REST client that sent the original request.
 
 
+#### Examples
+
 Here's the example handler modules:
 
-#### login/handler.js
+##### login/handler.js
 
     module.exports = function(args, finished) {
       var username = args.req.body.username;
@@ -523,7 +582,7 @@ If login is successful, then I'm adding information to the JWT.  The *authentica
 - **timeout**: sets the JWT timeout which, in turn, updates the JWT *exp* claim each time a handler module is invoked
 
 
-#### getInfo/handler.js
+##### getInfo/handler.js
 
       module.exports = function(args, finished) {
         finished({
