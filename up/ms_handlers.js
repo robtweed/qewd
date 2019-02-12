@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  10 February 2019
+  11 February 2019
 
 */
 
@@ -91,9 +91,21 @@ function loadRoutes(onHandledOnly) {
 
     if (ms_match) {
       if (onHandledOnly) {
-        onMSResponsePath = ms_path + route.handler + '/onMSResponse.js';
-        if (fs.existsSync(onMSResponsePath)) {
-          workerResponseHandler[route.uri] = require(onMSResponsePath);
+        var onMSResponsePaths = [
+          ms_path + route.handler + '/onMSResponse.js',
+          ms_path + 'apis/' + route.handler + '/onMSResponse.js',
+        ];
+        for (var i = 0; i < onMSResponsePaths.length; i++) {
+          if (fs.existsSync(onMSResponsePaths[i])) {
+            try {
+              workerResponseHandler[route.uri] = require(onMSResponsePaths[i]);
+              console.log('onMSResponse handler loaded from ' + onMSResponsePaths[i]);
+            }
+            catch(err) {
+              console.log('** Warning: onMSResponse handler could not be loaded from ' + onMSResponsePaths[i]);
+            }
+            break;
+          }
         }
       }
       else {

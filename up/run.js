@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  6 February 2019
+  11 February 2019
 
 */
 
@@ -473,7 +473,6 @@ function setup(isDocker) {
 
         routes_data.forEach(function(route) {
           var routeObj;
-          var onOrchResponsePath;
           var onOrchResponseFn;
 
           if (route.on_microservice || route.on_microservices) {
@@ -512,12 +511,25 @@ function setup(isDocker) {
             */
 
             //var onResponsePath = cwd + '/' + route.on_microservice + '/handlers/' + route.handler + '/onResponse.js';
-            onOrchResponsePath = cwd + '/' + route.on_microservice + '/' + route.handler + '/onOrchResponse.js';
-            console.log('Checking for onOrchResponse path: ' + onOrchResponsePath);
-            if (fs.existsSync(onOrchResponsePath)) {
-              //routeObj.onResponse = require(onOrchResponsePath);
+            onOrchResponsePaths = [
+              cwd + '/' + route.on_microservice + '/' + route.handler + '/onOrchResponse.js',
+              cwd + '/' + route.on_microservice + '/apis/' + route.handler + '/onOrchResponse.js'
+            ];
+            for (var i = 0; i < onOrchResponsePaths.length; i++) {
+              console.log('checking onOrchResponsePath: ' + onOrchResponsePaths[i]);
+              if (fs.existsSync(onOrchResponsePaths[i])) {
+                try {
+                  onOrchResponseFn = require(onOrchResponsePaths[i]);
+                  console.log('onOrchResponse handler loaded from ' + onOrchResponsePaths[i]);
+                }
+                catch(err) {
+                  console.log('** Warning - onOrchResponse handler could not be loaded from ' + onOrchResponsePaths[i]);
+                }
+                break;
+              }
+            }
 
-              onOrchResponseFn = require(onOrchResponsePath);
+            if (onOrchResponseFn) {
               routeObj.onResponse = function(args) {
                 var _this = this;
 
@@ -550,8 +562,6 @@ function setup(isDocker) {
 
                 return onOrchResponseFn.call(this, args.responseObj, args.message, forwardToMS, handleResponse, getJWTProperty);
               };
-
-              console.log('Adding onOrchResponse handler for ' + route.uri + ': ' + onOrchResponsePath);
             }
 
             config.u_services.routes.push(routeObj);
