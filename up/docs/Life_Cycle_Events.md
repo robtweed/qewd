@@ -661,13 +661,13 @@ Because the *onMSResponse* runs on the MicroService that handles the API, if you
 
 An *onMSResponse* module is placed is along-side the API handler module, eg: for the API defined in **routes.json**:
 
-  {
-    "uri": "/api/login",
-    "method": "POST",
-    "handler": "login",
-    "on_microservice": "login_service",
-    "authenticate": false
-  }
+      {
+        "uri": "/api/login",
+        "method": "POST",
+        "handler": "login",
+        "on_microservice": "login_service",
+        "authenticate": false
+      }
 
 
 You would define an *onMSResponse* hook by adding the *onMSResponse.js* module file here:
@@ -678,6 +678,23 @@ You would define an *onMSResponse* hook by adding the *onMSResponse.js* module f
             |_ configuration
             |
             |_ login_service
+            |         |
+            |        login
+            |           |
+            |           |_ index.js
+            |           |
+            |           |_ onMSResponse.js
+
+
+Alternatively, if you had chosen to group all your API handler modules in an *apis* folder, you would place the *onMSResponse* module within the *apis* folder, eg:
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |       |
+            |       apis
             |         |
             |        login
             |           |
