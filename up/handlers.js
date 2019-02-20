@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  10 February 2019
+  20 February 2019
 
 */
 
@@ -33,6 +33,9 @@ console.log('running up/handlers.js in process ' + process.pid);
 var ignorePaths = {};
 var beforeHandlerFn;
 var errorResponse;
+var onWorkerLoad;
+var docStoreEventsArr;
+var docStoreEvents;
 
 function getRoutes() {
   var fs = require('fs');
@@ -115,10 +118,71 @@ function getRoutes() {
 
   });
 
+  var onWorkerLoadPath = cwd + '/onWorkerLoad.js';
+  if (fs.existsSync(onWorkerLoadPath)) {
+    try {
+      onWorkerLoad = require(onWorkerLoadPath);
+      console.log('Loaded onWorkerLoad module from ' + onWorkerLoadPath);
+    }
+    catch(err) {
+      console.log('** Warning - unable to load onWorkerLoad module from ' + onWorkerLoadPath);
+    }
+  }
+  else {
+    onWorkerLoadPath = cwd + '/apis/onWorkerLoad.js';
+    if (fs.existsSync(onWorkerLoadPath)) {
+      try {
+        onWorkerLoad = require(onWorkerLoadPath);
+        console.log('Loaded onWorkerLoad module from ' + onWorkerLoadPath);
+      }
+      catch(err) {
+        console.log('** Warning - unable to load onWorkerLoad module from ' + onWorkerLoadPath);
+      }
+    }
+  }
+
   var beforeHandlerPath = handlerRootPath + '/beforeHandler.js';
   console.log('beforeHandlerPath: ' + beforeHandlerPath);
+
   if (fs.existsSync(beforeHandlerPath)) {
-    beforeHandlerFn = require(beforeHandlerPath);
+    try {
+      beforeHandlerFn = require(beforeHandlerPath);
+      console.log('Loaded beforeHandler module from ' + beforeHandlerPath);
+    }
+    catch(err) {
+      console.log('** Warning - unable to load ' + beforeHandlerPath);
+    }
+  }
+
+  var docStoreEventsPath = cwd + '/docStoreEvents/events.json';
+  console.log('** docStoreEventsPath = ' + docStoreEventsPath);
+  if (fs.existsSync(docStoreEventsPath)) {
+    try {
+      docStoreEventsArr = require(docStoreEventsPath);
+      console.log('Loaded docStoreEvents definitions from ' + docStoreEventsPath);
+      docStoreEvents = {};
+
+      docStoreEventsArr.forEach(function(docObj) {
+        var handlerPath;
+        if (!docStoreEvents[docObj.documentName]) {
+          docStoreEvents[docObj.documentName] = {};
+        }
+        handlerPath = cwd + '/docStoreEvents/' + docObj.handler;
+        try {
+          docStoreEvents[docObj.documentName][docObj.path.join('~')] = {
+            length: docObj.path.length,
+            handler: require(handlerPath)
+          };
+          console.log('** Event handler successfully loaded from ' + handlerPath);
+        }
+        catch(err) {
+          console.log('** Warning - unable to load ' + handlerPath);
+        }
+      });
+    }
+    catch(err) {
+      console.log('** Warning - unable to load docStoreEvents definitions from ' + docStoreEventsPath);
+    }
   }
 
   console.log('routes: ' + JSON.stringify(routes, null, 2));
@@ -134,6 +198,7 @@ function beforeHandler(req, finished) {
 module.exports = {
   restModule: true,
   init: function(application) {
+    var _this = this;
     var router = require('qewd-router');
     var routes = getRoutes();
     routes = router.initialise(routes, module.exports);
@@ -148,6 +213,45 @@ module.exports = {
         statusCode: statusCode
       });
     }
+
+    if (onWorkerLoad) {
+      onWorkerLoad.call(this);
+    }
+
+    if (docStoreEvents) {
+
+      console.log('docStoreEvents: ' + JSON.stringify(docStoreEvents, null, 2));
+
+      this.documentStore.on('afterSet', function(docNode) {
+        var subs;
+        var length;
+        if (docStoreEvents[docNode.documentName]) {
+          for (var pathStr in docStoreEvents[docNode.documentName]) {
+            length = docStoreEvents[docNode.documentName][pathStr].length;
+            subs = docNode.path.slice(0, length).join('~');
+            if (subs === pathStr && docStoreEvents[docNode.documentName][pathStr].handler.afterSet) {
+              docStoreEvents[docNode.documentName][pathStr].handler.afterSet.call(_this, docNode);
+              break;
+            }
+          }
+        }
+      });
+      this.documentStore.on('afterDelete', function(docNode) {
+        var subs;
+        var length;
+        if (docStoreEvents[docNode.documentName]) {
+          for (var pathStr in docStoreEvents[docNode.documentName]) {
+            length = docStoreEvents[docNode.documentName][pathStr].length;
+            subs = docNode.path.slice(0, length).join('~');
+            if (subs === pathStr && docStoreEvents[docNode.documentName][pathStr].handler.afterDelete) {
+              docStoreEvents[docNode.documentName][pathStr].handler.afterDelete.call(_this, docNode);
+              break;
+            }
+          }
+        }
+      });
+    }
+
   },
   beforeHandler: function(req, finished) {
     return beforeHandler.call(this, req, finished);
