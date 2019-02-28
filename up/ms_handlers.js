@@ -24,16 +24,18 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  20 February 2019
+  28 February 2019
 
 */
 
 var router = require('qewd-router');
+var createDocStoreEvents = require('./createDocStoreEvents');
+var handleDocStoreEvents = require('./handleDocStoreEvents');
+
 var ignore_jwt = {};
 var workerResponseHandler = {};
 var onWorkerLoad;
 var beforeHandler;
-var docStoreEventsArr;
 var docStoreEvents;
 
 function loadRoutes(onHandledOnly) {
@@ -65,7 +67,6 @@ function loadRoutes(onHandledOnly) {
 
   routes_data.forEach(function(route) {
     var handler;
-    var onMSResponsePath;
     var ms_match = false;
     var ms_source = ms_name;
     var i;
@@ -113,7 +114,7 @@ function loadRoutes(onHandledOnly) {
       }
       else {
         if (!routes[route.uri]) routes[route.uri] = {};
-        console.log('route.uri = ' + route.uri);
+        //console.log('route.uri = ' + route.uri);
         var path = cwd + '/' + ms_source + '/';
         var handlerPaths = [
           path + route.handler + '.js',
@@ -186,34 +187,8 @@ function loadRoutes(onHandledOnly) {
 
   var docStoreEventsPath = ms_path + 'docStoreEvents/events.json';
   if (fs.existsSync(docStoreEventsPath)) {
-    try {
-      docStoreEventsArr = require(docStoreEventsPath);
-      console.log('Loaded docStoreEvents definitions from ' + docStoreEventsPath);
-      docStoreEvents = {};
-
-      docStoreEventsArr.forEach(function(docObj) {
-        var handlerPath;
-        if (!docStoreEvents[docObj.documentName]) {
-          docStoreEvents[docObj.documentName] = {};
-        }
-        handlerPath = ms_path + 'docStoreEvents/' + docObj.handler;
-        try {
-          docStoreEvents[docObj.documentName][docObj.path.join('~')] = {
-            length: docObj.path.length,
-            handler: require(handlerPath)
-          };
-          console.log('** Event handler successfully loaded from ' + handlerPath);
-        }
-        catch(err) {
-          console.log('** Warning - unable to load ' + handlerPath);
-        }
-      });
-
-
-    }
-    catch(err) {
-      console.log('** Warning - unable to load docStoreEvents definitions from ' + docStoreEventsPath);
-    }
+    docStoreEvents = createDocStoreEvents(docStoreEventsPath, ms_path);
+    //console.log('** docStorEvents: ' + JSON.stringify(docStoreEvents, null, 2));
   }
 
   console.log('routes: ' + JSON.stringify(routes, null, 2));
@@ -226,44 +201,13 @@ loadRoutes(true); // when called by master process for workerResponseHandlers
 
 module.exports = {
   init: function() {
-    var _this = this;
     var routes = loadRoutes();
     if (onWorkerLoad) {
       onWorkerLoad.call(this);
     }
 
     if (docStoreEvents) {
-
-      console.log('docStoreEvents: ' + JSON.stringify(docStoreEvents, null, 2));
-
-      this.documentStore.on('afterSet', function(docNode) {
-        var subs;
-        var length;
-        if (docStoreEvents[docNode.documentName]) {
-          for (var pathStr in docStoreEvents[docNode.documentName]) {
-            length = docStoreEvents[docNode.documentName][pathStr].length;
-            subs = docNode.path.slice(0, length).join('~');
-            if (subs === pathStr && docStoreEvents[docNode.documentName][pathStr].handler.afterSet) {
-              docStoreEvents[docNode.documentName][pathStr].handler.afterSet.call(_this, docNode);
-              break;
-            }
-          }
-        }
-      });
-      this.documentStore.on('afterDelete', function(docNode) {
-        var subs;
-        var length;
-        if (docStoreEvents[docNode.documentName]) {
-          for (var pathStr in docStoreEvents[docNode.documentName]) {
-            length = docStoreEvents[docNode.documentName][pathStr].length;
-            subs = docNode.path.slice(0, length).join('~');
-            if (subs === pathStr && docStoreEvents[docNode.documentName][pathStr].handler.afterDelete) {
-              docStoreEvents[docNode.documentName][pathStr].handler.afterDelete.call(_this, docNode);
-              break;
-            }
-          }
-        }
-      });
+      handleDocStoreEvents.call(this, docStoreEvents);
     }
 
     router.addMicroServiceHandler(routes, module.exports);
