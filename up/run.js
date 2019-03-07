@@ -24,11 +24,11 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  11 February 2019
+  7 March 2019
 
 */
 
-console.log('Loading /up/run.js in process ' + process.pid);
+//console.log('Loading /up/run.js in process ' + process.pid);
 
 var fs = require('fs');
 var module_exists = require('module-exists');
@@ -128,10 +128,47 @@ function unlinkMonitor(cwd, name) {
   }
 }
 
+function updateRoutes(json) {
+  fs.writeFileSync('/opt/qewd/mapped/configuration/routes.json', JSON.stringify(json, null, 2));
+}
+
+function addImportRoute(config_data, routes) {
+  var startMode = 'normal';
+  if (!config_data.microservices) return startMode;
+
+  var on_microservices = [];
+  config_data.microservices.forEach(function(ms) {
+    if (ms.apis && ms.apis.import && !ms.apis.imported) {
+      // this microservice needs to be imported
+      on_microservices.push(ms.name);
+    }
+  });
+
+  if (on_microservices.length > 0) {
+
+    startMode = 'import';
+
+    // add temporary route to allow import of microservice routes
+
+    routes.push({
+      uri: '/qewd/importRoutes/:destination',
+      method: 'POST',
+      on_microservices: on_microservices,
+      authenticate: false,
+      bypassJWTCheck: true
+    });
+
+    updateRoutes(routes);
+  }
+  return startMode;
+}
+
 function setup(isDocker) {
 
   var cwd = process.cwd();
   var ms_name = process.env.microservice;
+  var mode = process.env.mode;
+  var startupMode = 'normal';
   var uuid;
 
   if (isDocker) {
@@ -168,28 +205,40 @@ function setup(isDocker) {
   var webServerRootPath = process.cwd() + '/www/';
   var serviceName;
 
-  if (ms_name) {
-    webServerRootPath = cwd + '/' + ms_name + '/www/';
+  if (ms_name || mode) {
+    if (ms_name) {
+      webServerRootPath = cwd + '/' + ms_name + '/www/';
+    }
     // this is running a microservice container
-    config_data.microservices.forEach(function(microservice, index) {
-      ms_index[microservice.name] = index;
-      if (microservice.name === ms_name) {
-        ms_config = microservice;
-      }
-    });
+    if (config_data.microservices) {
+      config_data.microservices.forEach(function(microservice, index) {
+        ms_index[microservice.name] = index;
+        if (microservice.name === ms_name) {
+          ms_config = microservice;
+        }
+      });
+    }
 
-    if (!ms_config) {
+    if (!mode && !ms_config) {
       console.log('Error: Unable to find configuration details for a microservice named ' + ms_name);
       return;
     }
 
+    if (mode) {
+      ms_config = config_data;
+    }
     if (!ms_config.qewd) {
       ms_config.qewd = {};
     }
 
     if (ms_config.qewd['qewd-monitor'] !== false) {
       //console.log('1 enabling qewd-monitor');
-      linkMonitor(cwd, ms_name);
+      if (ms_name) {
+        linkMonitor(cwd, ms_name);
+      }
+      else {
+        linkMonitor(cwd, '');
+      }
     }
     else {
       unlinkMonitor(cwd, ms_name);
@@ -200,7 +249,7 @@ function setup(isDocker) {
 
     // not a microservice - either native or docker monolith, or docker orchestrator
 
-    console.log('config_data: ' + JSON.stringify(config_data, null, 2));
+    //console.log('config_data: ' + JSON.stringify(config_data, null, 2));
 
     if (config_data.orchestrator) {
       if (isDocker) {
@@ -335,13 +384,22 @@ function setup(isDocker) {
 
   if (isDocker) {
 
-    if (ms_name) {
+    if (ms_name || mode === 'microservice') {
       // This is a micro-service, not the orchestrator
 
-      createModuleMap(cwd + '/' + ms_name, config);
+      if (!mode) createModuleMap(cwd + '/' + ms_name, config);
+
+      var routePath;
+      if (ms_name) {
+        routePath = ms_config.name;
+      }
+      else {
+        // standalone MS running in microservice mode
+        routePath = config_data.ms_name || mode;
+      }
 
       routes = [{
-        path: ms_config.name,
+        path: routePath,
         module: __dirname + '/ms_handlers',
         errors: {
           notfound: {
@@ -356,6 +414,50 @@ function setup(isDocker) {
       }
       catch(err) {
         routes_data = [];
+      }
+
+      // if this is a standalone microservice running in microservice mode,
+      //  AND the imported flag has not yet been set, then add the temporary
+      //  route that will accept the request from the orchestrator so the
+      //  microservice's routes can be imported into the orchestrator.
+      //  Also add the handler API & method for it
+
+      if (mode === 'microservice' && !config_data.imported) {
+
+        startupMode = 'export';
+
+        var importRouteFound = false;
+        routes_data.forEach(function(route) {
+          if (route.uri === '/qewd/importRoutes/:destination') {
+            importRouteFound = true;
+          }
+        });
+
+        if (!importRouteFound) {
+          routes_data.push({
+            uri: '/qewd/importRoutes/:destination',
+            method: 'POST',
+            handler: 'importRoutes',
+            authenticate: false,
+            bypassJWTCheck: true
+          });
+
+          updateRoutes(routes_data);
+        }
+
+        var apiPath = cwd + '/apis';
+        if (!fs.existsSync(apiPath)) {
+          fs.mkdirSync(apiPath);
+        }
+        apiPath = cwd + '/apis/importRoutes';
+        if (!fs.existsSync(apiPath)) {
+          fs.mkdirSync(apiPath);
+        }
+        var cmd = 'cp ' + process.cwd() + '/node_modules/qewd/up/exportRoutesFromMs.js ' + cwd + '/apis/importRoutes/index.js';
+        child_process.execSync(cmd, {stdio:[0,1,2]});
+        cmd = 'cp ' + process.cwd() + '/node_modules/qewd/up/stopMSAfterExport.js ' + cwd + '/apis/importRoutes/onMSResponse.js';
+        child_process.execSync(cmd, {stdio:[0,1,2]});
+
       }
 
       // dynamically create connections info from routes if not already defined in the config.json information
@@ -421,11 +523,13 @@ function setup(isDocker) {
         }
       }
 
-      console.log('microservice config = ' + JSON.stringify(config, null, 2));
-
     }
     else {
       // This is the orchestrator (or Docker monolith)
+
+      // check if microservices need importing, and if so, add import route
+
+      startupMode = addImportRoute(config_data, routes_data)
 
       // Add module map if necessary
 
@@ -433,7 +537,7 @@ function setup(isDocker) {
 
       // Add in microservice definitions if present
 
-      console.log('config_data.microservices: ' + JSON.stringify(config_data.microservices, null, 2));
+      //console.log('config_data.microservices: ' + JSON.stringify(config_data.microservices, null, 2));
 
       if (config_data.microservices && Array.isArray(config_data.microservices)) {
         config.u_services = {
@@ -594,14 +698,14 @@ function setup(isDocker) {
       // write it back to cwd + '/configuration/config.json'
       fs.writeFileSync(cwd + '/configuration/config.json', JSON.stringify(config_data, null, 2));
     }
-    config.jwt = config_data.jwt;
+    config.jwt = Object.assign({}, config_data.jwt); // prevent it being simply by reference
   }
   else {
     // native app
     createModuleMap(cwd, config);
   }
 
-  if (!ms_name) {
+  if (!ms_name && !mode) {
 
     routes_data.forEach(function(route) {
       if (route.else) return;
@@ -644,7 +748,8 @@ function setup(isDocker) {
   return {
     routes: routes,
     config: config,
-    cwd: cwd
+    cwd: cwd,
+    startupMode: startupMode
   };
 }
 
@@ -653,12 +758,14 @@ module.exports = function(isDocker) {
   //console.log('running module.exports function for run.js');
 
   var results = setup(isDocker);
+  if (!results) return;
   var config = results.config;
   var routes = results.routes;
+  var startupMode = results.startupMode;
   var cwd = results.cwd;
 
-  console.log('master config: ' + JSON.stringify(config, null ,2));
-  console.log('routes: ' + JSON.stringify(routes, null, 2));
+  //console.log('master config: ' + JSON.stringify(config, null ,2));
+  //console.log('routes: ' + JSON.stringify(routes, null, 2));
 
   var ms_name = process.env.microservice;
 
@@ -674,6 +781,34 @@ module.exports = function(isDocker) {
   }
 
   if (isDocker) {
+
+    if (startupMode === 'export') {
+      console.log('\n===============================================');
+      console.log('  This QEWD-Up MicroService has started in');
+      console.log('  export mode.  When the Orchestrator');
+      console.log('  starts and connects to this MicroService,');
+      console.log('  it will export its routes to the');
+      console.log('  Orchestrator, its JWT secret will be');
+      console.log('  changed to the one used by the Orchestrator');
+      console.log('  and it will then shut down.');
+      console.log('  ');
+      console.log('  You should then restart this MicroService');
+      console.log('===============================================');
+      console.log(' ');
+    }
+
+    if (startupMode === 'import') {
+      console.log('\n===============================================');
+      console.log('  This QEWD-Up Orchestrator has started in');
+      console.log('  import mode. When it connects to each');
+      console.log('  MicroService, it will import its routes.');
+      console.log('  When all MicroService routes are imported');
+      console.log('  the Orchestrator will shut down.');
+      console.log(' ');
+      console.log('  You should then restart the Orchestrator');
+      console.log('===============================================');
+      console.log(' ');
+    }
 
     var exportObj = {
       config: config,
@@ -705,6 +840,7 @@ module.exports = function(isDocker) {
         console.log('Journal recovered');
       }
     }
+
     var q = qewd.start(config, routes);
     var xp = qewd.intercept();
 

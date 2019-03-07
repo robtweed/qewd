@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  28 February 2019
+  7 March 2019
 
 */
 
@@ -42,30 +42,45 @@ function loadRoutes(onHandledOnly) {
   var fs = require('fs');
   var cwd = process.cwd() + '/mapped';
   var ms_name = process.env.microservice;
-  var ms_path = cwd + '/' + ms_name + '/';
-
+  var mode = process.env.mode;
   var routes_data = require(cwd + '/configuration/routes.json');
   var config_data = require(cwd + '/configuration/config.json');
+  var ms_path;
+
+  if (mode === 'microservice') {
+    ms_name = config_data.ms_name;
+    ms_path = cwd + '/';
+  }
+  else {
+    ms_path = cwd + '/' + ms_name + '/';
+  }
+
   var routes = {};
 
-  console.log('loading up/ms_handlers in process ' + process.pid);
-  console.log('ms_name = ' + ms_name);
+  //console.log('loading up/ms_handlers in process ' + process.pid);
+  //console.log('ms_name = ' + ms_name);
   //console.log('routes_data = ' + JSON.stringify(routes_data, null, 2));
 
   // check for any grouped destinations that include this microservice name
 
   var group_matches = {};
-  config_data.microservices.forEach(function(microservice) {
-    if (microservice.members) {
-      microservice.members.forEach(function(member_name) {
-        if (member_name === ms_name) {
-          group_matches[microservice.name] = true;
-        }
-      });
-    }
-  });
+  if (!mode) {
+    config_data.microservices.forEach(function(microservice) {
+      if (microservice.members) {
+        microservice.members.forEach(function(member_name) {
+          if (member_name === ms_name) {
+            group_matches[microservice.name] = true;
+          }
+        });
+      }
+    });
+  }
 
   routes_data.forEach(function(route) {
+    if (mode === 'microservice') {
+      route.on_microservice = ms_name;
+    }
+    //console.log('route: ' + JSON.stringify(route, null, 2));
     var handler;
     var ms_match = false;
     var ms_source = ms_name;
@@ -122,8 +137,13 @@ function loadRoutes(onHandledOnly) {
           path + route.handler + '/index.js',
           path + 'apis/' + route.handler + '/index.js'
         ];
+        if (mode === 'microservice') {
+          handlerPaths.push(cwd + '/apis/' + route.handler + '/index.js');
+          handlerPaths.push(cwd + '/apis/' + route.handler + '/handler.js');
+        }
         var handlerFound = false;
         for (i = 0; i < handlerPaths.length; i++) {
+          console.log('** trying to load from ' + handlerPaths[i]);
           if (fs.existsSync(handlerPaths[i])) {
             try {
               handler = require(handlerPaths[i]);
@@ -142,6 +162,7 @@ function loadRoutes(onHandledOnly) {
         }
 
         routes[route.uri][route.method] =  handler;
+        //console.log(route.uri + ': authenticate = ' + route.authenticate);
         if (route.authenticate === false) {
           ignore_jwt[route.uri] = true;
         }
@@ -191,7 +212,7 @@ function loadRoutes(onHandledOnly) {
     //console.log('** docStorEvents: ' + JSON.stringify(docStoreEvents, null, 2));
   }
 
-  console.log('routes: ' + JSON.stringify(routes, null, 2));
+  //console.log('routes: ' + JSON.stringify(routes, null, 2));
   return routes;
 }
 
@@ -213,6 +234,8 @@ module.exports = {
     router.addMicroServiceHandler(routes, module.exports);
   },
   beforeMicroServiceHandler: function(req, finished) {
+    console.log('beforeMicroServiceHandler for ' + req.pathTemplate);
+    //console.log('ignore_jwt = ' + JSON.stringify(ignore_jwt, null, 2));
     if (ignore_jwt[req.pathTemplate]) return;
     var authorised = this.jwt.handlers.validateRestRequest.call(this, req, finished);
     if (authorised && beforeHandler) {

@@ -59,6 +59,6 @@ RUN cd /opt/qewd
 
 EXPOSE 8080
 
-#ENTRYPOINT ["/bin/bash", "-l"]
+# ENTRYPOINT ["/bin/bash", "-l"]
 
 CMD [ "npm", "start" ]

@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  6 January 2019
+  4 March 2019
 
 */
 
@@ -81,6 +81,10 @@ if (qewd_up) {
     console.log('starting up Docker Orchestrator service');
     //startup = qewd.up_run_orchestrator();
     startup = require(qewd_up_path + '/run')(true);
+  }
+  if (!startup) {
+    console.log('Unable to start QEWD');
+    return;
   }
 }
 else {
@@ -208,6 +212,10 @@ if (userDefined) {
   for (var name in userDefined) {
     q.userDefined[name] = userDefined[name];
   }
+}
+
+if (q.userDefined && q.userDefined.config) {
+  q.userDefined.config.qewd_up = qewd_up;
 }
 
 var xp = qewd_master.intercept();
