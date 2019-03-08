@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  7 March 2019
+  8 March 2019
 
 */
 
@@ -53,12 +53,19 @@ function updateRoutes(json) {
 
 module.exports = function(args, finished) {
 
-  for (var i = 0; i < routes.length; i++) {
-    if (routes[i].uri === '/qewd/importRoutes/:destination') {
-      routes.splice(i, 1);
-      break;
+  // remove temporary importRoutes path if still present (eg due to previous error)
+  //  and remove any previously imported routes (with modified uri paths)
+
+  var newRoutes = [];
+  routes.forEach(function(route) {
+    if (route.uri !== '/qewd/importRoutes/:destination' && !route.imported) {
+      newRoutes.push(route);
     }
-  }
+  });
+
+  routes = newRoutes;
+
+  //console.log('updated routes: ' + JSON.stringify(routes, null, 2));
 
   // update the JWT secret with the one from the Orchestrator
 
@@ -82,21 +89,32 @@ module.exports = function(args, finished) {
   var routes_data = routes.slice(); // clone the array
   var newRoutes = [];
   var pathPrefix = args.req.body.pathPrefix;
+  var pathPrepend = args.req.body.pathPrepend;
   routes_data.forEach(function(route, index) {
+    var newRoute;
     if (route.on_microservice === config.ms_name) {
       delete routes_data[index].on_microservice;
     }
     // create additional versions using the path prefix sent from orchestrator (if present)
     if (pathPrefix) {
-      var newRoute = Object.assign({}, route);
+      newRoute = Object.assign({}, route);
       var pieces = newRoute.uri.split('/');
       pieces[1] = pathPrefix;
       newRoute.uri = pieces.join('/');
+      newRoute.imported = true;
       newRoutes.push(newRoute); 
+    }
+    if (pathPrepend) {
+      newRoute = Object.assign({}, route);
+      if (pathPrepend[0] !== '/') {
+        pathPrepend = '/' + pathPrepend;
+      }
+      newRoute.uri = pathPrepend + newRoute.uri;
+      newRoute.imported = true;
+      newRoutes.push(newRoute);
     }
   });
   
-
   updateRoutes(routes_data.concat(newRoutes));
 
   finished({

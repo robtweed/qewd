@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  7 March 2019
+  8 March 2019
 
 */
 
@@ -38,76 +38,144 @@ function updateRoutes(json) {
   fs.writeFileSync('/opt/qewd/mapped/configuration/routes.json', JSON.stringify(json, null, 2));
 }
 
-function tidyUp(config_data, mapped) {
-  //console.log('tidying up');
-  config_data.microservices.forEach(function(ms, index) {
-    //console.log('tidying up ' + ms.name);
+function setMsToImported(ms_name) {
+  var _this = this;
+  this.importMode.config_data.microservices.forEach(function(ms, index) {
     // reset flags for all microservices that have been successfully mapped
-    if (mapped[ms.name]) {
-      //console.log('mapped');
-      config_data.microservices[index].apis.imported = true;
+    if (ms.name === ms_name) {
+      _this.importMode.config_data.microservices[index].apis.imported = true;
     }
   });
-  updateConfig(config_data);
-}
-
-function removeImportRoute(routesByUri) {
+  updateConfig(this.importMode.config_data);
   var routes = [];
-  var route;
-  for (var uri in routesByUri) {
-    route = routesByUri[uri];
-    if (route.uri !== '/qewd/importRoutes/:destination') {
-      routes.push(route);
-    }
+  for (var uri in this.importMode.routesByUri) {
+    routes.push(this.importMode.routesByUri[uri]);
   }
   updateRoutes(routes);
 }
 
-module.exports = function(jwt) {
-
-  var config_data;
-  try {
-    config_data = require('/opt/qewd/mapped/configuration/config.json');
-  }
-  catch(err) {
-    config_data = {};
-  }
-
-  if (!config_data.qewd_up) {
-    return;
-  }
-
-  //console.log('** config_data = ' + JSON.stringify(config_data, null, 2));
-  var routes;
-  try {
-    routes = require('/opt/qewd/mapped/configuration/routes.json');
-    // tidy up just in case of previous problems
-    removeImportRoute(routes);
-  }
-  catch(err) {
-    routes = [];
-  }
-
-  var ms;
-  var on_microservices = [];
-  var replacePathPrefixes = {};
-  var routesByUri = {};
-
-  routes.forEach(function(route) {
-    routesByUri[route.uri] = route;
-  });
-
-  config_data.microservices.forEach(function(ms) {
+function orchShouldStop() {
+  var shouldStop = true;
+  this.importMode.config_data.microservices.forEach(function(ms) {
     if (ms.apis && ms.apis.import && !ms.apis.imported) {
-      // this microservice needs to be imported
-      on_microservices.push(ms.name);
-      if (ms.apis.path && ms.apis.path.replacePrefixWith) {
-        replacePathPrefixes[ms.name] = ms.apis.path.replacePrefixWith;
-      }
+      shouldStop = false;
     }
   });
 
-  if (on_microservices.length > 0) {
+  if (shouldStop) {
+    updateConfig(this.importMode.config_data);
+    var routes = [];
+    for (var uri in this.importMode.routesByUri) {
+      if (uri !== '/qewd/importRoutes/:destination') {
+        routes.push(this.importMode.routesByUri[uri]);
+      }
+    }
+    updateRoutes(routes);
+  }
+
+  return shouldStop;
+}
+
+function removePreviousMSRoutes(ms_name) {
+
+  var route;
+  for (var uri in this.importMode.routesByUri) {
+    route = this.importMode.routesByUri[uri];
+    if (route.on_microservice !== ms_name) {
+      if (route.on_microservices) {
+        var routeClone = Object.assign({}, route);
+        var msArr = route.on_microservices.slice(0);
+        var ix = msArr.indexOf(ms_name);
+        if (ix !== -1) {
+          msArr.splice(ix, 1);
+          if (msArr.length === 1) {
+            delete routeClone.on_microservices;
+            routeClone.on_microservice = msArr[0];
+          }
+          if (msArr.length > 1) {
+            routeClone.on_microservices = msArr;
+          }
+          if (msArr.length > 0) {
+            this.importMode.routesByUri[uri] = routeClone;
+          }
+        }
+      }
+    }
+    else {
+      delete this.importMode.routesByUri[uri];
+    }
+  }
+}
+
+module.exports = function(ms_name, jwt) {
+
+  if (!this.userDefined.config.qewd_up) {
+    //console.log('*** this.userDefined.config.qewd_up is not set, so no further action');
+    return;
+  }
+
+  if (!this.importMode) {
+    this.importMode = {};
+  }
+
+  var routes;
+  var _this = this;
+
+  if (!this.importMode.config_data) {
+    try {
+      this.importMode.config_data = require('/opt/qewd/mapped/configuration/config.json');
+    }
+    catch(err) {
+      this.importMode.config_data = {};
+    }
+    try {
+      routes = require('/opt/qewd/mapped/configuration/routes.json');
+    }
+    catch(err) {
+      routes = [];
+    }
+
+    this.importMode.routesByUri = {};
+    routes.forEach(function(route) {
+      if (route.uri !== '/qewd/importRoutes/:destination') {
+        _this.importMode.routesByUri[route.uri] = route;
+      }
+    });
+  }
+
+  var ms;
+  var import_ms = false;
+  var replacePaths = {};
+  var microservices = this.importMode.config_data.microservices;
+
+  for (var i = 0; i < microservices.length; i++) {
+    ms = microservices[i];
+    if (ms.name === ms_name) {
+      if (ms.apis && ms.apis.import && !ms.apis.imported) {
+        import_ms = true;
+        // this microservice needs to be imported
+        if (ms.apis.path) {
+          if (ms.apis.path.replacePrefixWith) {
+            replacePaths.prefix = ms.apis.path.replacePrefixWith;
+          }
+          if (ms.apis.path.prependWith) {
+            replacePaths.prepend = ms.apis.path.prependWith;
+          }
+        }
+      }
+    }
+  }
+
+  if (import_ms) {
+
+    // This microservice is flagged for import but has not yet been imported
+
+    // This might be a re-import for this microservice, so remove any
+    // previously added routes for this microservice
+
+    removePreviousMSRoutes.call(this, ms_name);
+
+    //console.log(JSON.stringify(this.importMode.routesByUri, null, 2));
 
     // note: temporary route to allow import of microservice routes
     // has already been added in run.js
@@ -115,74 +183,74 @@ module.exports = function(jwt) {
     var message = {
       type: 'ewd-qoper8-express',
       method: 'POST',
+      path: '/qewd/importRoutes/' + ms_name,
       jwt: jwt,
       body: {
-        secret: this.userDefined.config.jwt.secret
+        secret: this.userDefined.config.jwt.secret,
+        pathPrefix: replacePaths.prefix,
+        pathPrepend: replacePaths.prepend
       }
     };
-    var _this = this;
-    var mapped = {};
-    var noOfMs = on_microservices.length;
-    var count = 0;
 
-    on_microservices.forEach(function(ms_name) {
-      message.path = '/qewd/importRoutes/' + ms_name;
-      if (replacePathPrefixes[ms_name]) {
-        message.body.pathPrefix = replacePathPrefixes[ms_name];
-      }
-      //console.log('message: ' + JSON.stringify(message, null, 2));
-      _this.microServiceRouter(message, function(responseObj) {
-        //console.log('importRoutes response: ' + JSON.stringify(responseObj, null, 2));
-        if (!responseObj.error) {
-          // map microservice routes back into routes.json
+    this.microServiceRouter(message, function(responseObj) {
+      //console.log('importRoutes response: ' + JSON.stringify(responseObj, null, 2));
+      if (!responseObj.error) {
+        // map microservice routes back into routes.json
 
-          var ms_name = responseObj.message.ms_name;
-          if (responseObj.message && responseObj.message.routes) {
-            responseObj.message.routes.forEach(function(route) {
-              // reset path if needed ***
-              // check if this is a duplicate route for another microservice, in which
-              // case on_microservice needs replacing with on_microservices array
+        var ms_name = responseObj.message.ms_name;
+        if (responseObj.message && responseObj.message.routes) {
+          var routesByUri = _this.importMode.routesByUri;
 
-              if (replacePathPrefixes[ms_name]) {
-                var pieces = route.uri.split('/');
-                pieces[1] = replacePathPrefixes[ms_name];
-                route.uri = pieces.join('/');
+          responseObj.message.routes.forEach(function(route) {
+            // reset path if needed ***
+            // check if this is a duplicate route for another microservice, in which
+            // case on_microservice needs replacing with on_microservices array
+
+            if (replacePaths.prefix) {
+              var pieces = route.uri.split('/');
+              pieces[1] = replacePaths.prefix;
+              route.uri = pieces.join('/');
+            }
+            if (replacePaths.prepend) {
+              var prepend = replacePaths.prepend;
+              if (prepend[0] !== '/') {
+                prepend = '/' + prepend;
               }
-              if (routesByUri[route.uri]) {
-                if (!routesByUri[route.uri].on_microservice && !routesByUri[route.uri].on_microservices) {
-                  routesByUri[route.uri].on_microservice = ms_name;
-                }
-                if (routesByUri[route.uri].on_microservice && !routesByUri[route.uri].on_microservices) {
-                  routesByUri[route.uri].on_microservices = [
-                    routesByUri[route.uri].on_microservice,
-                    ms_name
-                  ];
-                  delete routesByUri[route.uri].on_microservice;
-                }
-                if (routesByUri[route.uri].on_microservices) {
+              route.uri = prepend + route.uri;
+            }
+            if (routesByUri[route.uri]) {
+              if (!routesByUri[route.uri].on_microservice && !routesByUri[route.uri].on_microservices) {
+                routesByUri[route.uri].on_microservice = ms_name;
+              }
+              if (routesByUri[route.uri].on_microservice && !routesByUri[route.uri].on_microservices) {
+                routesByUri[route.uri].on_microservices = [
+                  ms_name
+                ];
+                delete routesByUri[route.uri].on_microservice;
+              }
+              if (routesByUri[route.uri].on_microservices) {
+                if (routesByUri[route.uri].on_microservices.indexOf(ms_name) === -1) {
                   routesByUri[route.uri].on_microservices.push(ms_name);
                 }
               }
-              else {
-                route.on_microservice = ms_name;
-              }
-              routesByUri[route.uri] = route;
-            });
-          }
+            }
+            else {
+              route.on_microservice = ms_name;
+            }
+            routesByUri[route.uri] = route;
+          });
+        }
 
-          mapped[ms_name] = true;
-        }
-        else {
-          console.log('** An error occurred while importing MicroService APIs: ' + responseObj.error);
-        }
-        count++;
-        if (count === noOfMs) {
-          tidyUp(config_data, mapped);
-          removeImportRoute(routesByUri)
-          // shut down Orchestrator - must restart to use imported MicroServices
+        setMsToImported.call(_this, ms_name);
+        if (orchShouldStop.call(_this)) {
+          // all microservices flagged for import have been imported
           _this.stop();
         }
-      });
+      }
+      else {
+        console.log('** An error occurred while importing MicroService APIs: ' + responseObj.error);
+      }
+
     });
   }
 };
