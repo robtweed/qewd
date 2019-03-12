@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  28 February 2019
+  12 March 2019
 
 */
 
@@ -40,10 +40,15 @@ function pathFromSubs(subsArr) {
   return path;
 }
 
-function toSubs(path) {
+function toSubs(path, apply) {
   var subs = path.split('/');
   subs.forEach(function(subscript, index) {
-    subs[index] = subscript.toString().split(ESC).join('/');
+    var sub = subscript.toString().split(ESC).join('/');
+    sub = decodeURI(sub);
+    if (apply === 'toLowerCase') {
+      sub = sub.toLowerCase();
+    }
+    subs[index] = sub;
   });
   return subs;
 }
@@ -73,7 +78,7 @@ function deleteIndex(docNode, docStoreEvents) {
       indexPath = indexObj.indexRoute.reverse(matchObj);
       //console.log('deleting index: ' + toSubs(indexPath));
       indexDoc = this.db.use(indexObj.documentName);
-      indexDoc.$(toSubs(indexPath)).delete(); 
+      indexDoc.$(toSubs(indexPath, indexObj.apply)).delete(); 
     }
   }
 }
@@ -113,12 +118,12 @@ module.exports = function(docStoreEvents) {
                 matchObj.value = before.value.toString().split('/').join(ESC);
                 indexPath = indexObj.indexRoute.reverse(matchObj);
                 //console.log('*** deleting old index: ' + indexPath);
-                indexDoc.$(toSubs(indexPath)).delete();
+                indexDoc.$(toSubs(indexPath, indexObj.apply)).delete();
               }
               matchObj.value = docNode.value.toString().split('/').join(ESC);
               indexPath = indexObj.indexRoute.reverse(matchObj);
               //console.log('creating index: ' + toSubs(indexPath));
-              indexDoc.$(toSubs(indexPath)).value = ''; 
+              indexDoc.$(toSubs(indexPath, indexObj.apply)).value = ''; 
             }
           }
         }
