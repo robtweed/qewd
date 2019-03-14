@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  8 March 2019
+  14 March 2019
 
 */
 
@@ -66,7 +66,7 @@ function orchShouldStop() {
     updateConfig(this.importMode.config_data);
     var routes = [];
     for (var uri in this.importMode.routesByUri) {
-      if (uri !== '/qewd/importRoutes/:destination') {
+      if (uri !== 'POST:/qewd/importRoutes/:destination') {
         routes.push(this.importMode.routesByUri[uri]);
       }
     }
@@ -138,7 +138,7 @@ module.exports = function(ms_name, jwt) {
     this.importMode.routesByUri = {};
     routes.forEach(function(route) {
       if (route.uri !== '/qewd/importRoutes/:destination') {
-        _this.importMode.routesByUri[route.uri] = route;
+        _this.importMode.routesByUri[route.method + ':' + route.uri] = route;
       }
     });
   }
@@ -218,26 +218,27 @@ module.exports = function(ms_name, jwt) {
               }
               route.uri = prepend + route.uri;
             }
-            if (routesByUri[route.uri]) {
-              if (!routesByUri[route.uri].on_microservice && !routesByUri[route.uri].on_microservices) {
-                routesByUri[route.uri].on_microservice = ms_name;
+            var routeIndex = route.method + ':' + route.uri;
+            if (routesByUri[routeIndex]) {
+              if (!routesByUri[routeIndex].on_microservice && !routesByUri[routeIndex].on_microservices) {
+                routesByUri[routeIndex].on_microservice = ms_name;
               }
-              if (routesByUri[route.uri].on_microservice && !routesByUri[route.uri].on_microservices) {
-                routesByUri[route.uri].on_microservices = [
+              if (routesByUri[routeIndex].on_microservice && !routesByUri[routeIndex].on_microservices) {
+                routesByUri[routeIndex].on_microservices = [
                   ms_name
                 ];
-                delete routesByUri[route.uri].on_microservice;
+                delete routesByUri[routeIndex].on_microservice;
               }
-              if (routesByUri[route.uri].on_microservices) {
-                if (routesByUri[route.uri].on_microservices.indexOf(ms_name) === -1) {
-                  routesByUri[route.uri].on_microservices.push(ms_name);
+              if (routesByUri[routeIndex].on_microservices) {
+                if (routesByUri[routeIndex].on_microservices.indexOf(ms_name) === -1) {
+                  routesByUri[routeIndex].on_microservices.push(ms_name);
                 }
               }
             }
             else {
               route.on_microservice = ms_name;
             }
-            routesByUri[route.uri] = route;
+            routesByUri[routeIndex] = route;
           });
         }
 
