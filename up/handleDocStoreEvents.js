@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  12 March 2019
+  14 March 2019
 
 */
 
@@ -99,6 +99,7 @@ module.exports = function(docStoreEvents) {
         var matchObj;
         var before;
         var routeToIndex;
+        var value;
 
         for (var path in docStoreEvents[docNode.documentName].indices) {
           //console.log('trying path ' + path);
@@ -123,7 +124,11 @@ module.exports = function(docStoreEvents) {
               matchObj.value = docNode.value.toString().split('/').join(ESC);
               indexPath = indexObj.indexRoute.reverse(matchObj);
               //console.log('creating index: ' + toSubs(indexPath));
-              indexDoc.$(toSubs(indexPath, indexObj.apply)).value = ''; 
+              value = '';
+              if (indexObj.value && matchObj[indexObj.value]) {
+                value = matchObj[indexObj.value];
+              }
+              indexDoc.$(toSubs(indexPath, indexObj.apply)).value = value;
             }
           }
         }

@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  12 March 2019
+  14 March 2019
 
 */
 
@@ -81,7 +81,8 @@ module.exports = function(docStoreEventsPath, rootPath) {
         targetRoute: new Route(path),
         handler: handler,
         indexRoute: indexRoute,
-        apply: indexObj.apply
+        apply: indexObj.apply,
+        value: indexObj.value
       };
       docStoreEvents[documentName].indices[path] = obj;
     }

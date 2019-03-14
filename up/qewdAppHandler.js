@@ -24,11 +24,14 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  15 January 2019
+  14 March 2019
 
 */
 
 console.log('running up/qewdAppHandler.js in process ' + process.pid);
+
+var createDocStoreEvents = require('./createDocStoreEvents');
+var handleDocStoreEvents = require('./handleDocStoreEvents');
 
 var fs = require('fs');
 
@@ -54,16 +57,12 @@ module.exports = function(appPath) {
     }
   });
 
-  /*
-  var handlerModule = {
-    init: function(application) {
-    },
-    beforeHandler: function(messageObj, session, send, finished) {
-    },
-    handlers: handlers,
-    workerResponseHandlers: workerResponseHandlers
-  };
-  */
+  var docStoreEvents;
+  var docStoreEventsPath = '/opt/qewd/mapped/docStoreEvents/events.json';
+  if (fs.existsSync(docStoreEventsPath)) {
+    docStoreEvents = createDocStoreEvents(docStoreEventsPath, '/opt/qewd/mapped/');
+    //console.log('** docStoreEvents: ' + JSON.stringify(docStoreEvents, null, 2));
+  }
 
   var handlerModule = {
     handlers: handlers,
@@ -72,9 +71,23 @@ module.exports = function(appPath) {
 
   var onLoadPath = appPath + '/onLoad.js';
   console.log('onLoadPath = ' + onLoadPath);
-  if (fs.existsSync(onLoadPath)) {
-    handlerModule.init = require(onLoadPath);
+
+  var docStoreEventsFn = function() {};
+  if (docStoreEvents) {
+    docStoreEventsFn = function() {
+      handleDocStoreEvents.call(this, docStoreEvents);
+    }
   }
+
+  var onLoadFn = function() {};
+  if (fs.existsSync(onLoadPath)) {
+    onLoadFn = require(onLoadPath);
+  }
+
+  handlerModule.init = function() {
+    docStoreEventsFn.call(this);
+    onLoadFn.call(this);
+  };
 
   var beforeHandlerPath = appPath + '/beforeHandler.js';
   console.log('beforeHandlerPath = ' + beforeHandlerPath);
