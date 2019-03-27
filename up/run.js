@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  7 March 2019
+  27 March 2019
 
 */
 
@@ -381,6 +381,7 @@ function setup(isDocker) {
   if (fs.existsSync(addMiddlewarePath)) {
     config.addMiddlewareUp = require(addMiddlewarePath);
   }
+  config.qewd_up = true;
 
   if (isDocker) {
 
