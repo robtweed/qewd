@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  27 March 2019
+  15 April 2019
 
 */
 
@@ -67,7 +67,15 @@ function createModuleMap(cwd, config) {
 }
 
 function installModule(moduleName, modulePath) {
-  if (!module_exists(moduleName) && !fs.existsSync(modulePath + '/node_modules/' + moduleName)) {
+  var pieces = moduleName.split('@');
+  var rootName;
+  if (moduleName.startsWith('@')) {
+    rootName = '@' + pieces[1];
+  }
+  else {
+    rootName = pieces[0];
+  }
+  if (!module_exists(rootName) && !fs.existsSync(modulePath + '/node_modules/' + rootName)) {
     var prefix = '';
     if (typeof modulePath !== 'undefined') {
       prefix = ' --prefix ' + modulePath;

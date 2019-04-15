@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  4 March 2019
+  15 April 2019
 
 */
 
@@ -33,10 +33,11 @@ var module_exists = require('module-exists');
 var child_process = require('child_process');
 var qewd = require('qewd');
 
-const gtm_version =  'V6.3-004';
-const ydb_versionp = 'r1.22';
-const ydb_version =  'r122';
+const gtm_version =  'V6.3-005';
+const ydb_versionp = 'r1.24';
+const ydb_version =  'r124';
 const ydb_arch =     'x86_64';
+const updateScriptName = 'update_r122_to_r124';
 
 function setEnv(params) {
   for (var name in params) {
@@ -45,7 +46,15 @@ function setEnv(params) {
 }
 
 function installModule(moduleName, modulePath) {
-  if (!module_exists(moduleName) && !fs.existsSync('/opt/qewd/mapped/node_modules/' + moduleName)) {
+  var pieces = moduleName.split('@');
+  var rootName;
+  if (moduleName.startsWith('@')) {
+    rootName = '@' + pieces[1];
+  }
+  else {
+    rootName = pieces[0];
+  }
+  if (!module_exists(rootName) && !fs.existsSync('/opt/qewd/mapped/node_modules/' + rootName)) {
     var prefix = '';
     if (typeof modulePath !== 'undefined') {
       prefix = ' --prefix ' + modulePath;
@@ -200,6 +209,18 @@ if (config.database && config.database.type === 'gtm') {
     child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip journal -recover -backward /root/.yottadb/' + ydb_path + '/g/yottadb.mjl', {stdio:[0,1,2]});
     console.log('Journal recovered');
   }
+
+  // update database journal file if it's for an old version
+
+  try {
+    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip journal -show=header -backward /root/.yottadb/' + ydb_path + '/g/yottadb.mjl', {stdio:[0,1,2]});
+  }
+  catch(err) {
+    // journal file is for previous YDB version - replace it with new version
+    var updateScript = '/opt/qewd/' + updateScriptName;
+    child_process.execSync(updateScript, {stdio:[0,1,2]});
+  }
+
 }
 
 // ready to start QEWD now

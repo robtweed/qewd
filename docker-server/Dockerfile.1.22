@@ -1,12 +1,12 @@
 # qewd-server
 
-# Dockerised version of QEWD for Raspberry Pi
+# Dockerised version of QEWD
 
 # M/Gateway Developments Ltd
-# 3 April 2019
+# 2 January 2019
 
-#FROM hypriot/rpi-node:boron
-#FROM hypriot/rpi-node:8
+#FROM node:boron
+#FROM node:carbon
 FROM node:10-stretch
 
 RUN apt-get update && apt-get install -y \
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
   python-minimal \
   libelf1 \
   locate \
-  nano
+  nano 
 
 # Create app directory
 RUN mkdir -p /opt/qewd
@@ -45,7 +45,6 @@ RUN ["/opt/qewd/install_yottadb.sh"]
 COPY . /opt/qewd
 
 RUN chmod +x /opt/qewd/ydb
-RUN chmod +x /opt/qewd/update_r122_to_r124
 
 RUN mkdir /opt/qewd/www
 RUN mkdir /opt/qewd/www/qewd-monitor
@@ -60,6 +59,6 @@ RUN cd /opt/qewd
 
 EXPOSE 8080
 
-#ENTRYPOINT ["/bin/bash", "-l"]
+# ENTRYPOINT ["/bin/bash", "-l"]
 
 CMD [ "npm", "start" ]

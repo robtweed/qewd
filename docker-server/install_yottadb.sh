@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-# 1 February 2019
+# 3 April 2019
 
 # YottaDB
 
-ydbver="r122"
-ydbversion=r1.22
+ydbver="r124"
+ydbversion=r1.24
 
 echo "Installing YottaDB $ydbversion"
 
@@ -20,8 +20,10 @@ gtmcurrent=$gtmroot/current
 
 # make sure directory exists for links to current YottaDB
 mkdir -p $gtmcurrent
-./ydbinstall.sh --utf8 default --verbose --linkenv $gtmcurrent --linkexec $gtmcurrent --force-install $ydbversion
+./ydbinstall.sh --utf8 default --verbose --debug --linkenv $gtmcurrent --linkexec $gtmcurrent --force-install $ydbversion
 echo "Configuring YottaDB $ydbversion"
+
+ls -l /usr/lib/yottadb/current
 
 gtmprof=$gtmcurrent/gtmprofile
 gtmprofcmd="source $gtmprof"

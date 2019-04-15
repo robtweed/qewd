@@ -3,7 +3,7 @@
 # Dockerised version of QEWD
 
 # M/Gateway Developments Ltd
-# 2 January 2019
+# 3 April 2019
 
 #FROM node:boron
 #FROM node:carbon
@@ -20,7 +20,11 @@ RUN apt-get update && apt-get install -y \
   python-minimal \
   libelf1 \
   locate \
-  nano 
+  nano
+
+RUN echo 'deb http://ftp.debian.org/debian/ buster main' >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get -t buster install -y libc6
 
 # Create app directory
 RUN mkdir -p /opt/qewd
@@ -45,6 +49,7 @@ RUN ["/opt/qewd/install_yottadb.sh"]
 COPY . /opt/qewd
 
 RUN chmod +x /opt/qewd/ydb
+RUN chmod +x /opt/qewd/update_r122_to_r124
 
 RUN mkdir /opt/qewd/www
 RUN mkdir /opt/qewd/www/qewd-monitor

@@ -4,11 +4,10 @@
 
 # YottaDB
 
-ydbversion=r1.24
-ydbver="r124"
+ydbver="r122"
+ydbversion=r1.22
 
 echo "Installing YottaDB $ydbversion"
-
 
 # Create a temporary directory for the installer
 mkdir -p /tmp/tmp
