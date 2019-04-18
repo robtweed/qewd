@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 March 2019
+  17 April 2019
 
 */
 
@@ -41,9 +41,27 @@ function getDirectories(path) {
   });
 }
 
+function use_microservice(message, send) {
+  //console.log('&& use_microservice handler: message = ' + JSON.stringify(message, null, 2));
+  if (!message.request.headers) {
+    message.request.headers = {
+      authorization: 'Bearer ' + message.token
+    }
+  }
+  this.microServiceRouter.call(this, message.request, function(responseObj) {
+    //console.log('*** response from microservice: ' + JSON.stringify(responseObj, null, 2));
+    responseObj.type = message.original_type;
+    //console.log('type switched to ' + responseObj.type);
+    send (responseObj);
+  });
+  return true; // response to client will be handled by callback above
+}
+
 module.exports = function(appPath) {
   var handlers = {};
-  var workerResponseHandlers = {};
+  var workerResponseHandlers = {
+    use_microservice: use_microservice
+  };
 
   var handlerList = getDirectories(appPath);
   handlerList.forEach(function(name) {
@@ -76,7 +94,7 @@ module.exports = function(appPath) {
   if (docStoreEvents) {
     docStoreEventsFn = function() {
       handleDocStoreEvents.call(this, docStoreEvents);
-    }
+    };
   }
 
   var onLoadFn = function() {};
