@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  17 April 2019
+  20 May 2019
 
 */
 
@@ -46,13 +46,31 @@ function use_microservice(message, send) {
   if (!message.request.headers) {
     message.request.headers = {
       authorization: 'Bearer ' + message.token
-    }
+    };
   }
+  var original_app = message.ewd_application;
+  var _this = this;
+
   this.microServiceRouter.call(this, message.request, function(responseObj) {
     //console.log('*** response from microservice: ' + JSON.stringify(responseObj, null, 2));
     responseObj.type = message.original_type;
-    //console.log('type switched to ' + responseObj.type);
-    send (responseObj);
+
+    console.log('type switched to ' + responseObj.type);
+
+    // change JWT application back to original
+
+    var msg = {
+     type: 'ewd-jwt-updateExpiry',
+      params: {
+        jwt: responseObj.message.token,
+        application: original_app
+      }
+    };
+
+    _this.handleMessage(msg, function(newJWTObj) {
+      responseObj.message.token = newJWTObj.message.jwt;
+      send (responseObj);
+    });
   });
   return true; // response to client will be handled by callback above
 }
