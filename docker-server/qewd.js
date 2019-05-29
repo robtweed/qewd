@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  15 April 2019
+  20 May 2019
 
 */
 
@@ -200,7 +200,11 @@ if (config.database && config.database.type === 'gtm') {
   try {
     console.log('Running down YottaDB...');
     child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
+    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -key_size=1019 -region DEFAULT', {stdio:[0,1,2]});
+    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -record_size=1048576 -region DEFAULT', {stdio:[0,1,2]});
     child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region qewdreg', {stdio:[0,1,2]});
+    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -key_size=1019 -region qewdreg', {stdio:[0,1,2]});
+    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -record_size=1048576 -region qewdreg', {stdio:[0,1,2]});
     console.log('Rundown completed');
   }
   catch(err) {

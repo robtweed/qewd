@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  15 April 2019
+  29 May 2019
 
 */
 
@@ -356,7 +356,7 @@ function setup(isDocker) {
     },
     webServerRootPath: webServerRootPath,
     cors: '=> either(qewd.cors, true)',
-    bodyParser: '=> getBodyParser(qewd.bodyParser)',
+    bodyParser: '=> getBodyParser(qewd.bodyParser)'
   };
 
   var config;
@@ -390,6 +390,7 @@ function setup(isDocker) {
     config.addMiddlewareUp = require(addMiddlewarePath);
   }
   config.qewd_up = true;
+  config.permit_application_switch = config_data.permit_application_switch;
 
   if (isDocker) {
 
@@ -773,7 +774,6 @@ module.exports = function(isDocker) {
   var startupMode = results.startupMode;
   var cwd = results.cwd;
 
-  //console.log('master config: ' + JSON.stringify(config, null ,2));
   //console.log('routes: ' + JSON.stringify(routes, null, 2));
 
   var ms_name = process.env.microservice;

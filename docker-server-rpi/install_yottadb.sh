@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# 1 February 2019
+# 25 April 2019
 
 # YottaDB
 
@@ -42,6 +42,7 @@ echo 'Setting up local internal, unjournalled region for QEWD Session global'
 /usr/local/lib/yottadb/$ydbver/mumps -run ^GDE < /opt/qewd/gde.txt
 /usr/local/lib/yottadb/$ydbver/mupip create -region=qewdreg
 /usr/local/lib/yottadb/$ydbver/mupip set -file -nojournal /opt/qewd/sessiondb/qewd.dat
+/usr/local/lib/yottadb/$ydbver/mupip set -key_size=1019 -region qewdreg
 
 echo 'YottaDB has been installed and configured, ready for use'
 
