@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  20 May 2019
+  4 June 2019
 
 */
 
@@ -129,6 +129,18 @@ module.exports = function(appPath) {
   console.log('beforeHandlerPath = ' + beforeHandlerPath);
   if (fs.existsSync(beforeHandlerPath)) {
     handlerModule.beforeHandler = require(beforeHandlerPath);
+  }
+
+  var servicesAllowedPath = appPath + '/servicesAllowed.json';
+  console.log('servicesAllowedPath = ' + servicesAllowedPath);
+  if (fs.existsSync(servicesAllowedPath)) {
+    try {
+      handlerModule.servicesAllowed = require(servicesAllowedPath);
+      console.log('servicesAllowed loaded: ' + JSON.stringify(handlerModule.servicesAllowed, null, 2));
+    }
+    catch(err) {
+      console.log('Unable to load ' + servicesAllowedPath);
+    }
   }
 
   return handlerModule;
