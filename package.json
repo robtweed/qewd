@@ -1,7 +1,7 @@
 
 {
   "name": "qewd",
-  "version": "2.46.15",
+  "version": "2.46.16",
   "config": {
     "date": "8 July 2019"
   },
@@ -22,6 +22,7 @@
     "fs-extra": "",
     "qewd-router": "",
     "qewd-monitor": "",
+    "qewd-transform-json": "",
     "koa": "",
     "koa-better-router": "",
     "koa-bodyparser": "",
