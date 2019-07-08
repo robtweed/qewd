@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  29 May 2019
+  5 July 2019
 
 */
 
@@ -34,6 +34,7 @@ var fs = require('fs');
 var module_exists = require('module-exists');
 var child_process = require('child_process');
 var qewd = require('../lib/master');
+var uuid = require('uuid/v4'); // loaded as dependency of ewd-session
 
 function getDirectories(path) {
   return fs.readdirSync(path).filter(function(file) {
@@ -112,11 +113,17 @@ function linkMonitor(cwd, name) {
   if (name !== '') {
     name = '/' + name;
     var path1 = cwd + name;
+    if (process.env.mode && process.env.microservice) {
+      path1 = cwd;
+    }
     if (!fs.existsSync(path1)) {
       fs.mkdirSync(path1);
     }
   }
   var webServerRootPath = cwd + name + '/www';
+  if (process.env.mode && process.env.microservice) {
+    webServerRootPath = cwd + '/www';
+  }
   if (!fs.existsSync(webServerRootPath)) {
    fs.mkdirSync(webServerRootPath);
   }
@@ -130,6 +137,9 @@ function linkMonitor(cwd, name) {
 function unlinkMonitor(cwd, name) {
   if (name !== '') name = '/' + name;
   var path = cwd + name + '/www/qewd-monitor'
+  if (process.env.mode && process.env.microservice) {
+    path = cwd + '/www/qewd-monitor';
+  }
   if (fs.existsSync(path)) {
     var cmd = 'unlink ' + path;
     child_process.execSync(cmd, {stdio:[0,1,2]});
@@ -171,17 +181,19 @@ function addImportRoute(config_data, routes) {
   return startMode;
 }
 
-function setup(isDocker) {
+function setup(isDocker, service_name) {
 
   var cwd = process.cwd();
+  if (service_name) {
+    cwd = cwd + '/' + service_name;
+  }
+  //console.log('*** cwd = ' + cwd);
   var ms_name = process.env.microservice;
   var mode = process.env.mode;
   var startupMode = 'normal';
-  var uuid;
 
   if (isDocker) {
     cwd = cwd + '/mapped';
-    uuid = require('uuid/v4'); // loaded as dependency of ewd-session
     installModules(cwd);
   }
 
@@ -189,6 +201,7 @@ function setup(isDocker) {
   //console.log('cwd = ' + cwd);
 
   var config_data;
+  console.log('** loading ' + cwd + '/configuration/config.json');
   try {
     config_data = require(cwd + '/configuration/config.json');
   }
@@ -257,10 +270,8 @@ function setup(isDocker) {
 
     // not a microservice - either native or docker monolith, or docker orchestrator
 
-    //console.log('config_data: ' + JSON.stringify(config_data, null, 2));
-
     if (config_data.orchestrator) {
-      if (isDocker) {
+      if (isDocker || service_name) {
         webServerRootPath = cwd + '/orchestrator/www/';
         //orchPath = cwd + '/orchestrator';
         //if (!fs.existsSync(orchPath)) {
@@ -281,7 +292,7 @@ function setup(isDocker) {
       }
     }
     else {
-      if (isDocker) {
+      if (isDocker || service_name) {
         if (config_data.microservices) {
           // this is Docker orchestrator
           webServerRootPath = cwd + '/orchestrator/www/';
@@ -367,7 +378,7 @@ function setup(isDocker) {
     addMiddlewarePath = cwd + '/' + ms_name + '/addMiddleware.js';
   }
   else {
-    if (isDocker) {
+    if (isDocker || service_name) {
       if (config_data.orchestrator) {
         config = transform(config_template, config_data.orchestrator, helpers);
       }
@@ -392,7 +403,28 @@ function setup(isDocker) {
   config.qewd_up = true;
   config.permit_application_switch = config_data.permit_application_switch;
 
-  if (isDocker) {
+  // ** set service name if running orchestrator or microservice standalone
+
+  if (process.env.qewd_service_name) {
+    config.service_name = process.env.qewd_service_name
+  }
+  if (process.env.mode && process.env.microservice) {
+    config.service_name = process.env.microservice;
+  }
+
+  // ***
+
+  /*
+  console.log('process.env.qewd_service_name = ' + process.env.qewd_service_name);
+  console.log('process.env.mode = ' + process.env.mode);
+  console.log('process.env.microservice = ' + process.env.microservice);
+  console.log('isDocker = ' + isDocker);
+  console.log('service_name = ' + service_name);
+  console.log('ms_name = ' + ms_name);
+  console.log('config_data = ' + JSON.stringify(config_data, null, 2));
+  */
+
+  if (isDocker || service_name) {
 
     if (ms_name || mode === 'microservice') {
       // This is a micro-service, not the orchestrator
@@ -400,12 +432,13 @@ function setup(isDocker) {
       if (!mode) createModuleMap(cwd + '/' + ms_name, config);
 
       var routePath;
-      if (ms_name) {
+      if (ms_name && !service_name) {
         routePath = ms_config.name;
       }
       else {
         // standalone MS running in microservice mode
-        routePath = config_data.ms_name || mode;
+        //  if running integrated microservice natively, use service_name
+        routePath = config_data.ms_name || mode || service_name;
       }
 
       routes = [{
@@ -420,9 +453,11 @@ function setup(isDocker) {
       }];
 
       try {
+        console.log('loading ' + cwd + '/configuration/routes.json');
         routes_data = require(cwd + '/configuration/routes.json');
       }
       catch(err) {
+        console.log('unable to load ' + cwd + '/configuration/routes.json');
         routes_data = [];
       }
 
@@ -535,6 +570,7 @@ function setup(isDocker) {
 
     }
     else {
+      console.log('**** this is the orchestrator *****');
       // This is the orchestrator (or Docker monolith)
 
       // check if microservices need importing, and if so, add import route
@@ -763,11 +799,14 @@ function setup(isDocker) {
   };
 }
 
-module.exports = function(isDocker) {
+module.exports = function(isDocker, serviceName) {
 
   //console.log('running module.exports function for run.js');
 
-  var results = setup(isDocker);
+  var results = setup(isDocker, serviceName);
+
+  console.log('** results = ' + JSON.stringify(results, null, 2));
+
   if (!results) return;
   var config = results.config;
   var routes = results.routes;
@@ -845,10 +884,18 @@ module.exports = function(isDocker) {
       catch(err) {
         console.log('Error running down YottaDB: ' + err);
         console.log('Recovering journal...');
-        child_process.execSync(process.env.ydb_dist + '/mupip journal -recover -backward ' + process.env.ydb_dir + '/' + process.env.ydb_rel + '/g/yottadb.mjl', {stdio:[0,1,2]});
-        console.log('Journal recovered');
+        try {
+          child_process.execSync(process.env.ydb_dist + '/mupip journal -recover -backward ' + process.env.ydb_dir + '/' + process.env.ydb_rel + '/g/yottadb.mjl', {stdio:[0,1,2]});
+          console.log('Journal recovered');
+        }
+        catch(err) {
+          console.log('YottaDB is probably already in use');
+        }
       }
     }
+
+    console.log('config: ' + JSON.stringify(config, null, 2));
+    console.log('routes: ' + JSON.stringify(routes, null, 2));
 
     var q = qewd.start(config, routes);
     var xp = qewd.intercept();

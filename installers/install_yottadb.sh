@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# 2 July 2019
-#   Temporarily using Nodem v 0.14.2 pending increment() fix
+# 3 July 2019
 
 # Acknowledgement: Wladimir Mutel for NodeM configuration logic
 #                  KS Bhaskar for YottaDB installation logic
@@ -99,7 +98,7 @@ npm install qewd qewd-monitor
 
 echo 'Installing NodeM'
 
-npm install nodem@0.14.2
+npm install nodem
 sudo ln -sf $gtm_dist/libgtmshr.so /usr/local/lib/
 sudo ldconfig
 base=~/qewd

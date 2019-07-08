@@ -24,18 +24,19 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 March 2019
+  4 July 2019
 
 */
 
 var fs = require('fs');
+var rootPath = '/opt/qewd/mapped/';
 
 function updateConfig(json) {
-  fs.writeFileSync('/opt/qewd/mapped/configuration/config.json', JSON.stringify(json, null, 2));
+  fs.writeFileSync(rootPath + 'configuration/config.json', JSON.stringify(json, null, 2));
 }
 
 function updateRoutes(json) {
-  fs.writeFileSync('/opt/qewd/mapped/configuration/routes.json', JSON.stringify(json, null, 2));
+  fs.writeFileSync(rootPath + 'configuration/routes.json', JSON.stringify(json, null, 2));
 }
 
 function setMsToImported(ms_name) {
@@ -121,15 +122,20 @@ module.exports = function(ms_name, jwt) {
   var routes;
   var _this = this;
 
+  rootPath = '/opt/qewd/mapped/';
+  if (process.env.qewd_service_name) {
+    rootPath = process.cwd() + '/' + process.env.qewd_service_name + '/';
+  }
+
   if (!this.importMode.config_data) {
     try {
-      this.importMode.config_data = require('/opt/qewd/mapped/configuration/config.json');
+      this.importMode.config_data = require(rootPath + 'configuration/config.json');
     }
     catch(err) {
       this.importMode.config_data = {};
     }
     try {
-      routes = require('/opt/qewd/mapped/configuration/routes.json');
+      routes = require(rootPath + 'configuration/routes.json');
     }
     catch(err) {
       routes = [];

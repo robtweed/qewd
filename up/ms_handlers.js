@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  7 March 2019
+  4 July 2019
 
 */
 
@@ -43,6 +43,10 @@ function loadRoutes(onHandledOnly) {
   var cwd = process.cwd() + '/mapped';
   var ms_name = process.env.microservice;
   var mode = process.env.mode;
+  if (mode && ms_name) {
+    cwd = process.cwd() + '/' + ms_name;
+  }
+
   var routes_data = require(cwd + '/configuration/routes.json');
   var config_data = require(cwd + '/configuration/config.json');
   var ms_path;
@@ -209,7 +213,7 @@ function loadRoutes(onHandledOnly) {
   var docStoreEventsPath = ms_path + 'docStoreEvents/events.json';
   if (fs.existsSync(docStoreEventsPath)) {
     docStoreEvents = createDocStoreEvents(docStoreEventsPath, ms_path);
-    //console.log('** docStorEvents: ' + JSON.stringify(docStoreEvents, null, 2));
+    //console.log('** docStoreEvents: ' + JSON.stringify(docStoreEvents, null, 2));
   }
 
   //console.log('routes: ' + JSON.stringify(routes, null, 2));

@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  4 June 2019
+  4 July 2019
 
 */
 
@@ -94,9 +94,16 @@ module.exports = function(appPath) {
   });
 
   var docStoreEvents;
-  var docStoreEventsPath = '/opt/qewd/mapped/docStoreEvents/events.json';
+  var rootPath = '/opt/qewd/mapped/';
+  if (process.env.qewd_service_name) {
+    rootPath = process.cwd() + '/' + process.env.qewd_service_name + '/';
+  }
+  if (process.env.mode && process.env.microservice) {
+    rootPath = process.cwd() + '/' + process.env.microservice + '/';
+  }
+  var docStoreEventsPath = rootPath + 'docStoreEvents/events.json';
   if (fs.existsSync(docStoreEventsPath)) {
-    docStoreEvents = createDocStoreEvents(docStoreEventsPath, '/opt/qewd/mapped/');
+    docStoreEvents = createDocStoreEvents(docStoreEventsPath, rootPath);
     //console.log('** docStoreEvents: ' + JSON.stringify(docStoreEvents, null, 2));
   }
 

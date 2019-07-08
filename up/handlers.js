@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  22 February 2019
+  4 July 2019
 
 */
 
@@ -46,6 +46,9 @@ function getRoutes() {
 
   // check if running in Docker container
   if (fs.existsSync(cwd + '/mapped')) cwd = cwd + '/mapped';
+  if (process.env.qewd_service_name) {
+    cwd = cwd + '/' + process.env.qewd_service_name;
+  }
 
   var routes_data = require(cwd + '/configuration/routes.json');
   var routes = [];
@@ -157,12 +160,13 @@ function getRoutes() {
     }
   }
 
+  console.log('Loading ' + cwd + '/docStoreEvents/events.json');
   var docStoreEventsPath = cwd + '/docStoreEvents/events.json';
   if (fs.existsSync(docStoreEventsPath)) {
     docStoreEvents = createDocStoreEvents(docStoreEventsPath, cwd);
   }
 
-  console.log('routes: ' + JSON.stringify(routes, null, 2));
+  //console.log('routes: ' + JSON.stringify(routes, null, 2));
   return routes;
 }
 
