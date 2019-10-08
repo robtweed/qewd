@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 March 2019
+  2 October 2019
 
 */
 
@@ -54,6 +54,8 @@ function toSubs(path, apply) {
 }
 
 function deleteIndex(docNode, docStoreEvents) {
+
+  //console.log('docNode: ' + JSON.stringify(docNode));
 
   var indexObj;
   var indexDoc;
@@ -144,7 +146,7 @@ module.exports = function(docStoreEvents) {
 
         if (rootDoc.hasValue) {
           // deleting a leaf node so find exact index match(es) and delete them
-          deleteIndex.call(_this, docNode, docStoreEvents)
+          deleteIndex.call(_this, rootDoc, docStoreEvents)
         }
         else {
           // deleting at a higher level in node tree
