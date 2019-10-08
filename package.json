@@ -1,7 +1,7 @@
 
 {
   "name": "qewd",
-  "version": "2.47.1",
+  "version": "2.47.2",
   "config": {
     "date": "8 October 2019"
   },
@@ -19,6 +19,7 @@
     "ewd-qoper8-gtm": "",
     "ewd-qoper8-redis": "",
     "ewd-qoper8-iris": "",
+    "ewd-qoper8-dbx": "",
     "fs-extra": "",
     "qewd-router": "",
     "qewd-monitor": "",
