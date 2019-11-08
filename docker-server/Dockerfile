@@ -3,11 +3,12 @@
 # Dockerised version of QEWD
 
 # M/Gateway Developments Ltd
-# 3 April 2019
+# 7 November 2019
 
 #FROM node:boron
 #FROM node:carbon
-FROM node:10-stretch
+#FROM node:10-stretch
+FROM node:12-stretch
 
 RUN apt-get update && apt-get install -y \
   build-essential \
@@ -24,7 +25,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN echo 'deb http://ftp.debian.org/debian/ buster main' >> /etc/apt/sources.list
 RUN apt-get update
-RUN apt-get -t buster install -y libc6
+RUN apt-get -t buster install -y libc6 libncurses6
 
 # Create app directory
 RUN mkdir -p /opt/qewd
@@ -49,7 +50,7 @@ RUN ["/opt/qewd/install_yottadb.sh"]
 COPY . /opt/qewd
 
 RUN chmod +x /opt/qewd/ydb
-RUN chmod +x /opt/qewd/update_r122_to_r124
+RUN chmod +x /opt/qewd/update_to_r128
 
 RUN mkdir /opt/qewd/www
 RUN mkdir /opt/qewd/www/qewd-monitor

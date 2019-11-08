@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-# 25 April 2019
+# 6 November 2019
 
 # YottaDB
 
-ydbversion=r1.24
-ydbver="r124"
+ydbversion=r1.28
+ydbver="r128"
 
 echo "Installing YottaDB $ydbversion"
 

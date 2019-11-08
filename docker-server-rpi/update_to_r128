@@ -19,5 +19,8 @@ export gtm_tmp=/tmp/yottadb/r1.28_armv7l
 export gtm_dist=/usr/local/lib/yottadb/r128
 export ydb_dist=/usr/local/lib/yottadb/r128
 
-$ydb_dist/mumps -dir
+# stop and restart journalling, removing the old journal file
 
+$ydb_dist/mupip set -journal=disable -region DEFAULT 
+rm /root/.yottadb/r1.28_armv7l/g/yottadb.mjl
+$ydb_dist/mupip set -journal=enable,before,file=/root/.yottadb/r1.28_armv7l/g/yottadb.mjl -region DEFAULT

@@ -3,11 +3,12 @@
 # Dockerised version of QEWD for Raspberry Pi
 
 # M/Gateway Developments Ltd
-# 3 April 2019
+# 6 November 2019
 
 #FROM hypriot/rpi-node:boron
 #FROM hypriot/rpi-node:8
-FROM node:10-stretch
+#FROM node:10-stretch
+FROM node:12-stretch
 
 RUN apt-get update && apt-get install -y \
   build-essential \
@@ -45,7 +46,7 @@ RUN ["/opt/qewd/install_yottadb.sh"]
 COPY . /opt/qewd
 
 RUN chmod +x /opt/qewd/ydb
-RUN chmod +x /opt/qewd/update_r122_to_r124
+RUN chmod +x /opt/qewd/update_to_r128
 
 RUN mkdir /opt/qewd/www
 RUN mkdir /opt/qewd/www/qewd-monitor

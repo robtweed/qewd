@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  5 July 2019
+  8 November 2019
 
 */
 
@@ -661,21 +661,24 @@ function setup(isDocker, service_name) {
             */
 
             //var onResponsePath = cwd + '/' + route.on_microservice + '/handlers/' + route.handler + '/onResponse.js';
-            onOrchResponsePaths = [
-              cwd + '/' + route.on_microservice + '/' + route.handler + '/onOrchResponse.js',
-              cwd + '/' + route.on_microservice + '/apis/' + route.handler + '/onOrchResponse.js'
-            ];
-            for (var i = 0; i < onOrchResponsePaths.length; i++) {
-              console.log('checking onOrchResponsePath: ' + onOrchResponsePaths[i]);
-              if (fs.existsSync(onOrchResponsePaths[i])) {
-                try {
-                  onOrchResponseFn = require(onOrchResponsePaths[i]);
-                  console.log('onOrchResponse handler loaded from ' + onOrchResponsePaths[i]);
+            if (route.handler) {
+              onOrchResponsePaths = [
+                cwd + '/' + route.on_microservice + '/' + route.handler + '/onOrchResponse.js',
+                cwd + '/' + route.on_microservice + '/apis/' + route.handler + '/onOrchResponse.js',
+                cwd + '/onOrchResponse/' + route.on_microservice + '/' + route.handler + '.js'
+              ];
+              for (var i = 0; i < onOrchResponsePaths.length; i++) {
+                console.log('checking onOrchResponsePath: ' + onOrchResponsePaths[i]);
+                if (fs.existsSync(onOrchResponsePaths[i])) {
+                  try {
+                    onOrchResponseFn = require(onOrchResponsePaths[i]);
+                    console.log('onOrchResponse handler loaded from ' + onOrchResponsePaths[i]);
+                  }
+                  catch(err) {
+                    console.log('** Warning - onOrchResponse handler could not be loaded from ' + onOrchResponsePaths[i]);
+                  }
+                  break;
                 }
-                catch(err) {
-                  console.log('** Warning - onOrchResponse handler could not be loaded from ' + onOrchResponsePaths[i]);
-                }
-                break;
               }
             }
 

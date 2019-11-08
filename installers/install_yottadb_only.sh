@@ -26,7 +26,7 @@ else
 
 # YottaDB
 
-ydbversion=r1.24
+ydbversion=r1.28
 
 echo "Installing YottaDB $ydbversion"
 

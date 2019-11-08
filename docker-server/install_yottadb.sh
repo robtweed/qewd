@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-# 3 April 2019
+# 7 November 2019
 
 # YottaDB
 
-ydbver="r124"
-ydbversion=r1.24
+ydbver="r128"
+ydbversion=r1.28
 
 echo "Installing YottaDB $ydbversion"
 
@@ -17,6 +17,11 @@ chmod +x ydbinstall.sh
 
 gtmroot=/usr/lib/yottadb
 gtmcurrent=$gtmroot/current
+
+#echo "mapping libncurses.so.5"
+#ln -s /lib/x86_64-linux-gnu/libncurses.so.5 /lib/x86_64-linux-gnu/libncurses.so.6
+#ln -s /lib/x86_64-linux-gnu/libtinfo.so.5.9 /lib/x86_64-linux-gnu/libtinfo.so.6
+#echo "mapping done"
 
 # make sure directory exists for links to current YottaDB
 mkdir -p $gtmcurrent

@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  20 May 2019
+  6 November 2019
 
 */
 
@@ -33,11 +33,11 @@ var module_exists = require('module-exists');
 var child_process = require('child_process');
 var qewd = require('qewd');
 
-const gtm_version =  'V6.3-005';
-const ydb_versionp = 'r1.24';
-const ydb_version =  'r124';
+const gtm_version =  'V6.3-007';
+const ydb_versionp = 'r1.28';
+const ydb_version =  'r128';
 const ydb_arch =     'armv7l';
-const updateScriptName = 'update_r122_to_r124';
+const updateScriptName = 'update_to_r128';
 
 function setEnv(params) {
   for (var name in params) {
@@ -189,7 +189,7 @@ if (config.database && config.database.type === 'gtm') {
     var nm = require('nodem');
   }
   catch(err) { 
-    installModule('nodem');
+    installModule('nodem@0.14.2');
   }
 
   // rundown the default region database (all globals except CacheTempEWDSession)
