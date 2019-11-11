@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  4 July 2019
+  11 November 2019
 
 */
 
@@ -39,8 +39,10 @@ var errorResponse;
 var onWorkerLoad;
 var docStoreEventsArr;
 var docStoreEvents;
+var workerResponseHandler = {};
+var onResponseHandler = {};
 
-function getRoutes() {
+function getRoutes(isMaster) {
   var fs = require('fs');
   var cwd = process.cwd();
 
@@ -62,7 +64,6 @@ function getRoutes() {
   console.log('handlerRootPath = ' + handlerRootPath);
 
   routes_data.forEach(function(route) {
-    console.log('** route = ' + JSON.stringify(route));
     if (route.router) {
       console.log('dynamically routed');
       // dynamically-routed, so this isn't to be loaded into the Worker
@@ -117,6 +118,28 @@ function getRoutes() {
       routeObj.onRequest = require(onRequestPath);
     }
 
+    var onResponsePath = handlerPath + '/onResponse.js';
+    if (fs.existsSync(onResponsePath)) {
+      // add workerResponseHandler Stub
+      var pathPieces = route.uri.split('/');
+      var type = pathPieces[2];
+      if (!workerResponseHandler[type]) {
+        workerResponseHandler[type] = function(message, req) {
+          if (onResponseHandler[req.originalUrl]) {
+            return onResponseHandler[req.originalUrl].call(this, message, req);
+          }
+          return message;
+        };
+      }
+      try {
+        onResponseHandler[route.uri] = require(onResponsePath);
+        console.log('Successfully loaded ' + onResponsePath);
+      }
+      catch(err) {
+        console.log('*** Warning: unable to load ' + onResponsePath);
+      }
+    }
+
     routes.push(routeObj);
     if (route.applyBeforeHandler === false) {
       ignorePaths[route.uri] = true;
@@ -124,18 +147,9 @@ function getRoutes() {
 
   });
 
-  var onWorkerLoadPath = cwd + '/onWorkerLoad.js';
-  if (fs.existsSync(onWorkerLoadPath)) {
-    try {
-      onWorkerLoad = require(onWorkerLoadPath);
-      console.log('Loaded onWorkerLoad module from ' + onWorkerLoadPath);
-    }
-    catch(err) {
-      console.log('** Warning - unable to load onWorkerLoad module from ' + onWorkerLoadPath);
-    }
-  }
-  else {
-    onWorkerLoadPath = cwd + '/apis/onWorkerLoad.js';
+  if (!isMaster) {
+
+    var onWorkerLoadPath = cwd + '/onWorkerLoad.js';
     if (fs.existsSync(onWorkerLoadPath)) {
       try {
         onWorkerLoad = require(onWorkerLoadPath);
@@ -145,25 +159,37 @@ function getRoutes() {
         console.log('** Warning - unable to load onWorkerLoad module from ' + onWorkerLoadPath);
       }
     }
-  }
-
-  var beforeHandlerPath = handlerRootPath + '/beforeHandler.js';
-  console.log('beforeHandlerPath: ' + beforeHandlerPath);
-
-  if (fs.existsSync(beforeHandlerPath)) {
-    try {
-      beforeHandlerFn = require(beforeHandlerPath);
-      console.log('Loaded beforeHandler module from ' + beforeHandlerPath);
+    else {
+      onWorkerLoadPath = cwd + '/apis/onWorkerLoad.js';
+      if (fs.existsSync(onWorkerLoadPath)) {
+        try {
+          onWorkerLoad = require(onWorkerLoadPath);
+          console.log('Loaded onWorkerLoad module from ' + onWorkerLoadPath);
+        }
+        catch(err) {
+          console.log('** Warning - unable to load onWorkerLoad module from ' + onWorkerLoadPath);
+        }
+      }
     }
-    catch(err) {
-      console.log('** Warning - unable to load ' + beforeHandlerPath);
-    }
-  }
 
-  console.log('Loading ' + cwd + '/docStoreEvents/events.json');
-  var docStoreEventsPath = cwd + '/docStoreEvents/events.json';
-  if (fs.existsSync(docStoreEventsPath)) {
-    docStoreEvents = createDocStoreEvents(docStoreEventsPath, cwd);
+    var beforeHandlerPath = handlerRootPath + '/beforeHandler.js';
+    console.log('beforeHandlerPath: ' + beforeHandlerPath);
+
+    if (fs.existsSync(beforeHandlerPath)) {
+      try {
+        beforeHandlerFn = require(beforeHandlerPath);
+        console.log('Loaded beforeHandler module from ' + beforeHandlerPath);
+      }
+      catch(err) {
+        console.log('** Warning - unable to load ' + beforeHandlerPath);
+      }
+    }
+
+    console.log('Loading ' + cwd + '/docStoreEvents/events.json');
+    var docStoreEventsPath = cwd + '/docStoreEvents/events.json';
+    if (fs.existsSync(docStoreEventsPath)) {
+      docStoreEvents = createDocStoreEvents(docStoreEventsPath, cwd);
+    }
   }
 
   //console.log('routes: ' + JSON.stringify(routes, null, 2));
@@ -178,10 +204,11 @@ function beforeHandler(req, finished) {
 
 module.exports = {
   restModule: true,
-  init: function(application) {
+  up: true,
+  init: function(application, isMaster) {
     var _this = this;
     var router = require('qewd-router');
-    var routes = getRoutes();
+    var routes = getRoutes(isMaster);
     routes = router.initialise(routes, module.exports);
     if (errorResponse) {
       var statusCode = errorResponse.statusCode || 404;
@@ -194,17 +221,20 @@ module.exports = {
         statusCode: statusCode
       });
     }
+    module.exports.workerResponseHandlers = workerResponseHandler;
 
-    if (onWorkerLoad) {
+    if (onWorkerLoad && !isMaster) {
       onWorkerLoad.call(this);
     }
 
-    if (docStoreEvents) {
+    if (docStoreEvents && !isMaster) {
       handleDocStoreEvents.call(this, docStoreEvents);
     }
 
   },
   beforeHandler: function(req, finished) {
     return beforeHandler.call(this, req, finished);
+  },
+  workerResponseHandlers: {
   }
 };

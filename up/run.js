@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  8 November 2019
+  11 November 2019
 
 */
 
@@ -738,6 +738,10 @@ function setup(isDocker, service_name) {
 
         });
       }
+      else {
+        console.log('*** orchestrator without any microservices ***');
+      }
+
     }
 
     if (!config_data.jwt || !config_data.jwt.secret) {
