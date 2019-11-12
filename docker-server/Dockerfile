@@ -3,7 +3,7 @@
 # Dockerised version of QEWD
 
 # M/Gateway Developments Ltd
-# 7 November 2019
+# 11 November 2019
 
 #FROM node:boron
 #FROM node:carbon
@@ -50,6 +50,7 @@ RUN ["/opt/qewd/install_yottadb.sh"]
 COPY . /opt/qewd
 
 RUN chmod +x /opt/qewd/ydb
+RUN chmod +x /opt/qewd/backup
 RUN chmod +x /opt/qewd/update_to_r128
 
 RUN mkdir /opt/qewd/www
