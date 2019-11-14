@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  11 November 2019
+  14 November 2019
 
 */
 
@@ -356,13 +356,18 @@ function setup(isDocker, service_name) {
     }
   };
 
+  var default_db = 'gtm';
+  if (isDocker) {
+    default_db = 'dbx';
+  }
+
   var config_template = {
     managementPassword: '=> either(qewd.managementPassword, "keepThisSecret!")',
     serverName: '=> either(qewd.serverName, "QEWD Server")',
     port: '=> either(qewd.port, 8080)',
     poolSize: '=> either(qewd.poolSize, 2)',
     database: {
-      type: '=> either(qewd.database.type, "gtm")',
+      type: '=> either(qewd.database.type, default_db)',
       params: '=> either(qewd.database.params, "<!delete>")',
     },
     webServerRootPath: webServerRootPath,
