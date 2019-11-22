@@ -32,7 +32,32 @@ These ports will be used by QEWD's Web Server
 
 # Preparing the EC2 Image
 
-Once the EC2 instance is up and running, SSH into it as the user *ubuntu*.
+Once the EC2 instance is up and running, you need to:
+
+- change your IRIS *_SYSTEM* user password
+- enable the C Callin interface
+
+The easiest way to do both steps is to start the IRIS System Management Portal.
+The first time you start this, you'll be forced to change the password for the
+*_SYSTEM* user.
+
+Make sure you change it, for now, to *secret123*
+
+
+Next, navigate the System Management Portal menus as follows:
+
+
+- System Administration
+  - Security
+    - Services
+      - %Service_Callin: Click on the link, then:
+
+- Check the *Service Enabled* box and Click *Save*
+
+
+
+
+Next, SSH into it as the user *ubuntu*.
 
 Install *subversion*:
 
@@ -55,31 +80,67 @@ Now download the QEWD installation resources
         svn export https://github.com/robtweed/qewd/trunk/docker-server-iris-ce-aws /opt/ISC/qewd-install
 
 
+# Stop the IRIS Docker Container
+
+        cd /opt/ISC
+        sudo docker-compose stop
+
+
+# Update the IRIS Container Docker Compose Configuration
+
+        cd /opt/ISC/qewd-install
+        source update_container.sh
+
+
+This replaces the IRIS Container's *docker-compose.yml* file with a new version that:
+
+- exposes port 8080 for the QEWD Web Server interface
+- changes the Container's name to qewd-iris
+
+
+# Restart the IRIS Docker Container
+
+
+Now restart the IRIS container to use the new configuration
+
+        cd /opt/ISC
+        sudo docker-compose up -d
+
 
 # Run the QEWD Installer / Configurator Script
 
 
-        cd /opt/ISC/qewd-install
+The next steps need to be done within the IRIS Container, so you need
+to shell into it.  Note that you need to
+be working as the *root* user:
+
+
+        sudo docker exec --user="root" -it qewd-iris bash
+
+
+You should now be in the IRIS Container's shell.  Now set up the
+correct run-time environment for running QEWD:
+
+
+        cd /ISC/qewd-install
         source enable_qewd.sh
 
 
-## Restart the Community Edition Docker Container
+The script takes a few minutes to run, but once it completes, you can 
+begin to build and run QEWD Applications
 
-        sudo docker-compose stop
-        sudo docker-compose up
+You can now exit the Container's shell by typing:
 
-
-You'll find that the IRIS container is now named qewd-iris
-
-You can now build and run QEWD Applications
+        exit
 
 
 
 # Create a QEWD-Up Application
 
-We'll just use a simple demo application that I've created for you to test:
+We'll just use a simple demo application that I've created for you to test.
 
-        cd ~
+In the host system (ie **NOT** in the Container's shell), type:
+
         svn export https://github.com/robtweed/qewd/trunk/up/examples/iris-ce-aws/simple /opt/ISC/qewd-example
 
 You'll now see a directory named */opt/ISC/qewd-example* that contains a very simple 
@@ -90,10 +151,10 @@ QEWD-Up Application definition
 
 This step only needs doing once.  It installs all the Node.js modules used by QEWD.
 
-Shell into the IRIS container:
+Shell into the IRIS container as *root*:
 
 
-        sudo docker exec -it qewd-iris bash
+        sudo docker exec --user="root" -it qewd-iris bash
 
 
 Once you're into the container's shell, type:
@@ -246,4 +307,54 @@ run.  However:
 - I've not been able to discover a way to monitor its output log
 - To shut down the QEWD Process, you'll need to use the QEWD Monitor application
 
+
+# Changing the IRIS and QEWD Monitor Passwords
+
+If you remember, we changed the password to *secret123*.  You'll probably want to change this
+again to something more secure.  If you do, you'll need to change the password used by your
+QEWD application when it connects to the IRIS Callin interface.  This is specified in the
+*/configuration/config.json* file, eg the one for the *qewd-example* application looks like this:
+
+        {
+          "qewd": {
+            "poolSize": 2,
+            "port": 8080,
+            "database": {
+              "type": "dbx",
+              "params": {
+                "database": "IRIS",
+                "path": "/ISC/dur/mgr",
+                "username": "_SYSTEM",
+                "password": "secret123",  <=== PASSWORD IS HERE
+                "namespace": "USER"
+              }
+            }
+          }
+        }
+
+
+So, if you change your IRIS password, make sure you change your QEWD application *config.json* files
+accordingly and restart the QEWD process with *npm start*.
+
+While you're at it, you should also change your QEWD Monitor password to something more secure.
+This is also specified in the *config.json* file
+
+
+        {
+          "qewd": {
+            "poolSize": 2,
+            "managementPassword": "myNewPassword",    <=== QEWD MONITOR PASSWORD IS HERE
+            "port": 8080,
+            "database": {
+              "type": "dbx",
+              "params": {
+                "database": "IRIS",
+                "path": "/ISC/dur/mgr",
+                "username": "_SYSTEM",
+                "password": "secret123",
+                "namespace": "USER"
+              }
+            }
+          }
+        }
 
