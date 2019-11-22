@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  6 November 2019
+  22 November 2019
 
 */
 
@@ -69,6 +69,9 @@ function installModule(moduleName, modulePath) {
 
 process.env.USER = 'root';
 process.env.HOME = '/opt/qewd';
+if (!process.env.NODE_PATH) {
+  process.env.NODE_PATH = '/opt/qewd/mapped/modules';
+}
 
 var startup;
 var qewd_up = false;
@@ -119,7 +122,9 @@ if (fs.existsSync('/opt/qewd/mapped/install_modules.json')) {
   }
 
   modulePath = '/opt/qewd/mapped';
-  process.env.NODE_PATH = '/opt/qewd/mapped/node_modules:' + process.env.NODE_PATH;
+  if (!process.env.NODE_PATH.includes('/opt/qewd/mapped/node_modules:')) {
+    process.env.NODE_PATH = '/opt/qewd/mapped/node_modules:' + process.env.NODE_PATH;
+  }
   require('module').Module._initPaths();
 
   npmModules = require('/opt/qewd/mapped/install_modules.json');
@@ -132,16 +137,32 @@ if (fs.existsSync('/opt/qewd/mapped/install_modules.json')) {
 
 var config = startup.config;
 
+var ydb_default_params = {
+  database: 'YottaDB',
+  release: ydb_versionp,
+  architecture: 'arm',
+  multithreaded: false
+};
+
 if (!config.database) {
   config.database = {
-    type: 'gtm'
+    type: 'dbx',
+    params: ydb_default_params
   };
 }
-else if (!config.database.type) {
-  config.database.type = 'gtm';
+if (!config.database.type) {
+  config.database.type = 'dbx';
+}
+if (config.database.type === 'dbx' && !config.database.params) {
+  config.database.params = ydb_default_params;
 }
 
-if (config.database && config.database.type === 'gtm') {
+// shortened name for QEWD Session global, for maximum subscript length tolerance
+
+config.sessionDocumentName = 'qs';
+
+if (config.database && (config.database.type === 'gtm' || (config.database.type === 'dbx' && config.database.params.database === 'YottaDB'))) {
+
 
   // Define YottaDB Environment Variables for Worker Processes
 
@@ -150,10 +171,7 @@ if (config.database && config.database.type === 'gtm') {
   var ydb_path = ydb_versionp + '_' + ydb_arch;
   var gtm_path = gtm_version + '_' + ydb_arch;
 
-  config.database = {
-    type: 'gtm',
-    params:{
-      ydb_env: {
+  var ydb_env = {
         ydb_retention: 42,
         gtm_retention: 42,
         LD_LIBRARY_PATH: '/usr/local/lib/yottadb/' + ydb_version,
@@ -177,45 +195,70 @@ if (config.database && config.database.type === 'gtm') {
         gtm_tmp: '/tmp/yottadb/' + ydb_path,
         gtm_dist: '/usr/local/lib/yottadb/' + ydb_version,
         ydb_dist: '/usr/local/lib/yottadb/' + ydb_version
-      }
-    }
   };
 
-  setEnv(config.database.params.ydb_env);
+  setEnv(ydb_env);
 
-  // workaround NPM5 bug
+  if (config.database.type === 'gtm') {
+    config.database = {
+      type: 'gtm',
+      params:{
+        ydb_env: ydb_env
+      }
+    };
 
-  try {
-    var nm = require('nodem');
-  }
-  catch(err) { 
-    installModule('nodem@0.14.2');
+    // workaround NPM5 bug
+
+    try {
+      var nm = require('nodem');
+    }
+    catch(err) { 
+      installModule('nodem@0.14.2');
+    }
   }
 
   // rundown the default region database (all globals except CacheTempEWDSession)
   //  it may return an error, so wrap in a try/catch
 
+  // also max out the allowed global subscript and data length
+
   try {
     console.log('Running down YottaDB...');
-    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
-    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -key_size=1019 -region DEFAULT', {stdio:[0,1,2]});
-    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -record_size=1048576 -region DEFAULT', {stdio:[0,1,2]});
-    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region qewdreg', {stdio:[0,1,2]});
-    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -key_size=1019 -region qewdreg', {stdio:[0,1,2]});
-    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -record_size=1048576 -region qewdreg', {stdio:[0,1,2]});
+    child_process.execSync(ydb_env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
+    child_process.execSync(ydb_env.ydb_dist + '/mupip rundown -region qewdreg', {stdio:[0,1,2]});
+
+    //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region DEFAULT', {stdio:[0,1,2]});
+    //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -key_size=1019 -region DEFAULT', {stdio:[0,1,2]});
+    //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -record_size=1048576 -region DEFAULT', {stdio:[0,1,2]});
+    //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip rundown -region qewdreg', {stdio:[0,1,2]});
+    //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -key_size=1019 -region qewdreg', {stdio:[0,1,2]});
+    //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip set -record_size=1048576 -region qewdreg', {stdio:[0,1,2]});
     console.log('Rundown completed');
   }
   catch(err) {
     console.log('Error running down YottaDB: ' + err);
     console.log('Recovering journal...');
-    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip journal -recover -backward /root/.yottadb/' + ydb_path + '/g/yottadb.mjl', {stdio:[0,1,2]});
+    child_process.execSync(ydb_env.ydb_dist + '/mupip journal -recover -backward /root/.yottadb/' + ydb_path + '/g/yottadb.mjl', {stdio:[0,1,2]});
+    //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip journal -recover -backward /root/.yottadb/' + ydb_path + '/g/yottadb.mjl', {stdio:[0,1,2]});
     console.log('Journal recovered');
+  }
+
+  try {
+    console.log('Max out the global subscript and data lengths');
+    child_process.execSync(ydb_env.ydb_dist + '/mupip set -key_size=1019 -region DEFAULT', {stdio:[0,1,2]});
+    child_process.execSync(ydb_env.ydb_dist + '/mupip set -record_size=1048576 -region DEFAULT', {stdio:[0,1,2]});
+    child_process.execSync(ydb_env.ydb_dist + '/mupip set -key_size=1019 -region qewdreg', {stdio:[0,1,2]});
+    child_process.execSync(ydb_env.ydb_dist + '/mupip set -record_size=1048576 -region qewdreg', {stdio:[0,1,2]});
+  }
+  catch(err) {
+    console.log('Unable to increase subscript and global lengths');
   }
 
   // update database journal file if it's for an old version
 
   try {
-    child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip journal -show=header -backward /root/.yottadb/' + ydb_path + '/g/yottadb.mjl', {stdio:[0,1,2]});
+    child_process.execSync(ydb_env.ydb_dist + '/mupip journal -show=header -backward /root/.yottadb/' + ydb_path + '/g/yottadb.mjl', {stdio:[0,1,2]});
+    //child_process.execSync(config.database.params.ydb_env.ydb_dist + '/mupip journal -show=header -backward /root/.yottadb/' + ydb_path + '/g/yottadb.mjl', {stdio:[0,1,2]});
   }
   catch(err) {
     // journal file is for previous YDB version - replace it with new version

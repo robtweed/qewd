@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-# 6 November 2019
+# 21 November 2019
 
 # YottaDB
 
-ydbversion=r1.28
+ydbversion="r1.28"
 ydbver="r128"
+platform="_armv7l"
 
 echo "Installing YottaDB $ydbversion"
 
@@ -43,6 +44,20 @@ echo 'Setting up local internal, unjournalled region for QEWD Session global'
 /usr/local/lib/yottadb/$ydbver/mupip create -region=qewdreg
 /usr/local/lib/yottadb/$ydbver/mupip set -file -nojournal /opt/qewd/sessiondb/qewd.dat
 /usr/local/lib/yottadb/$ydbver/mupip set -key_size=1019 -region qewdreg
+
+
+# Install and configure mgsql routines and QEWD's interface to them
+
+svn export https://github.com/chrisemunt/mgsql/trunk/yottadb /opt/qewd/mgsql
+cp /opt/qewd/mgsql/* /root/.yottadb/$ydbversion$platform/r
+/usr/local/lib/yottadb/$ydbver/mumps -run ylink^%mgsql
+rm -r /opt/qewd/mgsql
+
+cp /opt/qewd/node_modules/qewd-mg-dbx/ci/qewd.ci /usr/local/lib/yottadb/$ydbver
+cp /opt/qewd/node_modules/qewd-mg-dbx/ci/qewdSqlInterface.m /root/.yottadb/$ydbversion$platform/r
+
+echo 'mgsql has been installed'
+echo ' '
 
 echo 'YottaDB has been installed and configured, ready for use'
 

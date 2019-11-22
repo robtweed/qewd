@@ -1,7 +1,7 @@
-# QEWD-IRIS: Docker Container derived from the InterSystems IRIS Community Edition for AWS
+# QEWD-IRIS: Running QEWD on the InterSystems IRIS Community Edition for AWS
  
 Rob Tweed <rtweed@mgateway.com>  
-24 January 2019, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+22 November 2019, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
 Twitter: @rtweed
 
@@ -11,8 +11,7 @@ Google Group for discussions, support, advice etc: [http://groups.google.co.uk/g
 
 The instructions below explain how you can run QEWD with the InterSystems IRIS Community Edition for AWS.
 
-It involves building a new Docker Container, derived from the one that is supplied with the AWS Community Edition EC2 instance.  I've automated as much as I can, but any suggestions / further customisations to improve it and further automate it are welcomed.
-
+The instructions should be easily applied to other cloud versions of IRIS (eg Azure, Google)
 
 # Provisioning the EC2 Server
 
@@ -20,7 +19,8 @@ On AWS, select and provision a InterSystems IRIS Community Edition EC2 instance.
 
 For testing purposes and to try QEWD out, a *t2.micro* EC2 instance will be sufficient.
 
-During the provisioning steps, configure it manually to customise the Security Group.  Specifically, add a new Rule as follows:
+During the provisioning steps, configure it manually to customise the Security Group.  
+Specifically, add a new Rule as follows:
 
 - Custom TCP
 - Protocol: TCP
@@ -32,74 +32,92 @@ These ports will be used by QEWD's Web Server
 
 # Preparing the EC2 Image
 
-Once the EC2 instance is up and running, SSH into it and do the following:
+Once the EC2 instance is up and running, SSH into it as the user *ubuntu*.
 
-## Stop the Community Edition Docker Container
+Install *subversion*:
 
-        sudo docker stop try-iris
-
-## Install Subversion
-
-Subversion provides a quick and easy way of downloading just the individual sections of the QEWD Github repository that we need.
-
-
+        sudo apt-get update
         sudo apt-get install -y subversion
 
-## Download the DockerFile & Startup for QEWD
 
-        cd ~
-        svn export https://github.com/robtweed/qewd/trunk/docker-server-iris-ce-aws
+The IRIS container maps its internal directory */ISC* to the host 
+EC2 Image's */opt/ISC* directory.  So any changes we make to files and subdirectories
+on the host's */opt/ISC* directory are immediately reflected within the container.
 
-You should now see a directory named *~/docker-server-iris-ce-aws*
+However, before we can make any changes, you'll need to change the permissions to the
+directory:
 
+        sudo chown ubuntu:ubuntu /opt/ISC
 
-# Building the New QEWD-IRIS Docker Image
+Now download the QEWD installation resources
 
-        cd ~/docker-server-iris-ce-aws
-        sudo docker build -t qewd-iris .
-
-**Note**: make sure you include that period/full-stop at the end of the *build* line above!
-
-You now have a Docker Image named *qewd-iris* and we're ready to get going.
+        cd /opt/ISC
+        svn export https://github.com/robtweed/qewd/trunk/docker-server-iris-ce-aws /opt/ISC/qewd-install
 
 
-# Run a QEWD-Up Application
+
+# Run the QEWD Installer / Configurator Script
+
+
+        cd /opt/ISC/qewd-install
+        source enable_qewd.sh
+
+
+## Restart the Community Edition Docker Container
+
+        sudo docker-compose stop
+        sudo docker-compose up
+
+
+You'll find that the IRIS container is now named qewd-iris
+
+You can now build and run QEWD Applications
+
+
+
+# Create a QEWD-Up Application
 
 We'll just use a simple demo application that I've created for you to test:
 
         cd ~
-        svn export https://github.com/robtweed/qewd/trunk/up/examples/iris-ce-aws/simple qewd-example
+        svn export https://github.com/robtweed/qewd/trunk/up/examples/iris-ce-aws/simple /opt/ISC/qewd-example
 
-You'll now see a directory named *~/qewd-example* that contains a very simple QEWD-Up Application definition
-
-Start up the QEWD-IRIS container using this QEWD-Up application folder:
-
-        sudo docker run --name qewd-iris -it --rm -p 8080:8080 -p 51773:51773 -p 52773:52773 -v ~/qewd-example:/opt/qewd/mapped --entrypoint /opt/qewd/start_qewd.sh  qewd-iris
+You'll now see a directory named */opt/ISC/qewd-example* that contains a very simple 
+QEWD-Up Application definition
 
 
-Note: we're exposing port 8080 for the QEWD Web Server, and 51773 and 52773 for IRIS management purposes
+# Install the QEWD Application
+
+This step only needs doing once.  It installs all the Node.js modules used by QEWD.
+
+Shell into the IRIS container:
 
 
-## **NOTE**: IRIS Password
-
-Note the file within the *~/qewd-example* directory named *password.txt*.  
-
-This file is used when the QEWD-IRIS container starts up to define the System password, which, in turn, is used by the *iris.node* Node.js interface module.
-
-Currently *password.txt* contains the password *secret123*, which is also the password expected in the *~/qewd-example/configuration/config.json* file.  
-
-If you change the password in the *password.txt* file, make sure you similarly change the password in your QEWD-Up application's */configuration/config.json* file.
+        sudo docker exec -it qewd-iris bash
 
 
-## Start QEWD
+Once you're into the container's shell, type:
 
-When the Container has fully started and is ready to run, you'll be given the *bash shell* prompt which will look something like this:
+        cd /ISC/qewd-example
+        npm install
 
-        root@4e067a779d54:/opt/qewd#
 
-Now start QEWD:
+You're now ready to start the QEWD Application
+
+
+
+# Start the QEWD Application
+
+Each time you want to start the QEWD application, first make sure you're in the IRIS container's
+shell and in the */ISC/qewd-example* directory.
+
+        cd /ISC/qewd-example
+
+
+Then, start the QEWD Application by typing:
 
         npm start
+
 
 QEWD is ready for use when you see this:
 
@@ -188,15 +206,15 @@ For further information about QEWD-Up:
 
 
 
-# QEWD-IRIS Container Run-Time Modes
+# QEWD Application Run-Time Modes
 
 ## Interactive Mode
 
-Using the *docker run* command above, the QEWD-IRIS Container will have started in *interactive* mode and you should see the *bash shell* prompt - something like this:
+Using the *npm start* command above, the QEWD process will have started in *interactive* mode 
+and you will see its log output appearing in your terminal window.
 
-        root@4e067a779d54:/opt/qewd#
-
-In this mode you can manually start, stop and restart QEWD without having to restart the Container, which is ideal for QEWD-Up application development.
+In this mode you can manually start, stop and restart QEWD without having to restart the Container, 
+which is ideal for QEWD-Up application development.
 
 ### Start QEWD
 
@@ -210,18 +228,22 @@ or use the QEWD-Monitor application.
 
 You'll return to the *bash shell* prompt.
 
+
 ### Exit/shut down the Container
 
         exit
 
-## Daemon Mode
 
-If you start the Container as a daemon process, you should set the Environment Variable *QEWD_RUN_MODE* to *daemon" in your *docker run* command, eg:
+## Background Mode
 
-        sudo docker run --name qewd_iris -d --rm -p 8080:8080 -p 51773:51773 -p 52773:52773 -v ~/qewd-example:/opt/qewd/mapped --entrypoint /opt/qewd/start_qewd.sh -e QEWD_RUN_MODE="daemon" qewd-iris
+You can detach the QEWD process and run it as a background job by starting it as follows:
 
-In this mode, QEWD is started automatically and you can run your QEWD Applications as soon as it has completed its startup processes.
+        nohup npm start
 
-Daemon Mode should be used once you've completed development.
+In this mode, you can safely exit the Container's shell and the QEWD process will continue to
+run.  However:
+
+- I've not been able to discover a way to monitor its output log
+- To shut down the QEWD Process, you'll need to use the QEWD Monitor application
 
 

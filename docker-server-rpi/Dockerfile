@@ -3,7 +3,7 @@
 # Dockerised version of QEWD for Raspberry Pi
 
 # M/Gateway Developments Ltd
-# 11 November 2019
+# 22 November 2019
 
 #FROM hypriot/rpi-node:boron
 #FROM hypriot/rpi-node:8
@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y \
   python-minimal \
   libelf1 \
   locate \
-  nano
+  nano \
+  subversion
 
 # Create app directory
 RUN mkdir -p /opt/qewd
@@ -37,6 +38,7 @@ RUN cd /opt/qewd
 COPY package.json /opt/qewd
 RUN npm install
 RUN npm install module-exists
+RUN npm install mg-dbx
 
 # Install YottaDB & NodeM
 

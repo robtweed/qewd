@@ -1,3 +1,0 @@
- sudo docker build --no-cache -t qewd-iris .
-
- sudo docker build -t qewd-iris .

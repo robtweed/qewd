@@ -40,6 +40,7 @@ RUN cd /opt/qewd
 
 # Install app dependencies
 COPY package.json /opt/qewd
+RUN npm install -g npm@latest
 RUN npm install
 RUN npm install module-exists
 RUN npm install mg-dbx

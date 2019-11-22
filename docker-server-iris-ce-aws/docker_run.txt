@@ -1,4 +1,0 @@
- sudo docker run --name qewd_iris -it --rm -p 8080:8080 -p 51773:51773 -p 52773:52773 -v ~/test/simple:/opt/qewd/mapped --entrypoint /opt/qewd/start_qewd.sh qewd-iris
-
-
- sudo docker run --name qewd_iris -d --rm -p 8080:8080 -p 51773:51773 -p 52773:52773 -v ~/qewd-example:/opt/qewd/mapped --entrypoint /opt/qewd/start_qewd.sh -e QEWD_RUN_MODE="daemon" qewd-iris

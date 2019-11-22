@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #  ----------------------------------------------------------------------------
-# | qewd-server: Start-up file for Dockerised version of QEWD                |
+# | qewd: Script for enabling QEWD on IRIS Community Edition                 |
 # |                                                                          |
 # | Copyright (c) 2017-19 M/Gateway Developments Ltd,                        |
 # | Redhill, Surrey UK.                                                      |
@@ -24,9 +24,12 @@
 # |  limitations under the License.                                          |
 # ----------------------------------------------------------------------------
 
-#  24 January 2019
+#  22 November 2019
 
 # Install Node.js Using NVM
+
+apt-get update
+apt-get install -y build-essential python-minimal curl
 
 
 if [ -f "/usr/bin/node" ]; then
@@ -35,7 +38,7 @@ if [ -f "/usr/bin/node" ]; then
 
 else
 
-  VERSION=${1:-8}
+  VERSION=${1:-12}
 
   # Node.js
 
@@ -48,17 +51,9 @@ else
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
   nvm install $VERSION
 
-
-  #make Node.js available to sudo
-
-  echo "Setting up sudo access to Node.js"
-
-  ln -s /usr/local/bin/node /usr/bin/node
-  ln -s /usr/local/lib/node /usr/lib/node
-  ln -s /usr/local/bin/npm /usr/bin/npm
-  ln -s /usr/local/bin/node-waf /usr/bin/node-waf
-  n=$(which node);n=${n%/bin/node}; chmod -R 755 $n/bin/*; cp -r $n/{bin,lib,share} /usr/local
-
   echo 'Node.js has been installed.  Check by typing: node -v'
+
+  ln -s /usr/irissys/bin /ISC/dur/bin
+  cd /ISC/dur
 
 fi
