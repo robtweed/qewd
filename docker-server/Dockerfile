@@ -3,7 +3,7 @@
 # Dockerised version of QEWD
 
 # M/Gateway Developments Ltd
-# 11 November 2019
+# 14 November 2019
 
 #FROM node:boron
 #FROM node:carbon
@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y \
   python-minimal \
   libelf1 \
   locate \
-  nano
+  nano \
+  subversion
 
 RUN echo 'deb http://ftp.debian.org/debian/ buster main' >> /etc/apt/sources.list
 RUN apt-get update
@@ -41,6 +42,7 @@ RUN cd /opt/qewd
 COPY package.json /opt/qewd
 RUN npm install
 RUN npm install module-exists
+RUN npm install mg-dbx
 
 # Install YottaDB & NodeM
 

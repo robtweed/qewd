@@ -24,13 +24,13 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 November 2019
+  22 November 2019
 
 */
 
 //console.log('Loading /up/run.js in process ' + process.pid);
 
-var fs = require('fs');
+var fs = require('fs-extra');
 var module_exists = require('module-exists');
 var child_process = require('child_process');
 var qewd = require('../lib/master');
@@ -127,11 +127,16 @@ function linkMonitor(cwd, name) {
   if (!fs.existsSync(webServerRootPath)) {
    fs.mkdirSync(webServerRootPath);
   }
-  var cmd = 'ln -sf ' + process.cwd() + '/node_modules/qewd-monitor/www ' + webServerRootPath + '/qewd-monitor';
-  child_process.execSync(cmd, {stdio:[0,1,2]});
-
-  var cmd = 'ln -sf ' + process.cwd() + '/node_modules/ewd-client/lib/proto/ewd-client.js ' + webServerRootPath + '/ewd-client.js';
-  child_process.execSync(cmd, {stdio:[0,1,2]});
+  if (process.platform === 'win32') {
+    fs.copySync(process.cwd() + '/node_modules/qewd-monitor/www', webServerRootPath + '/qewd-monitor');
+    fs.copySync(process.cwd() + '/node_modules/ewd-client/lib/proto/ewd-client.js', webServerRootPath + '/ewd-client.js');
+  }
+  else {
+    var cmd = 'ln -sf ' + process.cwd() + '/node_modules/qewd-monitor/www ' + webServerRootPath + '/qewd-monitor';
+    child_process.execSync(cmd, {stdio:[0,1,2]});
+    var cmd = 'ln -sf ' + process.cwd() + '/node_modules/ewd-client/lib/proto/ewd-client.js ' + webServerRootPath + '/ewd-client.js';
+    child_process.execSync(cmd, {stdio:[0,1,2]});
+  }
 }
 
 function unlinkMonitor(cwd, name) {

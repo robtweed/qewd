@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BACKUP_FILE=${1:mapped/ydb_backup}
+BACKUP=${1:-mapped/ydb_backup}
 
 export ydb_log=/tmp/yottadb/r1.28_x86_64
 export gtm_log=/tmp/yottadb/r1.28_x86_64
@@ -21,4 +21,4 @@ export gtm_tmp=/tmp/yottadb/r1.28_x86_64
 export gtm_dist=/usr/local/lib/yottadb/r128
 export ydb_dist=/usr/local/lib/yottadb/r128
 
-$ydb_dist/mupip backup "*" -online -replace $BACKUP_FILE
+$ydb_dist/mupip backup "*" -online -replace $BACKUP

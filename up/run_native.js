@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-up: Rapid QEWD API Development                                      |
  |                                                                          |
- | Copyright (c) 2018 M/Gateway Developments Ltd,                           |
+ | Copyright (c) 2018-19 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,8 +24,26 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  12 December 2018
+  22 November 2019
 
 */
 
-require('./run')();
+const dbx_github_url = "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node12/mg-dbx.node"
+const dbx_node_file = 'node_modules/mg-dbx.node';
+
+var fs = require('fs-extra');
+var run_qewd = require('./run');
+
+if (process.platform === 'win32' && !fs.existsSync(dbx_node_file)) {
+  console.log('Installing mg-dbx interface module for Windows');
+  var https = require('https');
+  var file = fs.createWriteStream(dbx_node_file);
+  var request = https.get(dbx_github_url, function(response) {
+    response.pipe(file);
+    console.log('mg-dbx installed.  QEWD can now start');
+    run_qewd();
+  });
+}
+else {
+  run_qewd();
+}
