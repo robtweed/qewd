@@ -1,0 +1,12 @@
+{
+  "name": "qewd-installer",
+  "version": "1.0.0",
+  "description": "Automated QEWD Installer",
+  "author": "Rob Tweed <rtweed@mgateway.com>",
+  "scripts": {},
+  "dependencies": {
+    "mg-dbx": "",
+    "qewd-mg-dbx": "",
+    "ewd-document-store": ""
+  }
+}

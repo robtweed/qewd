@@ -24,12 +24,12 @@
 # |  limitations under the License.                                          |
 # ----------------------------------------------------------------------------
 
-#  22 November 2019
+#  28 November 2019
 
 # Install Node.js Using NVM
 
 apt-get update
-apt-get install -y build-essential python-minimal curl
+apt-get install -y build-essential python-minimal curl subversion
 
 
 if [ -f "/usr/bin/node" ]; then
@@ -54,6 +54,15 @@ else
   echo 'Node.js has been installed.  Check by typing: node -v'
 
   ln -s /usr/irissys/bin /ISC/dur/bin
-  cd /ISC/dur
+
+  # Now install the mgsql routines
+
+  svn export https://github.com/chrisemunt/mgsql/trunk/m /ISC/qewd-install/m
+
+  export LD_LIBRARY_PATH="/usr/irissys/bin"
+
+  cd /ISC/qewd-install
+  npm install
+  node install_mgsql
 
 fi

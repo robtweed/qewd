@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# 19 November 2019
+# 25 November 2019
 
 # YottaDB
 
@@ -58,7 +58,7 @@ cp /opt/qewd/mgsql/* /root/.yottadb/$ydbversion$platform/r
 rm -r /opt/qewd/mgsql
 
 cp /opt/qewd/node_modules/qewd-mg-dbx/ci/qewd.ci /usr/local/lib/yottadb/$ydbver
-cp /opt/qewd/node_modules/qewd-mg-dbx/ci/qewdSqlInterface.m /root/.yottadb/$ydbversion$platform/r
+cp /opt/qewd/node_modules/qewd-mg-dbx/ci/qewdInterface.m /root/.yottadb/$ydbversion$platform/r
 
 echo 'mgsql has been installed'
 echo ' '
