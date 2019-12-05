@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  22 November 2019
+  5 December 2019
 
 */
 
@@ -377,7 +377,8 @@ function setup(isDocker, service_name) {
     },
     webServerRootPath: webServerRootPath,
     cors: '=> either(qewd.cors, true)',
-    bodyParser: '=> getBodyParser(qewd.bodyParser)'
+    bodyParser: '=> getBodyParser(qewd.bodyParser)',
+    mode: '=> either(qewd.mode, "production")',
   };
 
   var config;
