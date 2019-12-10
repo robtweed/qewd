@@ -92,12 +92,17 @@ Try out your REST API:
 
 ## Further Reading
 
+[Baseline QEWD Environment](https://github.com/robtweed/qewd-baseline), with Tutorials on devloping 
+[REST APIs](https://github.com/robtweed/qewd-baseline/blob/master/REST.md) and 
+[Interactive WebSocket-based Applications](https://github.com/robtweed/qewd-baseline/blob/master/INTERACTIVE.md).
+
 [Getting Started with QEWD using QEWD-Up](https://github.com/robtweed/qewd/tree/master/up)
 
-For more information on QEWD's integrated persistent JavaScript/JSON storage, go to the
-[QEWD.js Training Resources](http://docs.qewdjs.com/qewd_training.html) page and study Parts 17 - 27
+[Information on QEWD-JSdb](https://github.com/robtweed/qewd-jsdb), 
+the multi-model database that is integrated with QEWD. This is a unique,
+ground-breaking database abstraction which provides you with on-disk, persistent JavaScript Objects
+with which you directly interact via JavaScript.
 
-[To see this persistent JSON storage in action](https://github.com/robtweed/qewd/tree/master/up/examples/ms-db)
 
 
 ## License
