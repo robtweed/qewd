@@ -15,7 +15,8 @@ In summary: [QEWD](http://qewdjs.com) is a Node.js-based platform for developing
 
 QEWD uses a [unique architecture](https://medium.com/the-node-js-collection/having-your-node-js-cake-and-eating-it-too-799e90d40186)
  that prevents CPU-intensive or long-running APIs bringing a Node.js system to its knees, 
-and includes a [powerful high-performance integrated persistent JSON storage database](http://ec2.mgateway.com/qewd-background.pdf).
+and includes [QEWD-JSdb](https://github.com/robtweed/qewd-jsdb), a powerful high-performance, 
+tightly-integrated multi-model database which, uniquely, presents your data as persistent JavaScript Objects.
 
 
 ## Try it out
