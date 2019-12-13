@@ -24,13 +24,15 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  5 December 2019
+  13 December 2019
 
 */
 
 //console.log('Loading /up/run.js in process ' + process.pid);
 
 var fs = require('fs-extra');
+var path = require('path');
+var os = require('os');
 var module_exists = require('module-exists');
 var child_process = require('child_process');
 var qewd = require('../lib/master');
@@ -57,7 +59,14 @@ function createModuleMap(cwd, config) {
       //  otherwise use the existing index.js
       if (handlerList.length > 0) {
         var text;
-        text = "module.exports = require('" + __dirname + "/qewdAppHandler" + "')('" + appPath + "');"
+        //text = "module.exports = require('" + __dirname + "/qewdAppHandler" + "')('" + appPath + "');"
+        var reqPath = path.join(__dirname, 'qewdAppHandler');
+        var appPath2 = path.normalize(appPath);
+        if (os.platform() === 'win32') {
+          reqPath = reqPath.split('\\').join('\\\\');
+          appPath2 = appPath2.split('\\').join('\\\\');
+        }
+        text = "module.exports = require('" + reqPath + "')('" + appPath2 + "');"
         fs.writeFileSync(indexPath, text);
       }
       if (fs.existsSync(indexPath)) {
