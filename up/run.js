@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-up: Rapid QEWD API Development                                      |
  |                                                                          |
- | Copyright (c) 2018-19 M/Gateway Developments Ltd,                        |
+ | Copyright (c) 2018-20 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  13 December 2019
+  22 January 2020
 
 */
 
@@ -384,6 +384,8 @@ function setup(isDocker, service_name) {
       type: '=> either(qewd.database.type, default_db)',
       params: '=> either(qewd.database.params, "<!delete>")',
     },
+    webServer: '{<qewd.webServer>}',
+    ssl: '{<qewd.ssl>}',
     webServerRootPath: webServerRootPath,
     cors: '=> either(qewd.cors, true)',
     bodyParser: '=> getBodyParser(qewd.bodyParser)',
