@@ -1,0 +1,12 @@
+{
+  "qewd": {
+    "database": {
+      "type": "dbx",
+      "params": {
+        "database": "YottaDB",
+        "release": "1.28",
+        "architecture": "arm"
+      }
+    }
+  }
+}

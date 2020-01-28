@@ -1,0 +1,45 @@
+Step 1: To install QEWD Natively on a Raspberry Pi 4:
+
+   cd ~
+   wget https://raw.githubusercontent.com/robtweed/qewd/master/installers/install_ydb_and_node_rpi.sh
+   source install_ydb_and_node_rpi.sh
+
+This will install YottaDB and Node.js, ready for use with QEWD
+
+
+Step 2: Copy example into ~/qewd directory:
+
+   svn export https://github.com/robtweed/qewd/trunk/up/examples/native/simple_rpi ~/qewd
+
+
+Step 3: Install QEWD:
+
+   cd ~/qewd
+   npm install
+
+** Note: ignore any warnings during the installation
+
+
+Step 4: Run QEWD:
+
+   cd ~/qewd
+   npm start
+
+
+
+Step 5: Try the test API:
+
+   http://xx.xx.xx.xx:8080/api/info
+
+
+Step 6: Try QEWD-Monitor:
+
+   http://xx.xx.xx.xx:8080/qewd-monitor
+
+   login with password: keepThisSecret!
+
+
+
+
+
+   

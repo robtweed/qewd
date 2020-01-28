@@ -1,0 +1,14 @@
+{
+  "name": "qewd-up",
+  "version": "1.0.0",
+  "description": "Automated QEWD Builder",
+  "author": "Rob Tweed <rtweed@mgateway.com>",
+  "scripts": {
+    "start": "node node_modules/qewd/up/run_native"
+  },
+  "dependencies": {
+    "qewd": "",
+    "qewd-transform-json": "",
+    "mg-dbx": ""
+  }
+}
