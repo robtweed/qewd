@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  22 January 2020
+  11 February 2020
 
 */
 
@@ -390,6 +390,7 @@ function setup(isDocker, service_name) {
     cors: '=> either(qewd.cors, true)',
     bodyParser: '=> getBodyParser(qewd.bodyParser)',
     mode: '=> either(qewd.mode, "production")',
+    max_queue_length: '{<qewd.max_queue_length>}'
   };
 
   var config;
