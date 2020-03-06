@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  11 February 2020
+  6 March 2020
 
 */
 
@@ -143,8 +143,22 @@ function linkMonitor(cwd, name) {
   else {
     var cmd = 'ln -sf ' + process.cwd() + '/node_modules/qewd-monitor/www ' + webServerRootPath + '/qewd-monitor';
     child_process.execSync(cmd, {stdio:[0,1,2]});
-    var cmd = 'ln -sf ' + process.cwd() + '/node_modules/ewd-client/lib/proto/ewd-client.js ' + webServerRootPath + '/ewd-client.js';
+    cmd = 'ln -sf ' + process.cwd() + '/node_modules/ewd-client/lib/proto/ewd-client.js ' + webServerRootPath + '/ewd-client.js';
     child_process.execSync(cmd, {stdio:[0,1,2]});
+    if (fs.existsSync(process.cwd() + '/www/qewd-client.js')) {
+      cmd = 'ln -sf ' + process.cwd() + '/www/qewd-client.js ' + webServerRootPath + '/qewd-client.js';
+      child_process.execSync(cmd, {stdio:[0,1,2]});
+      cmd = 'ln -sf ' + process.cwd() + '/www/mg-webComponents.js ' + webServerRootPath + '/mg-webComponents.js';
+      child_process.execSync(cmd, {stdio:[0,1,2]});
+      if (!fs.existsSync(webServerRootPath + '/components')) {
+        fs.mkdirSync(webServerRootPath + '/components');
+      }
+      if (!fs.existsSync(webServerRootPath + '/components/adminui')) {
+        fs.mkdirSync(webServerRootPath + '/components/adminui');
+        var cmd = 'cp -r ' + process.cwd() + '/www/components/adminui ' + webServerRootPath + '/components';
+        child_process.execSync(cmd, {stdio:[0,1,2]});
+      }
+    }
   }
 }
 
