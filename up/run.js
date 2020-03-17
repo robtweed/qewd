@@ -167,11 +167,11 @@ function linkMonitor(cwd, name) {
         child_process.execSync(cmd, {stdio:[0,1,2]});
         if (!fs.existsSync(cwd + '/qewd-apps/qewd-monitor-adminui')) {
           fs.mkdirSync(cwd + '/qewd-apps/qewd-monitor-adminui');
+          cmd = 'mv ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps/* ' + cwd + '/qewd-apps/qewd-monitor-adminui';
+          child_process.execSync(cmd, {stdio:[0,1,2]});
+          cmd = 'rm -r ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps';
+          child_process.execSync(cmd, {stdio:[0,1,2]});
         }
-        cmd = 'mv ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps/* ' + cwd + '/qewd-apps/qewd-monitor-adminui';
-        child_process.execSync(cmd, {stdio:[0,1,2]});
-        cmd = 'rm -r ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps';
-        child_process.execSync(cmd, {stdio:[0,1,2]});
       }
     }
   }
