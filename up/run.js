@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  6 March 2020
+  17 March 2020
 
 */
 
@@ -148,14 +148,29 @@ function linkMonitor(cwd, name) {
     if (fs.existsSync(process.cwd() + '/www/qewd-client.js')) {
       cmd = 'ln -sf ' + process.cwd() + '/www/qewd-client.js ' + webServerRootPath + '/qewd-client.js';
       child_process.execSync(cmd, {stdio:[0,1,2]});
+    }
+    if (fs.existsSync(process.cwd() + '/www/mg-webComponents.js')) {
       cmd = 'ln -sf ' + process.cwd() + '/www/mg-webComponents.js ' + webServerRootPath + '/mg-webComponents.js';
       child_process.execSync(cmd, {stdio:[0,1,2]});
       if (!fs.existsSync(webServerRootPath + '/components')) {
         fs.mkdirSync(webServerRootPath + '/components');
       }
-      if (!fs.existsSync(webServerRootPath + '/components/adminui')) {
+      if (fs.existsSync(process.cwd() + '/www/components/adminui') && !fs.existsSync(webServerRootPath + '/components/adminui')) {
         fs.mkdirSync(webServerRootPath + '/components/adminui');
-        var cmd = 'cp -r ' + process.cwd() + '/www/components/adminui ' + webServerRootPath + '/components';
+        cmd = 'cp -r ' + process.cwd() + '/www/components/adminui ' + webServerRootPath + '/components';
+        child_process.execSync(cmd, {stdio:[0,1,2]});
+      }
+
+      if (fs.existsSync(process.cwd() + '/www/qewd-monitor-adminui') && !fs.existsSync(webServerRootPath + '/qewd-monitor-adminui')) {
+        fs.mkdirSync(webServerRootPath + '/qewd-monitor-adminui');
+        cmd = 'cp -r ' + process.cwd() + '/www/qewd-monitor-adminui ' + webServerRootPath;
+        child_process.execSync(cmd, {stdio:[0,1,2]});
+        if (!fs.existsSync(cwd + '/qewd-apps/qewd-monitor-adminui')) {
+          fs.mkdirSync(cwd + '/qewd-apps/qewd-monitor-adminui');
+        }
+        cmd = 'mv ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps/* ' + cwd + '/qewd-apps/qewd-monitor-adminui';
+        child_process.execSync(cmd, {stdio:[0,1,2]});
+        cmd = 'rm -r ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps';
         child_process.execSync(cmd, {stdio:[0,1,2]});
       }
     }
