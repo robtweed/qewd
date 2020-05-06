@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  17 March 2020
+  6 May 2020
 
 */
 
@@ -158,6 +158,16 @@ function linkMonitor(cwd, name) {
       if (fs.existsSync(process.cwd() + '/www/components/adminui') && !fs.existsSync(webServerRootPath + '/components/adminui')) {
         fs.mkdirSync(webServerRootPath + '/components/adminui');
         cmd = 'cp -r ' + process.cwd() + '/www/components/adminui ' + webServerRootPath + '/components';
+        child_process.execSync(cmd, {stdio:[0,1,2]});
+      }
+      if (fs.existsSync(process.cwd() + '/www/components/leaflet') && !fs.existsSync(webServerRootPath + '/components/leaflet')) {
+        fs.mkdirSync(webServerRootPath + '/components/leaflet');
+        cmd = 'cp -r ' + process.cwd() + '/www/components/leaflet ' + webServerRootPath + '/components';
+        child_process.execSync(cmd, {stdio:[0,1,2]});
+      }
+      if (fs.existsSync(process.cwd() + '/www/components/d3') && !fs.existsSync(webServerRootPath + '/components/d3')) {
+        fs.mkdirSync(webServerRootPath + '/components/d3');
+        cmd = 'cp -r ' + process.cwd() + '/www/components/d3 ' + webServerRootPath + '/components';
         child_process.execSync(cmd, {stdio:[0,1,2]});
       }
 
