@@ -1,7 +1,7 @@
 # qewd-up: A new fast-track route to Building APIs Using QEWD
  
 Rob Tweed <rtweed@mgateway.com>  
-11 December 2018, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+11 May 2020, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
 Twitter: @rtweed
 
@@ -982,7 +982,7 @@ The easiest thing is to copy the example below and use it as a template for your
         "dependencies": {
           "qewd": "",
           "qewd-transform-json": "",
-          "nodem": ""
+          "git-clone": "^0.1.0"
         }
       }
 
@@ -1072,7 +1072,7 @@ if you need to use additional Node.js modules (ie ones not automatically include
         "dependencies": {
           "qewd": "",
           "qewd-transform-json": "",
-          "nodem": "",
+          "git-clone": "^0.1.0",
           "a-find": "",
           "multer": ""
         }

@@ -9,6 +9,6 @@
   "dependencies": {
     "qewd": "",
     "qewd-transform-json": "",
-    "nodem": ""
+    "git-clone": "^0.1.0"
   }
 }

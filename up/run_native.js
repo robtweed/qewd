@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-up: Rapid QEWD API Development                                      |
  |                                                                          |
- | Copyright (c) 2018-19 M/Gateway Developments Ltd,                        |
+ | Copyright (c) 2018-20 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,26 +24,117 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  22 November 2019
+  11 May 2020
 
 */
 
-const dbx_github_url = "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node12/mg-dbx.node"
+const dbx_github_url = {
+  v12: "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node12/mg-dbx.node",
+  v14: "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node14/mg-dbx.node"
+};
 const dbx_node_file = 'node_modules/mg-dbx.node';
+const qm_adminui_path = 'www/qewd-monitor-adminui';
+const qm_adminui_qewd_apps_path = 'qewd-apps/qewd-monitor-adminui';
+const www_path = 'www';
+const components_path = 'www/components';
+const qewd_client_path = 'www/qewd-client.js';
+const mgWebComponents_path = 'www/mg-webComponents.js';
 
-var fs = require('fs-extra');
-var run_qewd = require('./run');
+const mgWebComponents_url = 'https://raw.githubusercontent.com/robtweed/mg-webComponents/master/mg-webComponents.js';
+const qewd_client_url = 'https://raw.githubusercontent.com/robtweed/qewd-client/master/qewd-client.js';
+const qm_adminui_url = 'https://github.com/robtweed/qewd-monitor-adminui';
 
-if (process.platform === 'win32' && !fs.existsSync(dbx_node_file)) {
-  console.log('Installing mg-dbx interface module for Windows');
-  var https = require('https');
-  var file = fs.createWriteStream(dbx_node_file);
-  var request = https.get(dbx_github_url, function(response) {
-    response.pipe(file);
-    console.log('mg-dbx installed.  QEWD can now start');
-    run_qewd();
+const wc_adminui_url = 'https://github.com/robtweed/wc-admin-ui';
+const wc_leaflet_url = 'https://github.com/robtweed/wc-leaflet';
+const wc_d3_url = 'https://github.com/robtweed/wc-d3';
+
+const fs = require('fs-extra');
+const run_qewd = require('./run');
+const git_clone = require('git-clone');
+const https = require('https');
+
+let file;
+let request;
+let url;
+let path;
+
+if (!fs.existsSync(www_path)) {
+  fs.mkdirSync(www_path);
+}
+
+if (!fs.existsSync(mgWebComponents_path)) {
+  let file1 = fs.createWriteStream(mgWebComponents_path);
+  https.get(mgWebComponents_url, function(response) {
+    response.pipe(file1);
+    console.log('mg-webComponents installed');
   });
 }
-else {
+
+if (!fs.existsSync(qewd_client_path)) {
+  let file2 = fs.createWriteStream(qewd_client_path);
+  https.get(qewd_client_url, function(response) {
+    response.pipe(file2);
+    console.log('qewd-client installed');
+  });
+}
+
+if (!fs.existsSync(components_path)) {
+  fs.mkdirSync(components_path);
+}
+path = components_path + '/adminui';
+if (!fs.existsSync(path)) {
+  git_clone(wc_adminui_url, path);
+}
+
+path = components_path + '/leaflet';
+if (!fs.existsSync(path)) {
+  git_clone(wc_leaflet_url, path);
+}
+
+path = components_path + '/d3';
+if (!fs.existsSync(path)) {
+  git_clone(wc_d3_url, path);
+}
+
+let installed = true;
+let maxToFetch = 0;
+let count = 0;
+
+if (!fs.existsSync(qm_adminui_path)) {
+  installed = false;
+  maxToFetch++;
+  git_clone(qm_adminui_url, qm_adminui_path, function() {
+    fs.moveSync(qm_adminui_path + '/qewd-apps', qm_adminui_qewd_apps_path);
+    count++;
+    if (count === maxToFetch) {
+      run_qewd();
+    }
+  });
+}
+
+
+if (process.platform === 'win32' && !fs.existsSync(dbx_node_file)) {
+  installed = false;
+  maxToFetch++;
+  console.log('Installing mg-dbx interface module for Windows');
+  let version = process.version.split('.')[0];
+  url = dbx_github_url[version];
+  if (url) {
+    file = fs.createWriteStream(dbx_node_file);
+    request = https.get(url, function(response) {
+      response.pipe(file);
+      console.log('mg-dbx installed.  QEWD can now start');
+      count++;
+      if (count === maxToFetch) {
+        run_qewd();
+      }
+    });
+  }
+  else {
+    console.log('Node.js version ' + version + 'is not supported by QEWD');
+  }
+}
+
+if (installed) {
   run_qewd();
 }
