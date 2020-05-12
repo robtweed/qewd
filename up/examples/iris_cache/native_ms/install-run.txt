@@ -1,0 +1,35 @@
+- Make sure that Node.js is installed (v12.x or v14.x)
+
+- Create a directory for each MicroService, eg:
+
+    c:\qewd-orchestrator
+    c:\qewd-login-service
+
+- Copy the files for each micro-service to these folders
+
+- Start 2 console processes/windows, one for each of the microservices, and cd to the appropriate folder, eg:
+
+    cd \qewd-orchestrator
+
+- One-off step for each: install the Node.js modules
+
+    npm install
+
+
+- Once install is complete, you can start the microservice:
+
+    npm start {{microservice name}}
+
+eg
+
+    npm start orchestrator
+
+or
+
+    npm start login_service
+
+
+- The orchestrator should automatically find and connect to/register the microservice(s) when they start.
+
+- YOu can now try the REST APIs
+

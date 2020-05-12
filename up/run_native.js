@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  11 May 2020
+  12 May 2020
 
 */
 
@@ -81,24 +81,58 @@ if (!fs.existsSync(qewd_client_path)) {
 if (!fs.existsSync(components_path)) {
   fs.mkdirSync(components_path);
 }
-path = components_path + '/adminui';
-if (!fs.existsSync(path)) {
-  git_clone(wc_adminui_url, path);
-}
-
-path = components_path + '/leaflet';
-if (!fs.existsSync(path)) {
-  git_clone(wc_leaflet_url, path);
-}
-
-path = components_path + '/d3';
-if (!fs.existsSync(path)) {
-  git_clone(wc_d3_url, path);
-}
 
 let installed = true;
 let maxToFetch = 0;
 let count = 0;
+
+let patha = components_path + '/adminui';
+if (!fs.existsSync(patha)) {
+  installed = false;
+  maxToFetch++;
+  git_clone(wc_adminui_url, patha, function() {
+    let res = fs.removeSync(patha + '/.git');
+    count++;
+    if (count === maxToFetch) {
+      if (process.argv[2] && process.argv[2] !== '') {
+        return run_qewd(null, process.argv[2], true);
+      }
+      run_qewd();
+    }
+  });
+}
+
+let pathb = components_path + '/leaflet';
+if (!fs.existsSync(pathb)) {
+  installed = false;
+  maxToFetch++;
+  git_clone(wc_leaflet_url, pathb, function() {
+    fs.removeSync(pathb + '/.git');
+    count++;
+    if (count === maxToFetch) {
+      if (process.argv[2] && process.argv[2] !== '') {
+        return run_qewd(null, process.argv[2], true);
+      }
+      run_qewd();
+    }
+  });
+}
+
+let pathc = components_path + '/d3';
+if (!fs.existsSync(pathc)) {
+  installed = false;
+  maxToFetch++;
+  git_clone(wc_d3_url, pathc, function() {
+    fs.removeSync(pathc + '/.git');
+    count++;
+    if (count === maxToFetch) {
+      if (process.argv[2] && process.argv[2] !== '') {
+        return run_qewd(null, process.argv[2], true);
+      }
+      run_qewd();
+    }
+  });
+}
 
 if (!fs.existsSync(qm_adminui_path)) {
   installed = false;
@@ -107,6 +141,9 @@ if (!fs.existsSync(qm_adminui_path)) {
     fs.moveSync(qm_adminui_path + '/qewd-apps', qm_adminui_qewd_apps_path);
     count++;
     if (count === maxToFetch) {
+      if (process.argv[2] && process.argv[2] !== '') {
+        return run_qewd(null, process.argv[2], true);
+      }
       run_qewd();
     }
   });
@@ -123,9 +160,12 @@ if (process.platform === 'win32' && !fs.existsSync(dbx_node_file)) {
     file = fs.createWriteStream(dbx_node_file);
     request = https.get(url, function(response) {
       response.pipe(file);
-      console.log('mg-dbx installed.  QEWD can now start');
+      console.log('mg-dbx installed');
       count++;
       if (count === maxToFetch) {
+        if (process.argv[2] && process.argv[2] !== '') {
+          return run_qewd(null, process.argv[2], true);
+        }
         run_qewd();
       }
     });
@@ -136,5 +176,8 @@ if (process.platform === 'win32' && !fs.existsSync(dbx_node_file)) {
 }
 
 if (installed) {
+  if (process.argv[2] && process.argv[2] !== '') {
+    return run_qewd(null, process.argv[2], true);
+  }
   run_qewd();
 }

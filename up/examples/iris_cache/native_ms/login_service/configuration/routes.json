@@ -1,0 +1,8 @@
+[
+  {
+    "uri": "/api/login",
+    "method": "GET",
+    "handler": "login",
+    "authenticate": false
+  }
+]

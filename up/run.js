@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  6 May 2020
+ 12 May 2020
 
 */
 
@@ -139,7 +139,27 @@ function linkMonitor(cwd, name) {
   if (process.platform === 'win32') {
     fs.copySync(process.cwd() + '/node_modules/qewd-monitor/www', webServerRootPath + '/qewd-monitor');
     fs.copySync(process.cwd() + '/node_modules/ewd-client/lib/proto/ewd-client.js', webServerRootPath + '/ewd-client.js');
-  }
+    let fromPath = process.cwd() + '/www/qewd-client.js';
+    let toPath = webServerRootPath + '/qewd-client.js';
+    if (!fs.existsSync(toPath) && fs.existsSync(fromPath)) {
+      fs.copySync(fromPath, toPath);
+    }
+    fromPath = process.cwd() + '/www/mg-webComponents.js';
+    toPath = webServerRootPath + '/mg-webComponents.js';
+    if (!fs.existsSync(toPath) && fs.existsSync(fromPath)) {
+      fs.copySync(fromPath, toPath);
+    }
+    fromPath = process.cwd() + '/www/components';
+    toPath = webServerRootPath + '/components';
+    if (!fs.existsSync(toPath) && fs.existsSync(fromPath)) {
+      fs.copySync(fromPath, toPath);
+    }
+    fromPath = process.cwd() + '/www/qewd-monitor-adminui';
+    toPath = webServerRootPath + '/qewd-monitor-adminui';
+    if (!fs.existsSync(toPath) && fs.existsSync(fromPath)) {
+      fs.copySync(fromPath, toPath);
+    }
+ }
   else {
     var cmd = 'ln -sf ' + process.cwd() + '/node_modules/qewd-monitor/www ' + webServerRootPath + '/qewd-monitor';
     child_process.execSync(cmd, {stdio:[0,1,2]});
@@ -234,13 +254,25 @@ function addImportRoute(config_data, routes) {
   return startMode;
 }
 
-function setup(isDocker, service_name) {
+function setup(isDocker, service_name, isNative) {
+
+  if (isNative) {
+    process.env.qewd_service_name = service_name;
+    process.env.qewd_isNative = true;
+    if (service_name !== 'orchestrator') {
+      process.env.mode = 'microservice';
+    }
+  }
 
   var cwd = process.cwd();
   if (service_name) {
-    cwd = cwd + '/' + service_name;
+    if (isNative) {
+      // leave cwd alone
+    }
+    else {
+      cwd = cwd + '/' + service_name;
+    }
   }
-  //console.log('*** cwd = ' + cwd);
   var ms_name = process.env.microservice;
   var mode = process.env.mode;
   var startupMode = 'normal';
@@ -249,9 +281,6 @@ function setup(isDocker, service_name) {
     cwd = cwd + '/mapped';
     installModules(cwd);
   }
-
-  //console.log('isDocker: ' + isDocker);
-  //console.log('cwd = ' + cwd);
 
   var config_data;
   console.log('** loading ' + cwd + '/configuration/config.json');
@@ -474,8 +503,6 @@ function setup(isDocker, service_name) {
     config.service_name = process.env.microservice;
   }
 
-  // ***
-
   /*
   console.log('process.env.qewd_service_name = ' + process.env.qewd_service_name);
   console.log('process.env.mode = ' + process.env.mode);
@@ -632,7 +659,6 @@ function setup(isDocker, service_name) {
 
     }
     else {
-      console.log('**** this is the orchestrator *****');
       // This is the orchestrator (or Docker monolith)
 
       // check if microservices need importing, and if so, add import route
@@ -868,11 +894,9 @@ function setup(isDocker, service_name) {
   };
 }
 
-module.exports = function(isDocker, serviceName) {
+module.exports = function(isDocker, serviceName, isNative) {
 
-  //console.log('running module.exports function for run.js');
-
-  var results = setup(isDocker, serviceName);
+  var results = setup(isDocker, serviceName, isNative);
 
   console.log('** results = ' + JSON.stringify(results, null, 2));
 

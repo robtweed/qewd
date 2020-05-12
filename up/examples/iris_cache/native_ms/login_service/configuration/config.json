@@ -1,0 +1,22 @@
+{
+  "qewd_up": true,
+  "ms_name": "login_service",
+  "qewd": {
+    "poolSize": 2,
+    "port": 3001,
+    "database": {
+      "type": "dbx",
+      "params": {
+        "database": "Cache",
+        "path": "C:\\InterSystems\\Cache2015\\Mgr",
+        "username": "_SYSTEM",
+        "password": "SYS",
+        "namespace": "USER"
+      }
+    }
+  },
+  "imported": true,
+  "jwt": {
+    "secret": "f4b5659e-1556-451f-a80f-7afc70ca1f06"
+  }
+}

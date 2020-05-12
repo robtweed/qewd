@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-up: Rapid QEWD API Development                                      |
  |                                                                          |
- | Copyright (c) 2018-19 M/Gateway Developments Ltd,                        |
+ | Copyright (c) 2018-20 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  4 July 2019
+  12 May 2020
 
 */
 
@@ -124,7 +124,12 @@ module.exports = function(ms_name, jwt) {
 
   rootPath = '/opt/qewd/mapped/';
   if (process.env.qewd_service_name) {
-    rootPath = process.cwd() + '/' + process.env.qewd_service_name + '/';
+    if (process.env.qewd_isNative) {
+      rootPath = process.cwd() + '/';
+    }
+    else {
+      rootPath = process.cwd() + '/' + process.env.qewd_service_name + '/';
+    }
   }
 
   if (!this.importMode.config_data) {

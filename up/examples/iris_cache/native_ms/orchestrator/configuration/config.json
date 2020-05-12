@@ -1,0 +1,46 @@
+{
+  "qewd_up": true,
+  "qewd": {
+    "poolSize": 2,
+    "port": 3000,
+    "database": {
+      "type": "dbx",
+      "params": {
+        "database": "Cache",
+        "path": "C:\\InterSystems\\Cache2015\\Mgr",
+        "username": "_SYSTEM",
+        "password": "SYS",
+        "namespace": "USER"
+      }
+    }
+  },
+  "microservices": [
+    {
+      "name": "login_service",
+      "host": "192.168.1.74",
+      "port": 3001,
+      "qewd": {
+        "serverName": "Login MicroService"
+      },
+      "apis": {
+        "import": true,
+        "imported": true
+      }
+    },
+    {
+      "name": "info_service",
+      "host": "192.168.1.74",
+      "port": 3002,
+      "qewd": {
+        "serverName": "Info MicroService"
+      },
+      "apis": {
+        "import": true,
+        "imported": true
+      }
+    }
+  ],
+  "jwt": {
+    "secret": "f4b5659e-1556-451f-a80f-7afc70ca1f06"
+  }
+}
