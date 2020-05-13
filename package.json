@@ -1,9 +1,9 @@
 
 {
   "name": "qewd",
-  "version": "2.50.0",
+  "version": "2.50.2",
   "config": {
-    "date": "12 May 2020"
+    "date": "13 May 2020"
   },
   "description": "Quick and Easy Web Development",
   "main": "index.js",
@@ -21,6 +21,7 @@
     "ewd-qoper8-iris": "",
     "ewd-qoper8-dbx": "",
     "fs-extra": "",
+    "git-clone": "",
     "qewd-router": "",
     "qewd-monitor": "",
     "qewd-transform-json": "",

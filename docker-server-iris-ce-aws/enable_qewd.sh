@@ -29,7 +29,7 @@
 # Install Node.js Using NVM
 
 apt-get update
-apt-get install -y build-essential python-minimal curl subversion
+apt-get install -y build-essential python-minimal curl subversion git
 
 
 if [ -f "/usr/bin/node" ]; then

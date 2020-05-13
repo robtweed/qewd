@@ -1,7 +1,7 @@
 version: '3'
 services:
   iris:
-    image: intersystems/iris-community:2019.4.0.379.0
+    image: store/intersystems/iris-community:2020.1.0.215.0
     container_name: qewd-iris
     ports: 
       - "52773:52773"

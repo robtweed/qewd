@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
- 12 May 2020
+ 13 May 2020
 
 */
 
@@ -161,48 +161,64 @@ function linkMonitor(cwd, name) {
     }
  }
   else {
+
+    let samePath = (process.cwd() + '/www' === webServerRootPath);
+
     var cmd = 'ln -sf ' + process.cwd() + '/node_modules/qewd-monitor/www ' + webServerRootPath + '/qewd-monitor';
     child_process.execSync(cmd, {stdio:[0,1,2]});
+
     cmd = 'ln -sf ' + process.cwd() + '/node_modules/ewd-client/lib/proto/ewd-client.js ' + webServerRootPath + '/ewd-client.js';
     child_process.execSync(cmd, {stdio:[0,1,2]});
-    if (fs.existsSync(process.cwd() + '/www/qewd-client.js')) {
-      cmd = 'ln -sf ' + process.cwd() + '/www/qewd-client.js ' + webServerRootPath + '/qewd-client.js';
-      child_process.execSync(cmd, {stdio:[0,1,2]});
-    }
-    if (fs.existsSync(process.cwd() + '/www/mg-webComponents.js')) {
-      cmd = 'ln -sf ' + process.cwd() + '/www/mg-webComponents.js ' + webServerRootPath + '/mg-webComponents.js';
-      child_process.execSync(cmd, {stdio:[0,1,2]});
-      if (!fs.existsSync(webServerRootPath + '/components')) {
-        fs.mkdirSync(webServerRootPath + '/components');
-      }
-      if (fs.existsSync(process.cwd() + '/www/components/adminui') && !fs.existsSync(webServerRootPath + '/components/adminui')) {
-        fs.mkdirSync(webServerRootPath + '/components/adminui');
-        cmd = 'cp -r ' + process.cwd() + '/www/components/adminui ' + webServerRootPath + '/components';
-        child_process.execSync(cmd, {stdio:[0,1,2]});
-      }
-      if (fs.existsSync(process.cwd() + '/www/components/leaflet') && !fs.existsSync(webServerRootPath + '/components/leaflet')) {
-        fs.mkdirSync(webServerRootPath + '/components/leaflet');
-        cmd = 'cp -r ' + process.cwd() + '/www/components/leaflet ' + webServerRootPath + '/components';
-        child_process.execSync(cmd, {stdio:[0,1,2]});
-      }
-      if (fs.existsSync(process.cwd() + '/www/components/d3') && !fs.existsSync(webServerRootPath + '/components/d3')) {
-        fs.mkdirSync(webServerRootPath + '/components/d3');
-        cmd = 'cp -r ' + process.cwd() + '/www/components/d3 ' + webServerRootPath + '/components';
+
+    if (!samePath) {
+
+      if (fs.existsSync(process.cwd() + '/www/qewd-client.js')) {
+        cmd = 'ln -sf ' + process.cwd() + '/www/qewd-client.js ' + webServerRootPath + '/qewd-client.js';
         child_process.execSync(cmd, {stdio:[0,1,2]});
       }
 
-      if (fs.existsSync(process.cwd() + '/www/qewd-monitor-adminui') && !fs.existsSync(webServerRootPath + '/qewd-monitor-adminui')) {
-        fs.mkdirSync(webServerRootPath + '/qewd-monitor-adminui');
-        cmd = 'cp -r ' + process.cwd() + '/www/qewd-monitor-adminui ' + webServerRootPath;
+      if (fs.existsSync(process.cwd() + '/www/mg-webComponents.js')) {
+        cmd = 'ln -sf ' + process.cwd() + '/www/mg-webComponents.js ' + webServerRootPath + '/mg-webComponents.js';
         child_process.execSync(cmd, {stdio:[0,1,2]});
-        if (!fs.existsSync(cwd + '/qewd-apps/qewd-monitor-adminui')) {
-          fs.mkdirSync(cwd + '/qewd-apps/qewd-monitor-adminui');
-          cmd = 'mv ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps/* ' + cwd + '/qewd-apps/qewd-monitor-adminui';
+
+        if (!fs.existsSync(webServerRootPath + '/components')) {
+          fs.mkdirSync(webServerRootPath + '/components');
+        }
+
+        if (fs.existsSync(process.cwd() + '/www/components/adminui') && !fs.existsSync(webServerRootPath + '/components/adminui')) {
+          fs.mkdirSync(webServerRootPath + '/components/adminui');
+          cmd = 'cp -r ' + process.cwd() + '/www/components/adminui ' + webServerRootPath + '/components';
           child_process.execSync(cmd, {stdio:[0,1,2]});
-          cmd = 'rm -r ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps';
+        }
+
+        if (fs.existsSync(process.cwd() + '/www/components/leaflet') && !fs.existsSync(webServerRootPath + '/components/leaflet')) {
+          fs.mkdirSync(webServerRootPath + '/components/leaflet');
+          cmd = 'cp -r ' + process.cwd() + '/www/components/leaflet ' + webServerRootPath + '/components';
+          child_process.execSync(cmd, {stdio:[0,1,2]});
+        }
+
+        if (fs.existsSync(process.cwd() + '/www/components/d3') && !fs.existsSync(webServerRootPath + '/components/d3')) {
+          fs.mkdirSync(webServerRootPath + '/components/d3');
+          cmd = 'cp -r ' + process.cwd() + '/www/components/d3 ' + webServerRootPath + '/components';
+          child_process.execSync(cmd, {stdio:[0,1,2]});
+        }
+
+        if (fs.existsSync(process.cwd() + '/www/qewd-monitor-adminui') && !fs.existsSync(webServerRootPath + '/qewd-monitor-adminui')) {
+          fs.mkdirSync(webServerRootPath + '/qewd-monitor-adminui');
+          cmd = 'cp -r ' + process.cwd() + '/www/qewd-monitor-adminui ' + webServerRootPath;
           child_process.execSync(cmd, {stdio:[0,1,2]});
         }
       }
+    }
+
+    if (!fs.existsSync(cwd + '/qewd-apps/qewd-monitor-adminui')) {
+      fs.mkdirSync(cwd + '/qewd-apps/qewd-monitor-adminui');
+
+      cmd = 'mv ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps/* ' + cwd + '/qewd-apps/qewd-monitor-adminui';
+      child_process.execSync(cmd, {stdio:[0,1,2]});
+
+      cmd = 'rm -r ' + webServerRootPath + '/qewd-monitor-adminui/qewd-apps';
+      child_process.execSync(cmd, {stdio:[0,1,2]});
     }
   }
 }
