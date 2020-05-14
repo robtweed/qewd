@@ -52,20 +52,30 @@ function git_clone(url, targetDir, callback) {
   let tempDir = process.cwd() + '/temp-' + uuid();
 
   st.on('finish', async function() {
-    await unzip(zipFile, { dir: tempDir });
-    let dir = fs.readdirSync(tempDir)[0];
-    let src = tempDir + '/' + dir;
-    let dirs = fs.readdirSync(src);
-    if (fs.existsSync(targetDir)) {
-      fs.removeSync(targetDir);
-    }  
-    fs.mkdir(targetDir);
-    dirs.forEach(function(dir) {
-      fs.moveSync(src + '/' + dir, targetDir + '/' + dir);
-    });
-    fs.removeSync(tempDir);
-    fs.removeSync(zipFile);
-    if (callback) callback();
+    try {
+      await unzip(zipFile, { dir: tempDir });
+      let dir = fs.readdirSync(tempDir)[0];
+      let src = tempDir + '/' + dir;
+      let dirs = fs.readdirSync(src);
+      if (fs.existsSync(targetDir)) {
+        fs.removeSync(targetDir);
+        fs.mkdirSync(targetDir);
+      }
+      else {
+        fs.mkdirSync(targetDir);
+      }
+      dirs.forEach(function(dir) {
+        fs.moveSync(src + '/' + dir, targetDir + '/' + dir);
+      });
+      fs.removeSync(tempDir);
+      fs.removeSync(zipFile);
+      if (callback) callback();
+    }
+    catch(err) {
+      console.log('Error occurred while cloning ' + url + ' to ' + targetDir);
+      console.log(err);
+    }
+
   });
 }
 
