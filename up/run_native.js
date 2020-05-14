@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  12 May 2020
+  14 May 2020
 
 */
 
@@ -50,7 +50,7 @@ const wc_d3_url = 'https://github.com/robtweed/wc-d3';
 
 const fs = require('fs-extra');
 const run_qewd = require('./run');
-const git_clone = require('git-clone');
+const git_clone = require('./git_clone');
 const https = require('https');
 
 let file;
@@ -91,7 +91,6 @@ if (!fs.existsSync(patha)) {
   installed = false;
   maxToFetch++;
   git_clone(wc_adminui_url, patha, function() {
-    let res = fs.removeSync(patha + '/.git');
     count++;
     if (count === maxToFetch) {
       if (process.argv[2] && process.argv[2] !== '') {
@@ -107,7 +106,6 @@ if (!fs.existsSync(pathb)) {
   installed = false;
   maxToFetch++;
   git_clone(wc_leaflet_url, pathb, function() {
-    fs.removeSync(pathb + '/.git');
     count++;
     if (count === maxToFetch) {
       if (process.argv[2] && process.argv[2] !== '') {
@@ -123,7 +121,6 @@ if (!fs.existsSync(pathc)) {
   installed = false;
   maxToFetch++;
   git_clone(wc_d3_url, pathc, function() {
-    fs.removeSync(pathc + '/.git');
     count++;
     if (count === maxToFetch) {
       if (process.argv[2] && process.argv[2] !== '') {

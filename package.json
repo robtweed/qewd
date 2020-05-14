@@ -1,7 +1,7 @@
 
 {
   "name": "qewd",
-  "version": "2.50.2",
+  "version": "2.50.3",
   "config": {
     "date": "13 May 2020"
   },
@@ -20,8 +20,8 @@
     "ewd-qoper8-redis": "",
     "ewd-qoper8-iris": "",
     "ewd-qoper8-dbx": "",
+    "extract-zip": "",
     "fs-extra": "",
-    "git-clone": "",
     "qewd-router": "",
     "qewd-monitor": "",
     "qewd-transform-json": "",
@@ -31,6 +31,7 @@
     "koa-static": "",
     "module-exists": "",
     "redis": "",
+    "request": "",
     "socket.io": "",
     "socket.io-client": ""
   },
