@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 May 2020
+  26 May 2020
 
 */
 
@@ -156,20 +156,28 @@ if (process.platform === 'win32' && !fs.existsSync(dbx_node_file)) {
   if (url) {
     file = fs.createWriteStream(dbx_node_file);
     request = https.get(url, function(response) {
-      response.pipe(file);
-      console.log('mg-dbx installed');
-      count++;
-      if (count === maxToFetch) {
-        if (process.argv[2] && process.argv[2] !== '') {
-          return run_qewd(null, process.argv[2], true);
+      let st = response.pipe(file);
+
+      st.on('finish', function() {
+        console.log('mg-dbx installed');
+
+        let install_sql = require('./install_sql');
+        install_sql();
+
+        count++;
+        if (count === maxToFetch) {
+          if (process.argv[2] && process.argv[2] !== '') {
+            return run_qewd(null, process.argv[2], true);
+          }
+          run_qewd();
         }
-        run_qewd();
-      }
+      });
     });
   }
   else {
     console.log('Node.js version ' + version + 'is not supported by QEWD');
   }
+
 }
 
 if (installed) {
