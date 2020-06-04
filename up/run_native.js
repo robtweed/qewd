@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  26 May 2020
+  3 June 2020
 
 */
 
@@ -58,6 +58,12 @@ let request;
 let url;
 let path;
 
+function exit_process() {
+  console.log('\n*** Installation Completed.  QEWD will halt ***');
+  console.log('*** Please restart QEWD again using "npm start" \n');
+  process.exit();
+}
+
 if (!fs.existsSync(www_path)) {
   fs.mkdirSync(www_path);
 }
@@ -85,6 +91,7 @@ if (!fs.existsSync(components_path)) {
 let installed = true;
 let maxToFetch = 0;
 let count = 0;
+let halt;
 
 let patha = components_path + '/adminui';
 if (!fs.existsSync(patha)) {
@@ -93,10 +100,13 @@ if (!fs.existsSync(patha)) {
   git_clone(wc_adminui_url, patha, function() {
     count++;
     if (count === maxToFetch) {
+      exit_process();
+      /*
       if (process.argv[2] && process.argv[2] !== '') {
         return run_qewd(null, process.argv[2], true);
       }
       run_qewd();
+      */
     }
   });
 }
@@ -108,10 +118,13 @@ if (!fs.existsSync(pathb)) {
   git_clone(wc_leaflet_url, pathb, function() {
     count++;
     if (count === maxToFetch) {
+      exit_process();
+      /*
       if (process.argv[2] && process.argv[2] !== '') {
         return run_qewd(null, process.argv[2], true);
       }
       run_qewd();
+      */
     }
   });
 }
@@ -123,10 +136,13 @@ if (!fs.existsSync(pathc)) {
   git_clone(wc_d3_url, pathc, function() {
     count++;
     if (count === maxToFetch) {
+      exit_process();
+      /*
       if (process.argv[2] && process.argv[2] !== '') {
         return run_qewd(null, process.argv[2], true);
       }
       run_qewd();
+      */
     }
   });
 }
@@ -138,10 +154,13 @@ if (!fs.existsSync(qm_adminui_path)) {
     fs.moveSync(qm_adminui_path + '/qewd-apps', qm_adminui_qewd_apps_path);
     count++;
     if (count === maxToFetch) {
+      exit_process();
+      /*
       if (process.argv[2] && process.argv[2] !== '') {
         return run_qewd(null, process.argv[2], true);
       }
       run_qewd();
+      */
     }
   });
 }
@@ -166,10 +185,13 @@ if (process.platform === 'win32' && !fs.existsSync(dbx_node_file)) {
 
         count++;
         if (count === maxToFetch) {
+          exit_process();
+          /*
           if (process.argv[2] && process.argv[2] !== '') {
             return run_qewd(null, process.argv[2], true);
           }
           run_qewd();
+          */
         }
       });
     });
