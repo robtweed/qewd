@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-server: Start-up file for Dockerised version of QEWD                |
  |                                                                          |
- | Copyright (c) 2017-19 M/Gateway Developments Ltd,                        |
+ | Copyright (c) 2017-20 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 November 2019
+  17 June 2020
 
 */
 
@@ -256,6 +256,8 @@ if (config.database && (config.database.type === 'gtm' || (config.database.type 
     var updateScript = '/opt/qewd/' + updateScriptName;
     child_process.execSync(updateScript, {stdio:[0,1,2]});
   }
+
+  child_process.execSync('service xinetd start', {stdio:[0,1,2]});
 
 }
 

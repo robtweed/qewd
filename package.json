@@ -1,9 +1,9 @@
 
 {
   "name": "qewd",
-  "version": "2.50.6",
+  "version": "2.51.0",
   "config": {
-    "date": "3 June 2020"
+    "date": "9 July 2020"
   },
   "description": "Quick and Easy Web Development",
   "main": "index.js",
@@ -25,6 +25,7 @@
     "qewd-router": "",
     "qewd-monitor": "",
     "qewd-transform-json": "",
+    "qoper8-wt": "",
     "koa": "",
     "koa-better-router": "",
     "koa-bodyparser": "",

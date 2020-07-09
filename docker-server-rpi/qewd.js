@@ -266,6 +266,8 @@ if (config.database && (config.database.type === 'gtm' || (config.database.type 
     child_process.execSync(updateScript, {stdio:[0,1,2]});
   }
 
+  child_process.execSync('service xinetd start', {stdio:[0,1,2]});
+
 }
 
 // ready to start QEWD now

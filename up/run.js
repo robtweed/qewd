@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
- 13 May 2020
+ 2 July 2020
 
 */
 
@@ -474,7 +474,8 @@ function setup(isDocker, service_name, isNative) {
     cors: '=> either(qewd.cors, true)',
     bodyParser: '=> getBodyParser(qewd.bodyParser)',
     mode: '=> either(qewd.mode, "production")',
-    max_queue_length: '{<qewd.max_queue_length>}'
+    max_queue_length: '{<qewd.max_queue_length>}',
+    use_worker_threads: '{<qewd.use_worker_threads>}'
   };
 
   var config;

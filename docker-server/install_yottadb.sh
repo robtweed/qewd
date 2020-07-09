@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 25 November 2019
+# 17 June 2020
 
 # YottaDB
 
@@ -49,6 +49,7 @@ echo 'Setting up local internal, unjournalled region for QEWD Session global'
 /usr/local/lib/yottadb/$ydbver/mumps -run ^GDE < /opt/qewd/gde.txt
 /usr/local/lib/yottadb/$ydbver/mupip create -region=qewdreg
 /usr/local/lib/yottadb/$ydbver/mupip set -file -nojournal /opt/qewd/sessiondb/qewd.dat
+/usr/local/lib/yottadb/$ydbver/mupip set -key_size=1019 -region qewdreg
 
 # Install and configure mgsql routines and QEWD's interface to them
 
@@ -57,11 +58,32 @@ cp /opt/qewd/mgsql/* /root/.yottadb/$ydbversion$platform/r
 /usr/local/lib/yottadb/$ydbver/mumps -run ylink^%mgsql
 rm -r /opt/qewd/mgsql
 
+echo 'mgsql has been installed'
+echo ' '
+
+# Install and configure the M interface routines for mg-dbx
+
+svn export https://github.com/chrisemunt/mg-dbx/trunk/yottadb /opt/qewd/mgsi
+cp /opt/qewd/mgsi/* /root/.yottadb/$ydbversion$platform/r
+/usr/local/lib/yottadb/$ydbver/mumps -run ylink^%zmgsi
+rm -r /opt/qewd/mgsi
+
 cp /opt/qewd/node_modules/qewd-mg-dbx/ci/qewd.ci /usr/local/lib/yottadb/$ydbver
 cp /opt/qewd/node_modules/qewd-mg-dbx/ci/qewdInterface.m /root/.yottadb/$ydbversion$platform/r
 
-echo 'mgsql has been installed'
+echo 'zmgsi has been installed'
 echo ' '
+
+# Set up optional xinetd network interface for mg-dbx
+
+cp /opt/qewd/node_modules/qewd-mg-dbx/xinetd/zmgsi_ydb /usr/local/lib/yottadb/$ydbver
+cp /opt/qewd/node_modules/qewd-mg-dbx/xinetd/zmgsi_xinetd /etc/xinetd.d/zmgsi_xinetd
+
+echo "zmgsi_xinetd          7041/tcp                        # zmgsi" >> /etc/services
+
+echo 'Optional xinetd interface for mg-dbx has been installed'
+echo ' '
+
 echo 'YottaDB has been installed and configured, ready for use'
 
 cd /opt/qewd
