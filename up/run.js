@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
- 2 July 2020
+ 16 July 2020
 
 */
 
@@ -209,6 +209,10 @@ function linkMonitor(cwd, name) {
           child_process.execSync(cmd, {stdio:[0,1,2]});
         }
       }
+    }
+
+    if (!fs.existsSync(cwd + '/qewd-apps')) {
+      fs.mkdirSync(cwd + '/qewd-apps');
     }
 
     if (!fs.existsSync(cwd + '/qewd-apps/qewd-monitor-adminui')) {
@@ -475,7 +479,8 @@ function setup(isDocker, service_name, isNative) {
     bodyParser: '=> getBodyParser(qewd.bodyParser)',
     mode: '=> either(qewd.mode, "production")',
     max_queue_length: '{<qewd.max_queue_length>}',
-    use_worker_threads: '{<qewd.use_worker_threads>}'
+    use_worker_threads: '{<qewd.use_worker_threads>}',
+    sessionDocumentName: '{<qewd.sessionDocumentName>}'
   };
 
   var config;
