@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
- 16 July 2020
+ 12 August 2020
 
 */
 
@@ -513,6 +513,13 @@ function setup(isDocker, service_name, isNative) {
   if (fs.existsSync(addMiddlewarePath)) {
     config.addMiddlewareUp = require(addMiddlewarePath);
   }
+
+  var onWorkerStartedPath = cwd + '/onWorkerStarted.js';
+  console.log('Checking for onWorkerStarted path: ' + onWorkerStartedPath);
+  if (fs.existsSync(onWorkerStartedPath)) {
+    config.onWorkerStartedPath = onWorkerStartedPath;
+  }
+
   config.qewd_up = true;
   config.permit_application_switch = config_data.permit_application_switch;
 
