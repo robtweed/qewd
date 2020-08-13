@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
- 12 August 2020
+ 13 August 2020
 
 */
 
@@ -514,10 +514,27 @@ function setup(isDocker, service_name, isNative) {
     config.addMiddlewareUp = require(addMiddlewarePath);
   }
 
-  var onWorkerStartedPath = cwd + '/onWorkerStarted.js';
+  var onWorkerStartedPath;
+  var onWorkerStartedPath2;
+  var ms_name = process.env.microservice;
+
+  if (ms_name) {
+    onWorkerStartedPath = cwd + '/' + ms_name + '/onWorkerStarted.js';
+  }
+  else {
+    onWorkerStartedPath = cwd + '/orchestrator/onWorkerStarted.js';
+    onWorkerStartedPath2 = cwd + '/onWorkerStarted.js';
+  }
+
   console.log('Checking for onWorkerStarted path: ' + onWorkerStartedPath);
   if (fs.existsSync(onWorkerStartedPath)) {
     config.onWorkerStartedPath = onWorkerStartedPath;
+  }
+  else if (onWorkerStartedPath2) {
+    console.log('Checking for onWorkerStarted path: ' + onWorkerStartedPath2);
+    if (fs.existsSync(onWorkerStartedPath2)) {
+      config.onWorkerStartedPath = onWorkerStartedPath2;
+    }
   }
 
   config.qewd_up = true;

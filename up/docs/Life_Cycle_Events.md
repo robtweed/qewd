@@ -9,6 +9,7 @@
 - [Life-Cycle Hook Specifications](#life-cycle-hook-specifications)
   - [addMiddleware](#addmiddleware)
   - [onStarted](#onstarted)
+  - [onWorkerStarted](#onWorkerstarted)
   - [onWSRequest](#onwsrequest)
   - [onWorkerLoad](#onWorkerLoad)
   - [beforeHandler](#beforehandler)
@@ -55,7 +56,14 @@ Finally, the Master process sends the JSON response to the REST Client.  By defa
 
 - **addMiddleware**: triggered during QEWD's Master process startup, just after its integrated Web Server (Express by default) is configured.  This hook allows you to customise the Web Server middleware, eg to handle XML, set payload size limits etc.  It can optionally be used together with the **config.json** file's *qewd.bodyParser* property to customise, replace or override the standard JSON body parsing.
 
-- **onStarted**: triggered after QEWD's Master process starts and before any APIs are allowed to be handled.  It gives you access to QEWD's *this* object and can be used for complex situations, for example where you want to integrate QEWD with a third-party module that provides a turnkey server environment.  You can often use this kook instead of the **addMiddleware** one, as it also gives you access to the Web Server's *app* object.  This hook is invoked in QEWD's Master process.
+- **onStarted**: triggered after QEWD's Master process starts and before any APIs are allowed to be handled.  It gives you access to QEWD's *this* object and can be used for complex situations, for example where you want to integrate QEWD with a third-party module that provides a turnkey server environment.  You can often use this hook instead of the **addMiddleware** one, as it also gives you access to the Web Server's *app* object.  This hook is invoked in QEWD's Master process.
+
+- **onWorkerStarted**: triggered whenever a new Worker process is started and before any APIs are allowed to be handled. 
+ It gives you access to QEWD's *this* object and can be used for example, to:
+  - specify any QEWD message types that should not be logged to the console;
+  - define environment variables within the Worker process
+
+  This hook is invoked in a newly-started Worker process.
 
 - **onWSRequest**: triggered as part of your Web Server's Middleware chain, before each incoming API request is routed to its appropriate handler method.  Its usual purpose is to allow you to modify some aspect(s) of the incoming request, for example modifying and/or adding HTTP headers, and/or modifying the request payload.  This hook is invoked in the QEWD Master process, before the incoming request is queued, and applies to **ALL** incoming requests.
 
@@ -119,6 +127,13 @@ On receipt of the response from another MicroService, the *Orchestrator* returns
 
 
 #### Request forwarded from Orchestrator Received by Handling MicroService
+
+- **onWorkerStarted**: triggered whenever a new Worker process is started and before any APIs or messages are allowed to be handled. 
+ It gives you access to QEWD's *this* object and can be used for example, to:
+  - specify any QEWD message types that should not be logged to the console;
+  - define environment variables within the Worker process
+
+  This hook is invoked in a newly-started Worker process.
 
 - **onWorkerLoad**: triggered when a new QEWD Worker process starts and loads the generated Application Module that contains all your application's handler modules.  A typical use for this event hook is to load one or more third-party Node.js modules that should be available to all your handler modules.
 
@@ -373,6 +388,82 @@ Note that for the above to work, you'd need to include *cors* in your *install_m
       ]
 
 QEWD-Up will ensure that this is loaded from NPM before starting QEWD.
+
+
+
+## onWorkerStarted
+
+### Filename and Directory location
+
+The filename is **onWorkerStarted.js**.  Its name is case-sensitive.
+
+Its placement depends on what mode you are using and/or microservice you are specifying it for
+
+#### Monolith
+
+        ~/dockerExample
+            |
+            |_ onWorkerStarted.js
+            |
+            |_ configuration
+            |
+            |_ apis
+            |
+
+#### MicroService: Orchestrator
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ orchestrator
+            |         |
+            |         |_ onWorkerStarted.js
+
+
+#### MicroService: Other Microservice
+
+*eg* for a MicroService named *login_service*:
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |         |
+            |         |_ onWorkerStarted.js
+
+
+### Module structure
+
+Your *onWorkerStarted.js* file should export a function of the structure shown below:
+
+      module.exports = function() {
+        // perform startup tasks within Worker process
+      };
+
+### Module Function Context
+
+The **this** object within your *onWorkerStarted* module is the QEWD Worker Process object, 
+so you have access to all its properties and method.
+
+### Module Function Arguments
+
+This hook method has no arguments.
+
+
+### Example
+
+In the example below:
+
+- QEWD message types of 'login' and 'viewUser' are prevented from appearing in QEWD's Node.js console log
+- an environment variable named QEWD_PATH is created in every Worker Process that is started
+
+      module.exports = function() {
+        this.dontLog(['login', 'viewUser']);
+        process.env.QEWD_PATH = '/home/ubuntu/qewd';
+      };
+
 
 
 ## onWSRequest

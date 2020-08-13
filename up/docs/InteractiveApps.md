@@ -21,6 +21,9 @@
     - [Intermediate Messages](#intermediate-messages)
 - [Life-Cycle Event Hooks](#life-cycle-event-hooks)
   - [The Life-Cycle of an Interactive QEWD Application](#the-life-cycle-of-an-interactive-qewd-application)
+  - [addMiddleware](#addmiddleware)
+  - [onStarted](#onstarted)
+  - [onWorkerStarted](#onWorkerstarted)
   - [onLoad](#onload)
   - [beforeHandler](#beforehandler)
   - [onResponse](#onresponse)
@@ -884,6 +887,21 @@ For many interactive QEWD Applications, the functionality provided by the *ewd-c
 
 In order to make best use of these Life-Cycle Event Hooks, you need to fully understand the complete life-cycle of a QEWD Application and its handling of messages.  [This slide-deck](https://www.slideshare.net/robtweed/ewd-3-training-course-part-8-anatomy-of-the-ewdxpress-messaging-cycle) describes the life-cycle diagrammatically, but it is also described below in detail.
 
+
+## When you start up QEWD
+
+You can customise your QEWD environment when it is first started by using the following hooks:
+
+- **addMiddleware**: triggered during QEWD's Master process startup, just after its integrated Web Server 
+ (Express by default) is configured.  This hook allows you to customise the Web Server middleware.
+
+- **onStarted**: triggered after QEWD's Master process starts and before any APIs or messages are allowed to be handled.  
+ It gives you access to QEWD's *this* object and can be used for complex situations, for example where you want to 
+ integrate QEWD with a third-party module that provides a turnkey server environment.  You can often use this hook 
+ instead of the **addMiddleware** one, as it also gives you access to the Web Server's *app* object.  
+ This hook is invoked in QEWD's Master process.
+
+
 ## The Life-Cycle of an Interactive QEWD Application
 
 1. The Life-Cycle starts when an instance of the *ewd-client* module registers an application.  This has been [explained in detail earlier](#application-registration).  In summary:
@@ -893,7 +911,9 @@ In order to make best use of these Life-Cycle Event Hooks, you need to fully und
 
 2. A message is sent from a browser using the *ewd-client's send()* method.  The *send()* method always automatically adds the QEWD Session token to the message behind the scenes.
 
-3. The message is received by the QEWD back-end, queued and dispatched to an available Worker process
+3. The message is received by the QEWD back-end, queued and dispatched to an available Worker process.  If a worker process
+is unavailable and the Worker *poolsize* limit has not yet been reached, the QEWD master process will start a new Worker
+process.
 
 4. The QEWD Worker process performs a number of initial tests:
   - does the message include a token?  If not, an error message is returned immediately to the browser, the message is discarded without any further processing and the Worker process returned to QEWD's Available Worker Pool
@@ -920,6 +940,14 @@ In order to make best use of these Life-Cycle Event Hooks, you need to fully und
 
 Within this Life-Cycle, there are three points at which you can intercept the process and customise/augment the processing.  This is done via the three Life-Cycle Event Hooks that you have available:
 
+- **onWorkerStarted**: triggered whenever a new Worker process is started and before any APIs are allowed to be handled
+ (step 3 above). 
+ It gives you access to QEWD's *this* object and can be used for example, to:
+  - specify any QEWD message types that should not be logged to the console;
+  - define environment variables within the Worker process
+
+  This hook is invoked in a newly-started Worker process.
+
 - **onLoad**: triggered during step 6 above, when a QEWD Worker process first loads the *application handler module* for the application to which an incoming message belongs.  This is a fairly specialised event hook, but can be useful for augmenting the context environment for all of an application's *message handler functions*.
 
 - **beforeHandler**: triggered at step 9 above, within the QEWD Worker process.  This hoow is applied to *all* of the messages for a specific QEWD application, **before** they are handled by their appropriate *message handler function*.  A typical use for this hook is to carry out some processing that should apply to all, if not most, of an application's message *types*: for example, ensuring that the user has been authenticated before allowing the *type*-specific *message handler function* to be invoked, and returning an error response if not.
@@ -927,6 +955,293 @@ Within this Life-Cycle, there are three points at which you can intercept the pr
 - **onResponse**: triggered between steps 11 and 12 above, and invoked on the QEWD Master process when it receives the response object returned by the *message handler function's finished()* method, but before it sends it to the browser.  This event hook is message *type*-specific.  A typical use of this hook is to trigger one or more further messages to be generated on the QEWD back-end that perform other tasks in the background, whilst the primary response is returned to the browser.  This hook can therefore be used to prevent QEWD Worker Processes being unnecessarily tied up.
 
 Each of these Life-Cycle Event Hooks are described in more detail below:
+
+## addMiddleware
+
+### Location
+
+The filename is **addMiddleware.js**.  The name is case-sensitive.
+
+Its placement depends on what mode you are using and/or microservice you are specifying it for
+
+#### Monolith
+
+        ~/dockerExample
+            |
+            |_ addMiddleware.js
+            |
+            |_ configuration
+            |
+            |_ apis
+            |
+
+#### MicroService: Orchestrator
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ orchestrator
+            |         |
+            |         |_ addMiddleware.js
+
+
+#### MicroService: Other Microservice
+
+*eg* for a MicroService named *login_service*:
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |         |
+            |         |_ addMiddleware.js
+
+
+### Signature
+
+Your *addModule.js* file should export a function of the structure shown below:
+
+      module.exports = function(bodyParser, app, qewdRouter, config) {
+        // add/ define / configure your WebServer middleware
+      };
+
+### Arguments
+
+#### bodyParser
+
+This is the bodyParser object that has been loaded and configured for the Web Server.  By default, QEWD uses the *body-parser* module and configures it to handle and parse JSON content.
+
+if you want to use the *body-parser* module, but apply different/additional configuration settings to it, then, in your *config.json* file, use the property *qewd.bodyParser* to specify it.
+
+For example, in Monolith mode: 
+
+      {
+        "qewd_up": true,
+        "qewd": {
+          "bodyParser": "body-parser"
+        }
+      }
+
+or in the Orchestrator MicroService: 
+
+      {
+        "qewd_up": true,
+        "orchestrator": {
+          "qewd": {
+            "bodyParser": "body-parser"
+          }
+        }
+      }
+
+This will stop QEWD from configuring it automatically.
+
+If you want to use a different bodyParser module, then you must first specify it in your *config.json* file, eg:
+
+      {
+        "qewd_up": true,
+        "qewd": {
+          "bodyParser": "body-parse"
+        }
+      }
+
+and then configure it within your *addMiddleware** module.
+
+
+#### app
+
+This is the WebServer (eg Express) object.  You can use this to, for example, specify your own custom *app.use* directives.
+
+For example, here is an *addMiddleware* module that configures payload size limits (assuming *qewd.bodyParser* was specified in the *config.json* file):
+
+
+      module.exports = function(bodyParser, app) {
+        app.use(bodyParser.json({limit: '1mb'}));
+        app.use(bodyParser.urlencoded({limit: '1mb', extended: true}));
+      };
+
+#### qewdRouter
+
+This is QEWD's REST API routing function. If you are only using QEWD for interactive applications, you
+are unlikely to use this argument.
+
+
+#### config
+
+This is the *config* object that contains your QEWD instance's configuration settings.  It can be useful for conditional logic, for example that determines the configured database type, eg:
+
+      module.exports = function(bodyParser, app, qewdRouter, config) {
+        if (config.database.type === 'gtm') {
+          // ... etc
+        }
+      };
+
+You can modify the values within the config object, but you should take care doing this.  Note that by the time the *addMiddleware* hook is invoked, changing some *config* properties may not have any effect.  You should try to set the values you require within the *qewd* property in the relevant part of your *config.json* file.
+
+
+## onStarted
+
+### Location
+
+The filename is **onStarted.js**.  Its name is case-sensitive.
+
+Its placement depends on what mode you are using and/or microservice you are specifying it for
+
+#### Monolith
+
+        ~/dockerExample
+            |
+            |_ onStarted.js
+            |
+            |_ configuration
+            |
+            |_ apis
+            |
+
+#### MicroService: Orchestrator
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ orchestrator
+            |         |
+            |         |_ onStarted.js
+
+
+#### MicroService: Other Microservice
+
+*eg* for a MicroService named *login_service*:
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |         |
+            |         |_ onStarted.js
+
+
+### Signature
+
+Your *onStarted.js* file should export a function of the structure shown below:
+
+      module.exports = function(config, app, qewdRouter) {
+        // perform startup tasks
+      };
+
+### Context
+
+The **this** object within your *onStarted* module is the QEWD Master Process object, so you have access to all its properties and method.
+
+### Arguments
+
+#### config
+
+This is the *config* object that contains your QEWD instance's configuration settings.  It can be useful for conditional logic, for example that determines the configured database type, eg:
+
+      module.exports = function(config) {
+        if (config.database.type === 'gtm') {
+          // ... etc
+        }
+      };
+
+You can modify the values within the config object, but you should take care doing this.  Note that by the time the *onStarted* hook is invoked, changing some *config* properties is unlikely to have any effect, as most of the startup actions that depend on them will have already taken place.  You should try to set the values you require within the *qewd* property in the relevant part of your *config.json* file.
+
+
+#### app
+
+This is the WebServer (eg Express) object.  You can use this to, for example, specify your own custom *app.use* directives.
+
+For example, here is an *addMiddleware* module that configures payload size limits (assuming *qewd.bodyParser* was specified in the *config.json* file):
+
+
+      module.exports = function(config, app) {
+        app.use(bodyParser.json({limit: '1mb'}));
+        app.use(bodyParser.urlencoded({limit: '1mb', extended: true}));
+      };
+
+#### qewdRouter
+
+This is QEWD's REST API routing function.  If you are using QEWD only for interactive applications, you
+are unlikely to use this argument.
+
+
+
+## onWorkerStarted
+
+### Location
+
+The filename is **onWorkerStarted.js**.  Its name is case-sensitive.
+
+Its placement depends on what mode you are using and/or microservice you are specifying it for
+
+#### Monolith
+
+        ~/dockerExample
+            |
+            |_ onWorkerStarted.js
+            |
+            |_ configuration
+            |
+            |_ apis
+            |
+
+#### MicroService: Orchestrator
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ orchestrator
+            |         |
+            |         |_ onWorkerStarted.js
+
+
+#### MicroService: Other Microservice
+
+*eg* for a MicroService named *login_service*:
+
+        ~/microserviceExample
+            |
+            |_ configuration
+            |
+            |_ login_service
+            |         |
+            |         |_ onWorkerStarted.js
+
+
+### Signature
+
+Your *onWorkerStarted.js* file should export a function of the structure shown below:
+
+      module.exports = function() {
+        // perform startup tasks within Worker process
+      };
+
+### Arguments
+
+This hook method has no arguments.
+
+### Context
+
+The **this** object within your *onWorkerStarted* module is the QEWD Worker Process object, 
+so you have access to all its properties and method.
+
+
+### Example Use
+
+In the example below:
+
+- QEWD message types of 'login' and 'viewUser' are prevented from appearing in QEWD's Node.js console log
+- an environment variable named QEWD_PATH is created in every Worker Process that is started
+
+      module.exports = function() {
+        this.dontLog(['login', 'viewUser']);
+        process.env.QEWD_PATH = '/home/ubuntu/qewd';
+      };
+
 
 ## onLoad
 
