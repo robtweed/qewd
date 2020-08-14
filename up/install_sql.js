@@ -49,8 +49,10 @@ module.exports = function(callback) {
   let filename;
   let url = 'https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/m/zmgsi';
   if (platform === 'iris') {
-    url = url + '_iris.xml';
-    filename = 'temp.xml';
+    //url = url + '_iris.xml';
+    //filename = 'temp.xml';
+    url = url + '_isc.ro';
+    filename = 'temp.ro';
   }
   else {
     url = url + '_isc.ro';
