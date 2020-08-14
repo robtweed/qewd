@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  3 June 2020
+  14 August 2020
 
 */
 
@@ -181,18 +181,15 @@ if (process.platform === 'win32' && !fs.existsSync(dbx_node_file)) {
         console.log('mg-dbx installed');
 
         let install_sql = require('./install_sql');
-        install_sql();
-
-        count++;
-        if (count === maxToFetch) {
-          exit_process();
-          /*
-          if (process.argv[2] && process.argv[2] !== '') {
-            return run_qewd(null, process.argv[2], true);
-          }
-          run_qewd();
-          */
-        }
+        // need to allow a bit of time for mg-dbx module to be ready for use
+        setTimeout(function() {
+          install_sql(function() {
+            count++;
+            if (count === maxToFetch) {
+              exit_process();
+            }
+          });
+        }, 2000);
       });
     });
   }

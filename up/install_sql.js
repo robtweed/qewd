@@ -24,13 +24,13 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  26 May 2020
+  14 August 2020
 
   Windows / IRIS/Cache: Installs the mg-dbx SQL interface
 
 */
 
-module.exports = function() {
+module.exports = function(callback) {
   let https = require('https');
   let fs = require('fs-extra');
   let qewd_mg_dbx = require('qewd-mg-dbx');
@@ -76,6 +76,7 @@ module.exports = function() {
       }
       fs.removeSync(filename);
       db.close();
+      if (callback) callback();
     });
   });
 };
