@@ -68,17 +68,20 @@ module.exports = function(callback) {
     let st = response.pipe(file);
   
     st.on('finish', function() {
-      try {
-        let result = db.dbx.classmethod('%SYSTEM.OBJ', 'Load', filename, 'ck');
-        console.log('mg-dbx SQL interface installed: ' + result);
-      }
-      catch(err) {
-        console.log('Error trying to install the mg-dbx SQL Interface:');
-        console.log(err);
-      }
-      fs.removeSync(filename);
-      db.close();
-      if (callback) callback();
+      // give it a couple of seconds to make file available for use
+      setTimeout(function() {
+        try {
+          let result = db.dbx.classmethod('%SYSTEM.OBJ', 'Load', filename, 'ck');
+          console.log('mg-dbx SQL interface installed: ' + result);
+        }
+        catch(err) {
+          console.log('Error trying to install the mg-dbx SQL Interface:');
+          console.log(err);
+        }
+        fs.removeSync(filename);
+        db.close();
+        if (callback) callback();
+      }, 2000);
     });
   });
 };

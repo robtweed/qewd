@@ -3,7 +3,7 @@
  ----------------------------------------------------------------------------
  | qewd-up: Rapid QEWD API Development                                      |
  |                                                                          |
- | Copyright (c) 2018-19 M/Gateway Developments Ltd,                        |
+ | Copyright (c) 2018-20 M/Gateway Developments Ltd,                        |
  | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  11 November 2019
+  29 September 2020
 
 */
 
@@ -214,12 +214,14 @@ module.exports = {
       var statusCode = errorResponse.statusCode || 404;
       var text = errorResponse.text || 'Not Found';
       router.setErrorResponse(statusCode, text);
-      this.setCustomErrorResponse.call(this, {
-        application: application,
-        errorType: 'noTypeHandler',
-        text: text,
-        statusCode: statusCode
-      });
+      if (!isMaster) {
+        this.setCustomErrorResponse.call(this, {
+          application: application,
+          errorType: 'noTypeHandler',
+          text: text,
+          statusCode: statusCode
+        });
+      }
     }
     module.exports.workerResponseHandlers = workerResponseHandler;
 
