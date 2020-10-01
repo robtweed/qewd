@@ -468,6 +468,7 @@ function setup(isDocker, service_name, isNative) {
     serverName: '=> either(qewd.serverName, "QEWD Server")',
     port: '=> either(qewd.port, 8080)',
     poolSize: '=> either(qewd.poolSize, 2)',
+    poolPrefork: '=> either(qewd.poolPrefork, false)',
     database: {
       type: '=> either(qewd.database.type, default_db)',
       params: '=> either(qewd.database.params, "<!delete>")',
@@ -475,6 +476,7 @@ function setup(isDocker, service_name, isNative) {
     webServer: '{<qewd.webServer>}',
     ssl: '{<qewd.ssl>}',
     webServerRootPath: webServerRootPath,
+    webSockets: '{<qewd.webSockets>}',
     cors: '=> either(qewd.cors, true)',
     bodyParser: '=> getBodyParser(qewd.bodyParser)',
     mode: '=> either(qewd.mode, "production")',
