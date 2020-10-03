@@ -891,6 +891,9 @@ function setup(isDocker, service_name, isNative) {
   }
   else {
     // native app
+	if (config_data.jwt && config_data.jwt.secret) {
+		config.jwt = Object.assign({}, config_data.jwt); // prevent it being simply by reference
+	}
     createModuleMap(cwd, config);
   }
 
