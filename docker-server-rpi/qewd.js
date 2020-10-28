@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  22 November 2019
+  23 October 2020
 
 */
 
@@ -33,11 +33,11 @@ var module_exists = require('module-exists');
 var child_process = require('child_process');
 var qewd = require('qewd');
 
-const gtm_version =  'V6.3-007';
-const ydb_versionp = 'r1.28';
-const ydb_version =  'r128';
+const gtm_version =  'V6.3-008';
+const ydb_versionp = 'r1.30';
+const ydb_version =  'r130';
 const ydb_arch =     'armv7l';
-const updateScriptName = 'update_to_r128';
+const updateScriptName = 'update_to_r130';
 
 function setEnv(params) {
   for (var name in params) {
@@ -185,10 +185,8 @@ if (config.database && (config.database.type === 'gtm' || (config.database.type 
         gtmver: gtm_path,
         ydb_rel: ydb_path,
         gtmgbldir: '/root/.yottadb/' + ydb_path + '/g/yottadb.gld',
-        ydb_routines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/' + ydb_path + '/o*(/root/.yottadb/' + ydb_path + '/r /root/.yottadb/r) /usr/local/lib/yottadb/' + ydb_version + '/libyottadbutil.so',
-        gtmroutines: '/opt/qewd/node_modules/nodem/src /root/.yottadb/' + ydb_path + '/o*(/root/.yottadb/' + ydb_path + '/r /root/.yottadb/r) /usr/local/lib/yottadb/' + ydb_version + '/libyottadbutil.so',
-        GTMCI: '/opt/qewd/node_modules/nodem/resources/nodem.ci',
-        ydb_ci: '/opt/qewd/node_modules/nodem/resources/nodem.ci',
+        ydb_routines: '/root/.yottadb/' + ydb_path + '/o*(/root/.yottadb/' + ydb_path + '/r /root/.yottadb/r) /usr/local/lib/yottadb/' + ydb_version + '/libyottadbutil.so',
+        gtmroutines: '/root/.yottadb/' + ydb_path + '/o*(/root/.yottadb/' + ydb_path + '/r /root/.yottadb/r) /usr/local/lib/yottadb/' + ydb_version + '/libyottadbutil.so',
         gtmdir: '/root/.fis-gtm',
         gtm_etrap: 'Write:(0=$STACK) "Error occurred: ",$ZStatus,!',
         ydb_tmp: '/tmp/yottadb/' + ydb_path,
@@ -209,12 +207,14 @@ if (config.database && (config.database.type === 'gtm' || (config.database.type 
 
     // workaround NPM5 bug
 
+    /*
     try {
       var nm = require('nodem');
     }
     catch(err) { 
       installModule('nodem@0.14.2');
     }
+    */
   }
 
   // rundown the default region database (all globals except CacheTempEWDSession)

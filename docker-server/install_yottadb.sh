@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# 17 June 2020
+# 24 October 2020
 
 # YottaDB
 
-ydbver="r128"
-ydbversion="r1.28"
+ydbver="r130"
+ydbversion="r1.30"
 platform="_x86_64"
 
 echo "Installing YottaDB $ydbversion"
@@ -63,8 +63,8 @@ echo ' '
 
 # Install and configure the M interface routines for mg-dbx
 
-svn export https://github.com/chrisemunt/mg-dbx/trunk/yottadb /opt/qewd/mgsi
-cp /opt/qewd/mgsi/* /root/.yottadb/$ydbversion$platform/r
+git clone https://github.com/chrisemunt/mgsi /opt/qewd/mgsi
+cp /opt/qewd/mgsi/yottadb/* /root/.yottadb/$ydbversion$platform/r
 /usr/local/lib/yottadb/$ydbver/mumps -run ylink^%zmgsi
 rm -r /opt/qewd/mgsi
 
@@ -79,6 +79,12 @@ echo ' '
 cp /opt/qewd/node_modules/qewd-mg-dbx/xinetd/zmgsi_ydb /usr/local/lib/yottadb/$ydbver
 cp /opt/qewd/node_modules/qewd-mg-dbx/xinetd/zmgsi_xinetd /etc/xinetd.d/zmgsi_xinetd
 
+# Need to edit 1.28 to 1.30
+
+sed -i 's/128/130/g' /etc/xinetd.d/zmgsi_xinetd
+sed -i 's/128/130/g' /usr/local/lib/yottadb/$ydbver/zmgsi_ydb
+sed -i 's/1.28/1.30/g' /usr/local/lib/yottadb/$ydbver/zmgsi_ydb
+
 echo "zmgsi_xinetd          7041/tcp                        # zmgsi" >> /etc/services
 
 echo 'Optional xinetd interface for mg-dbx has been installed'
@@ -90,22 +96,22 @@ cd /opt/qewd
 
 # NodeM
 
-echo 'Installing NodeM'
+#echo 'Installing NodeM'
 
-npm install nodem
+#npm install nodem
 
-ln -sf $gtm_dist/libgtmshr.so /usr/local/lib/
-ldconfig
+#ln -sf $gtm_dist/libgtmshr.so /usr/local/lib/
+#ldconfig
 #base=~/qewd
-base=/opt/qewd
-[ -f "$GTMCI" ] || export GTMCI="$(find $base -iname nodem.ci)"
-export ydb_ci="$(find $base -iname nodem.ci)"
-nodemgtmr="$(find $base -iname v4wnode.m | tail -n1 | xargs dirname)"
-echo "$gtmroutines" | fgrep "$nodemgtmr" || export gtmroutines="$nodemgtmr $gtmroutines"
+#base=/opt/qewd
+#[ -f "$GTMCI" ] || export GTMCI="$(find $base -iname nodem.ci)"
+#export ydb_ci="$(find $base -iname nodem.ci)"
+#nodemgtmr="$(find $base -iname v4wnode.m | tail -n1 | xargs dirname)"
+#echo "$gtmroutines" | fgrep "$nodemgtmr" || export gtmroutines="$nodemgtmr $gtmroutines"
 
 #echo 'base=~/qewd' >> ~/.profile
-echo 'base=/opt/qewd' >> ~/.profile
-echo '[ -f "$GTMCI" ] || export GTMCI="$(find $base -iname nodem.ci)"' >> ~/.profile
-echo 'export ydb_ci="$(find $base -iname nodem.ci)"' >> ~/.profile
-echo 'nodemgtmr="$(find $base -iname v4wnode.m | tail -n1 | xargs dirname)"' >> ~/.profile
-echo 'echo "$gtmroutines" | fgrep "$nodemgtmr" || export gtmroutines="$nodemgtmr $gtmroutines"' >> ~/.profile
+#echo 'base=/opt/qewd' >> ~/.profile
+#echo '[ -f "$GTMCI" ] || export GTMCI="$(find $base -iname nodem.ci)"' >> ~/.profile
+#echo 'export ydb_ci="$(find $base -iname nodem.ci)"' >> ~/.profile
+#echo 'nodemgtmr="$(find $base -iname v4wnode.m | tail -n1 | xargs dirname)"' >> ~/.profile
+#echo 'echo "$gtmroutines" | fgrep "$nodemgtmr" || export gtmroutines="$nodemgtmr $gtmroutines"' >> ~/.profile

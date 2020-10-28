@@ -3,12 +3,13 @@
 # Dockerised version of QEWD for Raspberry Pi
 
 # M/Gateway Developments Ltd
-# 12 June 2020
+# 24 October 2020
 
 #FROM hypriot/rpi-node:boron
 #FROM hypriot/rpi-node:8
 #FROM node:10-stretch
-FROM node:12.18.1-stretch
+#FROM node:12.18.2-stretch
+FROM node:14.14.0-stretch
 
 RUN apt-get update && apt-get install -y \
   build-essential \
@@ -39,9 +40,10 @@ RUN cd /opt/qewd
 # Install app dependencies
 COPY package.json /opt/qewd
 RUN npm install
-RUN npm install module-exists piscina
-RUN npm install mg-dbx
-
+RUN npm install module-exists piscina qewd-jsdb-piscina
+# no longer needed as picked up by qewd-jsdb-piscina:
+# RUN npm install mg-dbx
+  
 # Install YottaDB & NodeM
 
 RUN ["/opt/qewd/install_yottadb.sh"]
@@ -49,9 +51,13 @@ RUN ["/opt/qewd/install_yottadb.sh"]
 # Bundle app source
 COPY . /opt/qewd
 
+RUN sed -i 's/128/130/g' /opt/qewd/ydb
+RUN sed -i 's/1.28/1.30/g' /opt/qewd/ydb
+RUN sed -i 's/V6.3-007/V6.3-008/g' /opt/qewd/ydb
+
 RUN chmod +x /opt/qewd/ydb
 RUN chmod +x /opt/qewd/backup
-RUN chmod +x /opt/qewd/update_to_r128
+RUN chmod +x /opt/qewd/update_to_r130
 
 RUN mkdir /opt/qewd/www
 RUN mkdir /opt/qewd/www/qewd-monitor

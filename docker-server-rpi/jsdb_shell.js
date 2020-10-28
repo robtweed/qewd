@@ -24,11 +24,11 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  24 November 2019
+  24 October 2020
 
 */
 
-const ydb_release = 'r1.28';
+const ydb_release = 'r1.30';
 
 
 function jsdb() {

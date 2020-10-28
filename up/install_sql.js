@@ -24,9 +24,9 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 August 2020
+  28 October 2020
 
-  Windows / IRIS/Cache: Installs the mg-dbx SQL interface
+  Windows / IRIS/Cache: Installs the mgsi SQL and networking interface
 
 */
 
@@ -45,21 +45,8 @@ module.exports = function(callback) {
   delete params.database;
   let db = new qewd_mg_dbx({database: params});
   db.open();
-
-  let filename;
-  let url = 'https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/m/zmgsi';
-  if (platform === 'iris') {
-    //url = url + '_iris.xml';
-    //filename = 'temp.xml';
-    url = url + '_isc.ro';
-    filename = 'temp.ro';
-  }
-  else {
-    url = url + '_isc.ro';
-    filename = 'temp.ro';
-  }
-
-  filename = __dirname + '\\' + filename;
+  let url = 'https://raw.githubusercontent.com/chrisemunt/mgsi/master/m/zmgsi_isc.ro';
+  let filename = __dirname + '\\temp.ro';
 
   let file = fs.createWriteStream(filename);
 
