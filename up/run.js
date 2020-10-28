@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
- 2 October 2020
+ 28 October 2020
 
 */
 
@@ -890,7 +890,20 @@ function setup(isDocker, service_name, isNative) {
     config.jwt = Object.assign({}, config_data.jwt); // prevent it being simply by reference
   }
   else {
-    // native app
+
+    // Native, non-dockerised system
+
+    if (config_data.use_jwt) {
+      if (!config_data.jwt || !config_data.jwt.secret) {
+        config_data.jwt = {
+          secret: uuid()
+        };
+        // write it back to cwd + '/configuration/config.json'
+        fs.writeFileSync(cwd + '/configuration/config.json', JSON.stringify(config_data, null, 2));
+      }
+      config.jwt = Object.assign({}, config_data.jwt); // prevent it being simply by reference
+    }
+
     createModuleMap(cwd, config);
   }
 
@@ -955,6 +968,7 @@ module.exports = function(isDocker, serviceName, isNative) {
   var cwd = results.cwd;
 
   //console.log('routes: ' + JSON.stringify(routes, null, 2));
+
 
   var ms_name = process.env.microservice;
 
