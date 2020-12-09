@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  28 October 2020
+  9 December 2020
 
   Windows / IRIS/Cache: Installs the mgsi SQL and networking interface
 
@@ -41,6 +41,11 @@ module.exports = function(callback) {
 
   let params = config_all.qewd.database.params;
   params.type = params.database;
+
+  // only install the routines if IRIS/Cache on API connection
+
+  if (params.type === 'YottaDB' || params.host) return;
+
   let platform = params.type.toLowerCase();
   delete params.database;
   let db = new qewd_mg_dbx({database: params});
