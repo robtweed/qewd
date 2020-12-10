@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  9 December 2020
+  10 December 2020
 
   Windows / IRIS/Cache: Installs the mgsi SQL and networking interface
 
@@ -50,7 +50,7 @@ module.exports = function(callback) {
   delete params.database;
   let db = new qewd_mg_dbx({database: params});
   db.open();
-  let url = 'https://raw.githubusercontent.com/chrisemunt/mgsi/master/m/zmgsi_isc.ro';
+  let url = 'https://raw.githubusercontent.com/chrisemunt/mgsi/master/isc/zmgsi_isc.ro';
   let filename = __dirname + '\\temp.ro';
 
   let file = fs.createWriteStream(filename);
