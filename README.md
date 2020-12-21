@@ -97,6 +97,10 @@ Try out your REST API:
 [REST APIs](https://github.com/robtweed/qewd-baseline/blob/master/REST.md) and 
 [Interactive WebSocket-based Applications](https://github.com/robtweed/qewd-baseline/blob/master/INTERACTIVE.md).
 
+[Installing and using QEWD with a native installation of YottaDB](https://github.com/robtweed/qewd-starter-kit-yottadb)
+
+[Installing and using QEWD with a networked connection to IRIS](https://github.com/robtweed/qewd-starter-kit-iris-networked)
+
 [Getting Started with QEWD using QEWD-Up](https://github.com/robtweed/qewd/tree/master/up)
 
 [Information on QEWD-JSdb](https://github.com/robtweed/qewd-jsdb), 
