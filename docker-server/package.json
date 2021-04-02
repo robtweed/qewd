@@ -12,6 +12,9 @@
     "qewd-monitor": "",
     "qewd-transform-json": "",
     "ewd-client": "",
-    "request": ""
+    "request": "",
+    "module-exists": "",
+    "piscina": "",
+    "qewd-jsdb-piscina": ""
   }
 }

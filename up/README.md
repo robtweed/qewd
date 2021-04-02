@@ -1,5 +1,5 @@
 # qewd-up: A new fast-track route to Building APIs Using QEWD
- 
+ f
 Rob Tweed <rtweed@mgateway.com>  
 11 May 2020, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
@@ -40,7 +40,7 @@ For advanced use of QEWD-Up, see the [detailed documentation here.](https://gith
 
 ## Pre-requisites 
 
-It's very quick and simple to get started in this mode, because all you need to install on your machine is Docker.  Everything else is handled by the QEWD Docker Container (which is available from the Docker Hub as rtweed/docker-server (or, if you use a Raspberry Pi: rtweed/docker-server-rpi )
+It's very quick and simple to get started in this mode, because all you need to install on your machine is Docker.  Everything else is handled by the QEWD Docker Container (which is available from the Docker Hub as rtweed/qewd-server or, if you use a Raspberry Pi: rtweed/qewd-server-rpi )
 
 There are lots of documents on the Internet that describe how to install Docker.  If you use Ubuntu 18.04, I’ve found [this to be an excellent set of instructions](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04).
 
@@ -301,7 +301,7 @@ Your MicroServices can run on separate physical machines, or they can all run on
 
 ## Pre-requisites 
 
-It's very quick and simple to get started in this mode, because all you need to install on each machine that will host a MicroService is Docker.  Everything else is handled by each instance of the QEWD Docker Container (which is available from the Docker Hub as rtweed/docker-server (or, if you use a Raspberry Pi: rtweed/docker-server-rpi )
+It's very quick and simple to get started in this mode, because all you need to install on each machine that will host a MicroService is Docker.  Everything else is handled by each instance of the QEWD Docker Container (which is available from the Docker Hub as *rtweed/qewd-server* or, if you use a Raspberry Pi: *rtweed/docker-server-rpi*)
 
 There are lots of documents on the Internet that describe how to install Docker.  If you use Ubuntu 18.04, I’ve found [this to be an excellent set of instructions](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04).
 

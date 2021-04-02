@@ -3,16 +3,15 @@
 # Dockerised version of QEWD
 
 # M/Gateway Developments Ltd
-# 24 October 2020
+# 10 December 2020
 
-#FROM node:boron
-#FROM node:carbon
-#FROM node:10-stretch
-#FROM node:12.18.2-stretch
-#FROM node:14.14.0-buster
 FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
+
+# === Install Linux packages needed by YottaDB and QEWD
+#      and also for convenient user environment when
+#      shelling into Container
 
 RUN apt-get update && apt-get install -y \
   build-essential \
@@ -30,20 +29,12 @@ RUN apt-get update && apt-get install -y \
   git \
   libtinfo5
 
-#RUN echo 'deb http://ftp.debian.org/debian/ buster main' >> /etc/apt/sources.list
-#RUN apt-get update
-#RUN apt-get -t buster install -y libc6 libncurses6
+# ===  Install Node.js & NPM
 
-#RUN echo "deb http://ftp.us.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list
-#RUN apt-get update
-#RUN apt-get install libc6 -y
-
-# =========
+ENV NODE_VERSION 14.15.1
 
 RUN groupadd --gid 1000 node \
   && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
-
-ENV NODE_VERSION 14.14.0
 
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
   && case "${dpkgArch##*-}" in \
@@ -105,12 +96,10 @@ RUN set -ex \
   && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz \
   # smoke test
   && yarn --version
-# =========
 
 
+# ====  Now set up QEWD Directories and copy in install files
 
-
-# Create app directory
 RUN mkdir -p /opt/qewd
 WORKDIR /opt/qewd
 
@@ -120,18 +109,21 @@ RUN chmod +x /opt/qewd/install_yottadb.sh
 
 RUN cd /opt/qewd
 
-# Install app dependencies
-COPY package.json /opt/qewd
-# RUN npm install -g npm@latest
-RUN npm install
-RUN npm install module-exists piscina qewd-jsdb-piscina
+# ==== Install QEWD & its dependencies
 
-# Install YottaDB
+COPY package.json /opt/qewd
+RUN echo "Installing QEWD + dependent Modules "
+RUN npm install
+
+# ===== Install YottaDB
 
 RUN ["/opt/qewd/install_yottadb.sh"]
 
-# Bundle app source
+
+# =====  Bundle app source
 COPY . /opt/qewd
+
+# =====  Create QEWD Run-time environment
 
 RUN chmod +x /opt/qewd/ydb
 RUN chmod +x /opt/qewd/backup
