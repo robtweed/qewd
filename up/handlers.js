@@ -182,7 +182,11 @@ module.exports = {
     var _this = this;
     var router = require('qewd-router');
     var routes = getRoutes();
+	console.log('Faisal:');
+	console.log(routes);
     routes = router.initialise(routes, module.exports);
+	console.log('Faisal2:');
+	console.log(routes);
     if (errorResponse) {
       var statusCode = errorResponse.statusCode || 404;
       var text = errorResponse.text || 'Not Found';
