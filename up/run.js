@@ -469,6 +469,7 @@ function setup(isDocker, service_name, isNative) {
     port: '=> either(qewd.port, 8080)',
     poolSize: '=> either(qewd.poolSize, 2)',
     poolPrefork: '=> either(qewd.poolPrefork, false)',
+    idleLimit: '=> either(qewd.idleLimit, 3600000)',
     database: {
       type: '=> either(qewd.database.type, default_db)',
       params: '=> either(qewd.database.params, "<!delete>")',
