@@ -1,7 +1,7 @@
 # qewd: Quick and Easy Web Developer
  
 Rob Tweed <rtweed@mgateway.com>  
-24 February 2016, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+19 May 2023, MGateway Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
 Twitter: @rtweed
 
@@ -112,8 +112,8 @@ with which you directly interact via JavaScript.
 
 ## License
 
- Copyright (c) 2016-19 M/Gateway Developments Ltd,                           
- Redhill, Surrey UK.                                                      
+ Copyright (c) 2023 MGateway Ltd,                           
+ Banstead, Surrey UK.                                                      
  All rights reserved.                                                     
                                                                            
   http://www.mgateway.com                                                  
