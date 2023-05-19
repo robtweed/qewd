@@ -3,11 +3,11 @@
  ----------------------------------------------------------------------------
  | qewd: Quick and Easy Web Development                                     |
  |                                                                          |
- | Copyright (c) 2017 M/Gateway Developments Ltd,                           |
- | Redhill, Surrey UK.                                                      |
- | All rights reserved.=|
+ | Copyright (c) 2023 MGateway Ltd,                                         |
+ | Banstead, Surrey UK.                                                     |
+ | All rights reserved.                                                     |
  |                                                                          |
- | http://www.mgateway.com                                                  |
+ | https://www.mgateway.com                                                 |
  | Email: rtweed@mgateway.com                                               |
  |                                                                          |
  |                                                                          |

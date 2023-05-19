@@ -3,11 +3,11 @@
  ----------------------------------------------------------------------------
  | QEWD-Up Demonstration of Document Database Functionality                 |
  |                                                                          |
- | Copyright (c) 2018 M/Gateway Developments Ltd,                           |
- | Reigate, Surrey UK.                                                      |
+ | Copyright (c) 2023 MGateway Ltd,                                         |
+ | Banstead, Surrey UK.                                                     |
  | All rights reserved.                                                     |
  |                                                                          |
- | http://www.mgateway.com                                                  |
+ | https://www.mgateway.com                                                 |
  | Email: rtweed@mgateway.com                                               |
  |                                                                          |
  |                                                                          |
