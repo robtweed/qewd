@@ -3,11 +3,11 @@
  ----------------------------------------------------------------------------
  | qewd-server: Start-up file for Dockerised version of QEWD                |
  |                                                                          |
- | Copyright (c) 2017-20 M/Gateway Developments Ltd,                        |
- | Redhill, Surrey UK.                                                      |
+ | Copyright (c) 2023 MGateway Ltd,                                         |
+ | Banstead, Surrey UK.                                                     |
  | All rights reserved.                                                     |
  |                                                                          |
- | http://www.mgateway.com                                                  |
+ | https://www.mgateway.com                                                 |
  | Email: rtweed@mgateway.com                                               |
  |                                                                          |
  |                                                                          |

@@ -1,7 +1,7 @@
 # QEWD-Up Demonstration of Cach&#233; behaving as a Persistent JSON Database / Document Database
  
 Rob Tweed <rtweed@mgateway.com>  
-13 December 2018, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+19 May 2023, MGateway Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
 Twitter: @rtweed
 
@@ -412,8 +412,8 @@ my [Dockerfile](https://github.com/robtweed/qewd/tree/master/docker-server-cache
 
 ## License
 
- Copyright (c) 2018 M/Gateway Developments Ltd,                           
- Redhill, Surrey UK.                                                      
+ Copyright (c) 2023 MGateway Ltd,                           
+ Banstead, Surrey UK.                                                      
  All rights reserved.                                                     
                                                                            
   http://www.mgateway.com                                                  

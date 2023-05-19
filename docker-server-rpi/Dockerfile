@@ -2,7 +2,7 @@
 
 # Dockerised version of QEWD for Raspberry Pi
 
-# M/Gateway Developments Ltd
+# MGateway Ltd
 # 24 October 2020
 
 #FROM hypriot/rpi-node:boron

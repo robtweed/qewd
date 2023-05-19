@@ -3,8 +3,8 @@
  ----------------------------------------------------------------------------
  | qewd-up: Start-up file for microservices running QEWD natively           |
  |                                                                          |
- | Copyright (c) 2017-19 M/Gateway Developments Ltd,                        |
- | Redhill, Surrey UK.                                                      |
+ | Copyright (c) 2023 MGateway Ltd,                                         |
+ | Banstead, Surrey UK.                                                     |
  | All rights reserved.                                                     |
  |                                                                          |
  | http://www.mgateway.com                                                  |

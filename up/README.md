@@ -1,7 +1,7 @@
 # qewd-up: A new fast-track route to Building APIs Using QEWD
  f
 Rob Tweed <rtweed@mgateway.com>  
-11 May 2020, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+19 May 2023, MGateway Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
 Twitter: @rtweed
 

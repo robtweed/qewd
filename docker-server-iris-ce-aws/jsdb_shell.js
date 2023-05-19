@@ -3,11 +3,11 @@
  ----------------------------------------------------------------------------
  | qewd-jsdb-shell: For use in Node REPL                                    |
  |                                                                          |
- | Copyright (c) 2019 M/Gateway Developments Ltd,                        |
- | Redhill, Surrey UK.                                                      |
+ | Copyright (c) 2023 MGateway Ltd,                                         |
+ | Banstead, Surrey UK.                                                     |
  | All rights reserved.                                                     |
  |                                                                          |
- | http://www.mgateway.com                                                  |
+ | https://www.mgateway.com                                                 |
  | Email: rtweed@mgateway.com                                               |
  |                                                                          |
  |                                                                          |

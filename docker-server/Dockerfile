@@ -2,7 +2,7 @@
 
 # Dockerised version of QEWD
 
-# M/Gateway Developments Ltd
+# MGateway Ltd
 # 10 December 2020
 
 FROM ubuntu:20.04

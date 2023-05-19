@@ -3,8 +3,8 @@
  ----------------------------------------------------------------------------
  | qewd: Quick and Easy Web Development                                     |
  |                                                                          |
- | Copyright (c) 2017 M/Gateway Developments Ltd,                           |
- | Reigate, Surrey UK.                                                      |
+ | Copyright (c) 2023 MGateway Ltd,                                         |
+ | Banstead, Surrey UK.                                                     |
  | All rights reserved.                                                     |
  |                                                                          |
  | http://www.mgateway.com                                                  |

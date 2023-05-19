@@ -3,11 +3,11 @@
 #  ----------------------------------------------------------------------------
 # | qewd: Script for enabling QEWD on IRIS Community Edition                 |
 # |                                                                          |
-# | Copyright (c) 2017-19 M/Gateway Developments Ltd,                        |
-# | Redhill, Surrey UK.                                                      |
+# | Copyright (c) 2023 MGateway Ltd,                                         |
+# | Banstead, Surrey UK.                                                     |
 # | All rights reserved.                                                     |
 # |                                                                          |
-# | http://www.mgateway.com                                                  |
+# | https://www.mgateway.com                                                 |
 # | Email: rtweed@mgateway.com                                               |
 # |                                                                          |
 # |                                                                          |

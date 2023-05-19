@@ -1,7 +1,7 @@
 # QEWD-IRIS: Running QEWD on the InterSystems IRIS Community Edition for AWS
  
 Rob Tweed <rtweed@mgateway.com>  
-22 November 2019, M/Gateway Developments Ltd [http://www.mgateway.com](http://www.mgateway.com)  
+19 May 2023, MGateway Ltd [http://www.mgateway.com](http://www.mgateway.com)  
 
 Twitter: @rtweed
 

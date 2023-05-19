@@ -2,7 +2,7 @@
 
 # Dockerised version of QEWD
 
-# M/Gateway Developments Ltd
+# MGateway Ltd
 # 12 December 2018
 
 FROM node:8-stretch

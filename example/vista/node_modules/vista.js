@@ -3,11 +3,11 @@
  ----------------------------------------------------------------------------
  | ewd-xpress.js: Express and ewd-qoper8 based application container        |
  |                                                                          |
- | Copyright (c) 2016 M/Gateway Developments Ltd,                           |
- | Reigate, Surrey UK.                                                      |
+ | Copyright (c) 2023 MGateway Ltd,                                         |
+ | Banstead, Surrey UK.                                                     |
  | All rights reserved.                                                     |
  |                                                                          |
- | http://www.mgateway.com                                                  |
+ | https://www.mgateway.com                                                 |
  | Email: rtweed@mgateway.com                                               |
  |                                                                          |
  |                                                                          |
