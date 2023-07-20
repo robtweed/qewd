@@ -24,13 +24,16 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  14 August 2020
+  20 July 2023
 
 */
 
 const dbx_github_url = {
   v12: "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node12/mg-dbx.node",
-  v14: "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node14/mg-dbx.node"
+  v14: "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node14/mg-dbx.node",
+  v16: "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node16/mg-dbx.node",
+  v18: "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node18/mg-dbx.node",
+  v20: "https://raw.githubusercontent.com/chrisemunt/mg-dbx/master/bin/winx64/node20/mg-dbx.node"
 };
 const dbx_node_file = 'node_modules/mg-dbx.node';
 const qm_adminui_path = 'www/qewd-monitor-adminui';
