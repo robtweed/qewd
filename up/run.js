@@ -483,7 +483,8 @@ function setup(isDocker, service_name, isNative) {
     mode: '=> either(qewd.mode, "production")',
     max_queue_length: '{<qewd.max_queue_length>}',
     use_worker_threads: '{<qewd.use_worker_threads>}',
-    sessionDocumentName: '{<qewd.sessionDocumentName>}'
+    sessionDocumentName: '{<qewd.sessionDocumentName>}',
+    initialSessionTimeout: '{<qewd.initialSessionTimeout>}'
   };
 
   var config;
