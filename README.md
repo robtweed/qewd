@@ -112,7 +112,7 @@ with which you directly interact via JavaScript.
 
 ## License
 
- Copyright (c) 2023 MGateway Ltd,                           
+ Copyright (c) 2023-26 MGateway Ltd,                           
  Banstead, Surrey UK.                                                      
  All rights reserved.                                                     
                                                                            

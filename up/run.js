@@ -3,8 +3,8 @@
  ----------------------------------------------------------------------------
  | qewd-up: Rapid QEWD API Development                                      |
  |                                                                          |
- | Copyright (c) 2023 MGateway Ltd,                                         |
- | Banstead, Surrey UK.                                                     |
+ | Copyright (c) 2023-26 MGateway Ltd,                                      |
+ | Redhill, Surrey UK.                                                      |
  | All rights reserved.                                                     |
  |                                                                          |
  | http://www.mgateway.com                                                  |
@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
- 28 October 2020
+ 18 February 2026
 
 */
 
@@ -567,7 +567,12 @@ function setup(isDocker, service_name, isNative) {
     if (ms_name || mode === 'microservice') {
       // This is a micro-service, not the orchestrator
 
-      if (!mode) createModuleMap(cwd + '/' + ms_name, config);
+      if (!mode) {
+        createModuleMap(cwd + '/' + ms_name, config);
+      }
+      else {
+        ceateModuleMap(cwd, config);
+      }
 
       var routePath;
       if (ms_name && !service_name) {
