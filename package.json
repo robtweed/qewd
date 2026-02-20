@@ -1,9 +1,9 @@
 
 {
   "name": "qewd",
-  "version": "2.51.17",
+  "version": "2.52.1",
   "config": {
-    "date": "19 February 2026"
+    "date": "20 February 2026"
   },
   "description": "Quick and Easy Web Development",
   "main": "index.js",
@@ -20,6 +20,7 @@
     "ewd-qoper8-redis": "",
     "ewd-qoper8-iris": "",
     "ewd-qoper8-dbx": "",
+    "ewd-qoper8-dbx-napi": "",
     "extract-zip": "",
     "fs-extra": "",
     "qewd-router": "",
