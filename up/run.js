@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
- 18 February 2026
+ 23 February 2026
 
 */
 
@@ -572,7 +572,7 @@ function setup(isDocker, service_name, isNative) {
         createModuleMap(cwd + '/' + ms_name, config);
       }
       else {
-        ceateModuleMap(cwd, config);
+        createModuleMap(cwd, config);
       }
 
       var routePath;
